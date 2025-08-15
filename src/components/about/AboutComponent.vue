@@ -1,0 +1,232 @@
+<template>
+  <section class="relative bg-white py-16 px-4 sm:px-6 lg:py-24 lg:px-8">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div
+        class="absolute left-0 top-0 h-full w-1/3 bg-gradient-to-br from-emerald-50 to-transparent opacity-50"
+      ></div>
+    </div>
+
+    <div class="relative mx-auto max-w-7xl">
+      <!-- Section header -->
+      <div class="text-center">
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+          <h4 class="block text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            La puissance d'<span class="text-emerald-600">expatJobs</span>
+          </h4>
+        </h2>
+        <p class="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+          Une plateforme conçue pour les professionnels et entreprises internationaux
+        </p>
+      </div>
+
+      <!-- Value grid -->
+      <div class="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <!-- For Candidates -->
+        <div
+          class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md"
+        >
+          <div
+            class="absolute right-0 top-0 h-32 w-32 -translate-y-1/2 translate-x-1/2 transform rounded-full bg-emerald-100 opacity-20 transition-all duration-500 group-hover:scale-150"
+          ></div>
+          <div class="relative">
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-600 text-white"
+            >
+              <UserGroupIcon class="h-6 w-6" />
+            </div>
+            <h3 class="mt-6 text-xl font-semibold text-gray-900">Pour les talents</h3>
+            <p class="mt-2 text-gray-600">Accédez à des opportunités internationales de qualité</p>
+            <ul class="mt-4 space-y-3">
+              <li class="flex items-start">
+                <CheckCircleIcon class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-500" />
+                <span class="ml-3 text-gray-700">Offres vérifiées avec détails complets</span>
+              </li>
+              <li class="flex items-start">
+                <CheckCircleIcon class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-500" />
+                <span class="ml-3 text-gray-700">Alertes personnalisées</span>
+              </li>
+              <li class="flex items-start">
+                <CheckCircleIcon class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-500" />
+                <span class="ml-3 text-gray-700">Support dédié à l'expatriation</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Our Mission (Highlighted) -->
+        <div
+          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-6 text-white shadow-lg md:col-span-2 lg:col-span-1"
+        >
+          <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"></div>
+          <div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/5"></div>
+          <div class="relative">
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded-lg bg-white text-emerald-600"
+            >
+              <LightBulbIcon class="h-6 w-6" />
+            </div>
+            <h3 class="mt-6 text-xl font-semibold">Notre différence</h3>
+            <p class="mt-2 text-emerald-100">
+              Nous connectons les talents aux opportunités sans frontières
+            </p>
+            <div class="mt-6 space-y-4">
+              <p class="text-emerald-50">
+                expatJobs simplifie le recrutement international avec des outils spécialement conçus
+                pour surmonter les barrières géographiques et culturelles.
+              </p>
+              <div class="mt-6 grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-2xl font-bold">10K+</p>
+                  <p class="text-sm text-emerald-100">Opportunités</p>
+                </div>
+                <div>
+                  <p class="text-2xl font-bold">50+</p>
+                  <p class="text-sm text-emerald-100">Pays</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- For Companies -->
+        <div
+          class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md"
+        >
+          <div
+            class="absolute left-0 bottom-0 h-32 w-32 -translate-x-1/2 translate-y-1/2 transform rounded-full bg-emerald-100 opacity-20 transition-all duration-500 group-hover:scale-150"
+          ></div>
+          <div class="relative">
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-600 text-white"
+            >
+              <BuildingOfficeIcon class="h-6 w-6" />
+            </div>
+            <h3 class="mt-6 text-xl font-semibold text-gray-900">Pour les entreprises</h3>
+            <p class="mt-2 text-gray-600">Recrutez les meilleurs talents internationaux</p>
+            <ul class="mt-4 space-y-3">
+              <li class="flex items-start">
+                <CheckCircleIcon class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-500" />
+                <span class="ml-3 text-gray-700">Accès à des profils qualifiés</span>
+              </li>
+              <li class="flex items-start">
+                <CheckCircleIcon class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-500" />
+                <span class="ml-3 text-gray-700">Outils de gestion simplifiés</span>
+              </li>
+              <li class="flex items-start">
+                <CheckCircleIcon class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-500" />
+                <span class="ml-3 text-gray-700">Support administratif complet</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats with icons -->
+      <div class="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div
+          class="rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm transition-all hover:shadow-md"
+        >
+          <div
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600"
+          >
+            <GlobeEuropeAfricaIcon class="h-6 w-6" />
+          </div>
+          <p class="mt-4 text-3xl font-bold text-emerald-600">50+</p>
+          <p class="mt-1 text-sm font-medium text-gray-600">Pays couverts</p>
+        </div>
+        <div
+          class="rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm transition-all hover:shadow-md"
+        >
+          <div
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600"
+          >
+            <UserGroupIcon class="h-6 w-6" />
+          </div>
+          <p class="mt-4 text-3xl font-bold text-emerald-600">10K+</p>
+          <p class="mt-1 text-sm font-medium text-gray-600">Talents connectés</p>
+        </div>
+        <div
+          class="rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm transition-all hover:shadow-md"
+        >
+          <div
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600"
+          >
+            <BuildingOfficeIcon class="h-6 w-6" />
+          </div>
+          <p class="mt-4 text-3xl font-bold text-emerald-600">200+</p>
+          <p class="mt-1 text-sm font-medium text-gray-600">Entreprises partenaires</p>
+        </div>
+        <div
+          class="rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm transition-all hover:shadow-md"
+        >
+          <div
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600"
+          >
+            <ArrowPathIcon class="h-6 w-6" />
+          </div>
+          <p class="mt-4 text-3xl font-bold text-emerald-600">24h</p>
+          <p class="mt-1 text-sm font-medium text-gray-600">Temps de réponse moyen</p>
+        </div>
+      </div>
+
+      <!-- Testimonial -->
+      <div
+        class="mt-16 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 p-8 text-white shadow-xl sm:p-10"
+      >
+        <div class="mx-auto max-w-3xl">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <img
+                class="h-12 w-12 rounded-full"
+                src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                alt="Testimonial author"
+              />
+            </div>
+            <div class="ml-4">
+              <p class="text-base font-medium">Dmitri Ivanov</p>
+              <p class="text-sm text-emerald-200">Directeur RH, EuroAsia Group</p>
+            </div>
+          </div>
+          <blockquote class="mt-6">
+            <p class="text-lg">
+              "expatJobs nous a permis de trouver des talents qualifiés en Russie et en Europe en un
+              temps record. Leur réseau international est impressionnant et leur plateforme
+              simplifie considérablement le processus de recrutement transfrontalier."
+            </p>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script setup>
+import {
+  UserGroupIcon,
+  BuildingOfficeIcon,
+  GlobeEuropeAfricaIcon,
+  ArrowPathIcon,
+} from '@heroicons/vue/24/outline'
+</script>
+
+<style scoped>
+.pulse-dot {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+</style>
