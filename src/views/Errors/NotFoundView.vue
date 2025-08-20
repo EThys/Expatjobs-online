@@ -1,160 +1,163 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import { HomeIcon, ArrowLeftIcon, EnvelopeIcon, MagnifyingGlassIcon } from '@heroicons/vue/24/outline';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const searchQuery = ref('');
+
+const goHome = () => {
+  router.push('/');
+};
+
+const goBack = () => {
+  router.go(-1);
+};
+
+const search = () => {
+  if (searchQuery.value.trim()) {
+    router.push({ path: '/search', query: { q: searchQuery.value } });
+  }
+};
+</script>
+
 <template>
-  <div
-    class="min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50 flex items-start justify-center p-4 pt-20"
-  >
-    <div class="w-full max-w-md text-center" data-aos="fade-up" data-aos-duration="800">
-      <!-- Error Card -->
-      <div
-        class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200 transform transition-all duration-300 hover:shadow-2xl"
-      >
-        <!-- Colored bar -->
-        <div class="h-2 bg-gradient-to-r from-emerald-500 to-green-600"></div>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Effets de fond animés (optionnel) -->
+    <div class="absolute inset-0 overflow-hidden -z-10">
+      <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-green-200/10 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+      <div class="absolute bottom-1/3 right-1/3 w-80 h-80 bg-teal-200/10 rounded-full mix-blend-multiply filter blur-3xl animate-float-reverse"></div>
+    </div>
 
-        <div class="p-8 md:p-10">
-          <!-- 404 Illustration -->
-          <div class="relative mx-auto mb-8 w-48 h-48" data-aos="zoom-in">
-            <div class="absolute inset-0 bg-emerald-100 rounded-full opacity-20"></div>
-            <div class="absolute inset-4 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-32 w-32 text-emerald-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+    <!-- Conteneur principal -->
+    <div class="max-w-3xl mx-auto text-center px-4">
+      <!-- Illustration 404 -->
+      <div class="mb-8 relative">
+        <div class="relative inline-block">
+          <!-- Illustration personnalisée -->
+          <div class="w-48 h-48 mx-auto mb-6 relative">
+            <!-- Forme principale (404) -->
+            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 text-green-600 font-bold text-9xl opacity-10">404</div>
+            <!-- Éléments décoratifs -->
+            <div class="absolute top-8 left-0 w-16 h-24 bg-gradient-to-br from-green-400 to-teal-400 rounded-l-lg rounded-tr-lg transform -rotate-12"></div>
+            <div class="absolute bottom-8 right-0 w-20 h-20 bg-gradient-to-br from-green-300 to-teal-300 rounded-lg transform rotate-12"></div>
+            <!-- Personnage minimaliste -->
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-white rounded-full border-4 border-green-500 flex items-center justify-center">
+              <div class="w-3 h-3 bg-green-500 rounded-full"></div>
             </div>
-            <div
-              class="absolute bottom-0 right-0 bg-white rounded-full shadow-md w-16 h-16 flex items-center justify-center"
-              data-aos="fade-left"
-              data-aos-delay="300"
-            >
-              <span class="text-2xl font-bold text-emerald-600">404</span>
-            </div>
-          </div>
-
-          <!-- Title and message -->
-          <h1
-            class="text-2xl md:text-3xl font-bold text-gray-800 mb-3"
-            data-aos="fade-up"
-            data-aos-delay="100"
-          >
-            Page Not Found
-          </h1>
-          <p class="text-gray-600 mb-6" data-aos="fade-up" data-aos-delay="200">
-            Oops! The page you're looking for seems to have vanished into thin air.
-          </p>
-          <div
-            class="w-20 h-1 bg-emerald-500 rounded-full mx-auto mb-8"
-            data-aos="fade-up"
-            data-aos-delay="300"
-          ></div>
-
-          <!-- Actions -->
-          <div class="space-y-4">
-            <router-link
-              to="/"
-              class="block w-full px-5 py-3 text-center font-medium text-white bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              data-aos="fade-up"
-              data-aos-delay="400"
-            >
-              <i class="fas fa-home mr-2"></i> Return to Homepage
-            </router-link>
-
-            <button
-              @click="goBack"
-              class="w-full px-5 py-3 text-center font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-all duration-300"
-              data-aos="fade-up"
-              data-aos-delay="500"
-            >
-              <i class="fas fa-arrow-left mr-2"></i> Go Back
-            </button>
-
-            <div class="pt-4 border-t border-gray-200" data-aos="fade-up" data-aos-delay="600">
-              <p class="text-sm text-gray-500 mb-2">Looking for something specific?</p>
-              <div class="relative max-w-xs mx-auto">
-                <input
-                  type="text"
-                  placeholder="Search our site..."
-                  class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
-                />
-                <button
-                  class="absolute right-2 top-1/2 transform -translate-y-1/2 text-emerald-600 hover:text-emerald-700"
-                >
-                  <i class="fas fa-search"></i>
-                </button>
-              </div>
-            </div>
+            <!-- Bras -->
+            <div class="absolute top-16 left-8 w-16 h-4 bg-green-500/30 rounded-full origin-left animate-wave"></div>
           </div>
         </div>
+
+      <!-- Titre et description -->
+      <h1 class="text-3xl font-bold text-gray-800 mb-4">Oups ! Page introuvable</h1>
+      <p class="text-gray-600 mb-8 max-w-xl mx-auto">
+        La page que vous cherchez semble avoir disparu ou n'existe pas. Pas de panique, nous sommes là pour vous aider !
+      </p>
+
+      <!-- Barre de recherche -->
+      <div class="max-w-md mx-auto mb-8 relative">
+        <div class="relative">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Rechercher une opportunité, une entreprise..."
+            class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all"
+            @keyup.enter="search"
+          />
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" />
+          </div>
+          <button
+            @click="search"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-green-600 hover:text-green-700 transition-colors"
+          >
+            <kbd class="px-2 py-1 bg-gray-100 text-xs rounded border border-gray-200">Entrée</kbd>
+          </button>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <button
+          @click="goBack"
+          class="px-6 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+        >
+          <ArrowLeftIcon class="h-5 w-5" />
+          Retour
+        </button>
+        <button
+          @click="goHome"
+          class="px-6 py-3 bg-gradient-to-r from-green-600 to-teal-500 text-white hover:from-green-700 hover:to-teal-600 rounded-lg shadow-sm transition-all flex items-center justify-center gap-2"
+        >
+          <HomeIcon class="h-5 w-5" />
+          Retour à l'accueil
+        </button>
+      </div>
+
+      <!-- Lien de contact -->
+      <div class="mt-12 pt-6 border-t border-gray-100">
+        <p class="text-gray-500 mb-2">Besoin d'aide ?</p>
+        <a
+          href="mailto:support@expatjobs.com"
+          class="inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors font-medium"
+        >
+          <EnvelopeIcon class="h-5 w-5" />
+          Contactez notre support
+        </a>
       </div>
     </div>
   </div>
+  </div>
+
 </template>
 
-<script setup lang="ts">
-import { useRouter } from 'vue-router'
-import AOS from 'aos'
-import 'aos/dist/aos.css'
-import { onMounted } from 'vue'
-
-const router = useRouter()
-
-const goBack = () => {
-  if (window.history.state.back) {
-    router.go(-1)
-  } else {
-    router.push('/')
-  }
-}
-
-onMounted(() => {
-  // Initialize AOS
-  AOS.init({
-    once: true, // Animations will only happen once
-    easing: 'ease-out-quad',
-    duration: 800,
-  })
-
-  // Scroll to top when component mounts
-  window.scrollTo(0, 0)
-})
-</script>
-
 <style scoped>
-/* Animation for the illustration */
-svg {
-  animation: float 3s ease-in-out infinite;
-}
-
+/* Animation des éléments flottants */
 @keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-float-reverse {
+  animation: float 8s ease-in-out infinite reverse;
 }
 
-/* Transition for buttons */
-button,
-a {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+/* Animation du personnage (bras) -->
+@keyframes wave {
+  0%, 100% { transform: origin-left rotate(0deg); }
+  25% { transform: origin-left rotate(15deg); }
+  75% { transform: origin-left rotate(-10deg); }
+}
+.animate-wave {
+  animation: wave 3s ease-in-out infinite;
 }
 
-/* Style for search input */
-input {
-  transition: all 0.2s ease;
+/* Effet de survol des boutons */
+button:hover {
+  transform: translateY(-1px);
 }
 
+/* Transition douce */
+button, input {
+  transition: all 0.3s ease;
+}
+
+/* Focus personnalisé */
 input:focus {
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .text-9xl {
+    font-size: 6rem;
+  }
+  .max-w-xl {
+    max-width: 100%;
+  }
 }
 </style>
