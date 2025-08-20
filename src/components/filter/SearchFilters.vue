@@ -38,7 +38,7 @@
 
       <button
         @click="applyFilters"
-        class="w-full px-4 py-2 bg-primary  text-emerald-600 rounded-lg hover:bg-dark transition"
+        class="w-full px-4 py-2 cursor-pointer bg-emerald-600  text-white rounded-lg hover:bg-gray-800 transition"
       >
         Appliquer les filtres
       </button>
