@@ -1,10 +1,14 @@
 <template>
   <router-view />
-  <!-- <Nav />
-  </template>
-  <script setup lang="ts">
-  const name = 'App'
-  import Nav from './components/Nav.vue'
-  </script> -->
 </template>
-<script setup lang="ts"></script>
+
+<script setup lang="ts">
+// Votre code script ici si nécessaire
+</script>
+
+<style>
+body {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+</style>
