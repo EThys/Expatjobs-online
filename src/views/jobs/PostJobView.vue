@@ -9,6 +9,7 @@ import Navbar from '../../components/navbar/NavBarComponent.vue'
 import Footer from '../../components/footer/FooterComponent.vue'
 
 const toast = useToast();
+
 const job = ref({
   title: '',
   company: '',
@@ -16,11 +17,11 @@ const job = ref({
   type: 'full-time',
   salary: '',
   category: 'tech',
-  skills: [],
+  skills: [] as string[],
   experience: 'mid-level',
   description: '',
   remote: false,
-  benefits: ''
+  benefits: '',
 });
 
 const jobTypes = [
