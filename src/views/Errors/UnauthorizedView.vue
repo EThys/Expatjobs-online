@@ -1,216 +1,135 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { onMounted } from 'vue'
-import AOS from 'aos'
-import 'aos/dist/aos.css'
+import { ref } from 'vue';
+import { HomeIcon, ArrowLeftIcon, EnvelopeIcon, ShieldExclamationIcon, LockClosedIcon } from '@heroicons/vue/24/outline';
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
+
+const goHome = () => {
+  router.push('/');
+};
 
 const goBack = () => {
-  if (window.history.state.back) {
-    router.go(-1)
-  } else {
-    router.push('/')
-  }
-}
+  router.go(-1);
+};
 
-onMounted(() => {
-  AOS.init({
-    duration: 800,
-    once: true,
-  })
-})
+const contactSupport = () => {
+  window.location.href = 'mailto:support@expatjobs.com?subject=Demande%20d%27accès%20à%20une%20page%20protégée';
+};
 </script>
 
 <template>
-  <div
-    class="min-h-screen bg-gradient-to-br from-emerald-50 to-green-50 flex items-center justify-center p-4"
-    style="
-      background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
-      background-blend-mode: overlay;
-      background-size: cover;
-    "
-  >
-    <div class="w-full max-w-md">
-      <!-- Error card with animation -->
-      <div
-        class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-green-100 transform transition-all duration-500 hover:scale-[1.02]"
-        data-aos="zoom-in"
-      >
-        <!-- Gradient stripe -->
-        <div class="h-2 bg-gradient-to-r from-emerald-500 to-green-600"></div>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Effets de fond animés -->
+    <div class="absolute inset-0 overflow-hidden -z-10">
+      <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-green-200/10 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+      <div class="absolute bottom-1/3 right-1/3 w-80 h-80 bg-teal-200/10 rounded-full mix-blend-multiply filter blur-3xl animate-float-reverse"></div>
+    </div>
 
-        <div class="p-8 md:p-10">
-          <!-- Custom SVG animation -->
-          <div class="mx-auto mb-8">
-            <svg
-              width="120"
-              height="120"
-              viewBox="0 0 120 120"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="60" cy="60" r="56" fill="#D1FAE5" class="animate-pulse" />
-              <path
-                d="M60 110C87.6142 110 110 87.6142 110 60C110 32.3858 87.6142 10 60 10C32.3858 10 10 32.3858 10 60C10 87.6142 32.3858 110 60 110Z"
-                stroke="#10B981"
-                stroke-width="4"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M60 40V60"
-                stroke="#10B981"
-                stroke-width="6"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="animate-bounce"
-              />
-              <path
-                d="M60 80H60.04"
-                stroke="#10B981"
-                stroke-width="6"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </div>
-
-          <!-- Title and message (bilingual) -->
-          <div class="text-center mb-8">
-            <h1
-              class="text-3xl md:text-4xl font-bold text-gray-800 mb-3 bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-green-600"
-            >
-              Access Restricted
-            </h1>
-            <p class="text-lg text-gray-600 mb-2">
-              Sorry, you don't have permission to access this resource.
-            </p>
-          </div>
-
-          <!-- Animated separator -->
-          <div class="relative my-8">
-            <div class="absolute inset-0 flex items-center">
-              <div class="w-full border-t border-gray-200"></div>
+    <!-- Conteneur principal -->
+    <div class="max-w-3xl mx-auto text-center px-4">
+      <!-- Illustration 403 -->
+      <div class="mb-8 relative">
+        <div class="relative inline-block">
+          <!-- Illustration personnalisée -->
+          <div class="w-48 h-48 mx-auto mb-6 relative">
+            <!-- Forme principale (403) -->
+            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 text-green-600 font-bold text-9xl opacity-10">403</div>
+            <!-- Éléments décoratifs (cadenas) -->
+            <div class="absolute top-12 left-1/2 transform -translate-x-1/2 w-16 h-20 bg-gradient-to-br from-green-400 to-teal-400 rounded-t-lg rounded-b-3xl">
+              <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-white rounded-b-lg"></div>
             </div>
-            <div class="relative flex justify-center">
-              <span class="px-4 bg-white text-sm text-gray-500"> What would you like to do? </span>
+            <!-- Personnage minimaliste (visage triste) -->
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-white rounded-full border-4 border-green-500 flex items-center justify-center">
+              <div class="w-3 h-3 bg-green-500 rounded-full"></div>
             </div>
-          </div>
-
-          <!-- Main actions -->
-          <div class="space-y-4 mb-6">
-            <router-link
-              to="/"
-              class="flex items-center justify-center w-full px-6 py-4 text-lg font-semibold text-white bg-gradient-to-r from-emerald-600 to-green-500 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
-              Return to Home
-            </router-link>
-
-            <button
-              @click="goBack"
-              class="flex items-center justify-center w-full px-6 py-4 text-lg font-semibold text-emerald-600 border-2 border-emerald-100 rounded-xl hover:bg-emerald-50 transition-colors duration-300"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-              Previous Page
-            </button>
-          </div>
-
-          <!-- Support -->
-          <div class="text-center pt-4 border-t border-gray-200">
-            <p class="text-sm text-gray-500 mb-2">Need help? Our team is here for you</p>
-            <a
-              href="mailto:support@expatjobs.com"
-              class="inline-flex items-center px-4 py-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 rounded-lg transition-all duration-300 hover:bg-emerald-100"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-              Contact Support
-            </a>
+            <!-- Bras croisés -->
+            <div class="absolute top-16 left-8 w-16 h-4 bg-green-500/30 rounded-full origin-left rotate-45"></div>
+            <div class="absolute top-16 right-8 w-16 h-4 bg-green-500/30 rounded-full origin-right -rotate-45"></div>
           </div>
         </div>
+
+      <!-- Titre et description -->
+      <h1 class="text-3xl font-bold text-gray-800 mb-4">Accès refusé</h1>
+      <p class="text-gray-600 mb-8 max-w-xl mx-auto">
+        Désolé, vous n'avez pas la permission d'accéder à cette page. Si vous pensez que c'est une erreur, contactez-nous pour obtenir les droits nécessaires.
+      </p>
+
+      <!-- Boutons d'action -->
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <button
+          @click="goBack"
+          class="px-6 py-3 border border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+        >
+          <ArrowLeftIcon class="h-5 w-5" />
+          Retour
+        </button>
+        <button
+          @click="goHome"
+          class="px-6 py-3 bg-gradient-to-r from-green-600 to-teal-500 text-white hover:from-green-700 hover:to-teal-600 rounded-lg shadow-sm transition-all flex items-center justify-center gap-2"
+        >
+          <HomeIcon class="h-5 w-5" />
+          Retour à l'accueil
+        </button>
+      </div>
+
+      <!-- Options supplémentaires -->
+      <div class="mt-8">
+        <button
+          @click="contactSupport"
+          class="inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors font-medium"
+        >
+          <ShieldExclamationIcon class="h-5 w-5" />
+          Demander l'accès
+        </button>
+      </div>
+
+      <!-- Lien de contact -->
+      <div class="mt-12 pt-6 border-t border-gray-100">
+        <p class="text-gray-500 mb-2">Besoin d'aide ?</p>
+        <a
+          href="mailto:support@expatjobs.com"
+          class="inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors font-medium"
+        >
+          <EnvelopeIcon class="h-5 w-5" />
+          support@expatjobs.com
+        </a>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
 <style scoped>
-/* Custom animation for main button */
-.bg-gradient-to-r {
-  background-size: 200% auto;
-  transition: background-position 0.5s ease;
+/* Animations (identiques à la 404) */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-float-reverse {
+  animation: float 8s ease-in-out infinite reverse;
 }
 
-.bg-gradient-to-r:hover {
-  background-position: right center;
+/* Effet de survol des boutons */
+button:hover {
+  transform: translateY(-1px);
 }
 
-/* SVG animation */
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
+/* Transition douce */
+button {
+  transition: all 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .text-9xl {
+    font-size: 6rem;
   }
-  50% {
-    opacity: 0.8;
+  .max-w-xl {
+    max-width: 100%;
   }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Bounce animation */
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.animate-bounce {
-  animation: bounce 1.5s ease-in-out infinite;
 }
 </style>
