@@ -3,10 +3,12 @@ import ContactView from '@/views/ContactView.vue'
 import LoginView from '@/views/Auth/LoginView.vue'
 import DetailJobsView from '@/views/jobs/DetailJobsView.vue'
 import UnauthorizedView from '@/views/Errors/UnauthorizedView.vue'
-import NotFoundView from '@/views/Errors/NotFoundView.vue'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 // import { getUser } from '@/stores/user'
 import RegisterView from '@/views/Auth/RegisterView.vue'
+import PostJobView from '@/views/jobs/PostJobView.vue'
+import NotFoundView from '../views/Errors/NotFoundView.vue'
+import AllJobs from '@/views/jobs/AllJobs.vue'
 
 // Définition des métadonnées de route étendues
 declare module 'vue-router' {
@@ -37,6 +39,18 @@ const routes: Array<RouteRecordRaw> = [
     name: 'contact',
     component: ContactView,
     meta: { title: 'Contact' },
+  },
+    {
+    path: '/postjob',
+    name: 'postjob',
+    component: PostJobView,
+    meta: { title: 'postjob' },
+  },
+  {
+    path: '/alljobs',
+    name: 'alljobs',
+    component: AllJobs,
+    meta: { title: 'alljobs' },
   },
   {
     path: '/login',
