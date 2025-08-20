@@ -10,7 +10,8 @@ import remoteWork from '../../assets/carousel-2.jpg'
 //@ts-ignore
 import careerGrowth from '../../assets/carousel-4.jpg'
 //@ts-ignore
-import Navbar from '../navbar/NavbarComponent.vue'
+import Navbar from '../navbar/NavBarComponent.vue'
+
 import { MagnifyingGlassIcon, MapPinIcon, BriefcaseIcon } from '@heroicons/vue/24/outline'
 
 const slides = ref([
