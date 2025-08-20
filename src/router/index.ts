@@ -8,7 +8,8 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import RegisterView from '@/views/Auth/RegisterView.vue'
 import PostJobView from '@/views/jobs/PostJobView.vue'
 import NotFoundView from '../views/Errors/NotFoundView.vue'
-import AllJobs from '@/views/jobs/AllJobs.vue'
+//@ts-ignore
+import AllJobs from '@/views/jobs/AllJobsView.vue'
 
 // Définition des métadonnées de route étendues
 declare module 'vue-router' {
