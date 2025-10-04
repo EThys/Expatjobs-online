@@ -1,54 +1,108 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useToast } from 'vue-toast-notification';
 import { ArrowRightIcon, EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon } from '@heroicons/vue/24/outline';
+//@ts-ignore
+import { useAxiosRequestWithToken } from '@/utils/service/axios_api'
+//@ts-ignore
+import { ApiRoutes } from '@/utils/service/endpoints/api'
+//@ts-ignore
+import type { IUser, IUserAuth } from '@/utils/interface/user/IUser'
+//@ts-ignore
+import type { IToken } from '@/utils/interface/token'
+//@ts-ignore
+import { useToast } from 'vue-toast-notification'
+import 'vue-toast-notification/dist/theme-sugar.css'
+//@ts-ignore
+import { setUser } from '@/stores/user'
+//@ts-ignore
+import { setToken } from '@/stores/token'
+
 
 const router = useRouter();
 const toast = useToast();
 const loading = ref(false);
 const showPassword = ref(false);
-const auth = ref({
-  UserEmail: '',
-  UserPassword: '',
-});
+const auth = ref<IUserAuth>({
+  email: '',
+  password: '',
+  phone:'0854434602'
+})
+
 
 const login = async () => {
-  loading.value = true;
-  try {
-    // Simulation d'appel API
-    await new Promise(resolve => setTimeout(resolve, 1500));
+  loading.value = true
+  const data = JSON.parse(JSON.stringify(auth.value))
+  const abortController = new AbortController()
+  const abortSignal = abortController.signal
+
+  const networkTimeout = setTimeout(() => {
+    abortController.abort()
+    loading.value = false
     toast.open({
-      message: 'Connexion réussie ! Redirection en cours...',
-      type: 'success',
-      position: 'top-right',
-      duration: 3000,
-    });
-    router.push('/dashboard');
-  } catch (error) {
-    toast.open({
-      message: 'Email ou mot de passe incorrect.',
+      message: 'Network Error, please check your internet.',
       type: 'error',
-      position: 'top-right',
-      duration: 5000,
-    });
-  } finally {
-    loading.value = false;
-  }
-};
+      position: 'bottom',
+      duration: 5000
+    })
+  }, 30000)
+
+       
+  console.log('🔍 Type de données:', typeof data);
+  console.log('🔍 Structure complète:', JSON.stringify(data, null, 2));
+
+  await useAxiosRequestWithToken()
+    .post(`${ApiRoutes.login}`, data, { signal: abortSignal })
+    .then(function (response) {
+       console.log('🔍 DONNÉES À ENVOYER:', response.data);
+      //success
+      clearTimeout(networkTimeout)
+      const token = response.data.token
+      if (token != null) {
+        setToken(token as IToken)
+        setUser(response.data as IUser)
+      }
+      router.push('/')
+      loading.value = false
+    })
+    .catch(function (error) {
+      //error
+      clearTimeout(networkTimeout)
+      console.error('❌ ERREUR COMPLÈTE:', error);
+      toast.open({
+        message: error.response.data.message,
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      })
+      loading.value = false
+    })
+}
 
 const loginValidate = async () => {
-  if (!auth.value.UserEmail || !auth.value.UserPassword) {
-    toast.open({
-      message: 'Veuillez remplir tous les champs.',
-      type: 'error',
-      position: 'top-right',
-      duration: 3000,
-    });
-    return;
+  loading.value = true
+  if (
+    !auth.value.email ||
+    !auth.value.password ||
+    auth.value.email.trim() === '' ||
+    auth.value.password.trim() === ''
+  ) {
+    setTimeout(() => {
+      toast.open({
+        message: 'Oops...Veuillez remplir vos informations!',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      })
+      loading.value = false
+    }, 300)
+    return
+  } else {
+    await login()
   }
-  await login();
-};
+}
+
+
 </script>
 
 <template>
@@ -96,7 +150,7 @@ const loginValidate = async () => {
                     <EnvelopeIcon class="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    v-model="auth.UserEmail"
+                    v-model="auth.email"
                     type="email"
                     placeholder="Adresse email"
                     class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
@@ -110,7 +164,7 @@ const loginValidate = async () => {
                     <LockClosedIcon class="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    v-model="auth.UserPassword"
+                    v-model="auth.password"
                     :type="showPassword ? 'text' : 'password'"
                     placeholder="Mot de passe"
                     class="w-full pl-10 pr-10 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
