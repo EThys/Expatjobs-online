@@ -121,7 +121,7 @@ const registerValidate = async () => {
     return
   }
 
-  const emailforRegex=userRegister.value.email
+  const emailforRegex = userRegister.value.email as string
   
   // Validation de l'email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

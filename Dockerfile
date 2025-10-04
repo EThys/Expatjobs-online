@@ -12,11 +12,14 @@ COPY package*.json ./
 # installe les dépendances du projet
 RUN npm install
 
-# copie les fichiers et dossiers du projet dans le dossier de travail (par exemple : le dossier 'app')
+# copie les fichiers et dossiers du projet dans le dossier de travail
 COPY . .
 
-# # construit l'app pour la production en la minifiant
+# construit l'app pour la production en la minifiant
 RUN npm run build
 
-EXPOSE 8080
-CMD ["http-server", "dist", "-p", "80"]
+# expose le nouveau port (ex: 3000)
+EXPOSE 3000
+
+# lance http-server sur le même port
+CMD ["http-server", "dist", "-p", "3000"]

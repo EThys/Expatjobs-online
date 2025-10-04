@@ -22,22 +22,4 @@ export const ApiRoutes = {
   deletejobOffers:'job-offers/{id}',
 
   //route for compagy
-
-
-
-
-  
-
-  storePlan: 'store/plan',
-  AllPlan: 'plans',
-  planDestroy:'planDestroy',
-  planUpdate:'planUpdate',
-
-  storeAgency: 'store/agency',
-  putAgency: 'put/agency',
-  deleteAgency: 'delete/agency',
-
-  agenciesAll: 'agencies/all',
-  agenciesshow: 'agencies/show',
-
 }
