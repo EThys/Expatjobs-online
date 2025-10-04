@@ -3,7 +3,7 @@ import axios, { type AxiosInstance } from 'axios'
 
 export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
   const useAxios: AxiosInstance = axios.create({
-    baseURL: 'https://backend.corsatcom.com/api/',
+    baseURL: 'http://localhost:8080/api/',
     headers: {
       accept: 'application/json',
       'Content-type': 'application/json',
@@ -17,7 +17,7 @@ export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
 
 export const useAxiosRequestWithTokenForCsv = (token: string = ''): AxiosInstance => {
   const useAxios: AxiosInstance = axios.create({
-    baseURL: 'https://backend.corsatcom.com/api/',
+    baseURL: 'http://localhost:8080/api/',
     headers: {
       accept: 'application/json',
       'Content-Type': 'multipart/form-data',
