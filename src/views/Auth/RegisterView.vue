@@ -12,79 +12,165 @@ import {
   ArrowRightIcon,
   ShieldCheckIcon
 } from '@heroicons/vue/24/outline';
+//@ts-ignore
+import { useAxiosRequestWithToken } from '@/utils/service/axios_api'
+import { ApiRoutes } from '@/utils/service/endpoints/api'
+//@ts-ignore
+import type { IUser, IUserRegister } from '@/utils/interface/user/IUser'
+//@ts-ignore
+import 'vue-toast-notification/dist/theme-sugar.css'
 
 const router = useRouter();
 const toast = useToast();
 const loading = ref(false);
 const showPassword = ref(false);
 const termsAccepted = ref(false);
+const userRegister = ref<IUserRegister>({
+  email: '',
+  phone: '',
+  role:'CANDIDATE',
+  password: ''
 
-const user = ref({
-  UserName: '',
-  UserEmail: '',
-  UserPhone: '',
-  UserPassword: '',
-});
+})
+
 
 const confirmPassword = ref('');
 
+
 const register = async () => {
-  loading.value = true;
-  try {
-    // Simulation d'appel API
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    toast.open({
-      message: 'Inscription réussie ! Veuillez vous connecter.',
-      type: 'success',
-      position: 'top-right',
-      duration: 5000,
-    });
-    router.push('/login');
-  } catch (error) {
-    toast.open({
-      message: 'Une erreur est survenue. Veuillez réessayer.',
-      type: 'error',
-      position: 'top-right',
-      duration: 5000,
-    });
-  } finally {
-    loading.value = false;
-  }
-};
+  loading.value = true
+  const data = JSON.parse(JSON.stringify(userRegister.value))
+  const abortController = new AbortController()
+  const abortSignal = abortController.signal
 
-const validateRegister = async () => {
-  if (!termsAccepted.value) {
+  const networkTimeout = setTimeout(() => {
+    abortController.abort()
+    loading.value = false
     toast.open({
-      message: 'Veuillez accepter les conditions générales.',
+      message: 'Network Error, please check your internet.',
       type: 'error',
-      position: 'top-right',
-      duration: 5000,
-    });
-    return;
+      position: 'bottom',
+      duration: 5000
+    })
+  }, 30000)
+
+      // Debug: affichez l'URL complète
+    const fullUrl = `http://localhost:8080/api/${ApiRoutes.register}`
+    console.log('URL de la requête:', fullUrl)
+    console.log('Données envoyées:', data)
+
+      console.log('🔍 DONNÉES À ENVOYER:', data);
+  console.log('🔍 Type de données:', typeof data);
+  console.log('🔍 Structure complète:', JSON.stringify(data, null, 2));
+
+
+  await useAxiosRequestWithToken()
+    .post(`${ApiRoutes.register}`, data, { signal: abortSignal })
+    .then(function (response) {
+      clearTimeout(networkTimeout)
+      toast.open({
+        message: 'Inscription réussie ! Vous pouvez maintenant vous connecter.',
+        type: 'success',
+        position: 'bottom',
+        duration: 5000
+      })
+      
+      loading.value = false
+
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
+    })
+    .catch(function (error) {
+      clearTimeout(networkTimeout)
+          // DEBUG: Vérifiez l'erreur complète
+    console.error('❌ ERREUR COMPLÈTE:', error);
+    console.error('❌ Données de réponse erreur:', error.response?.data);
+      toast.open({
+        message: error.response?.data?.message || 'Erreur lors de l\'inscription',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      })
+      loading.value = false
+    })
+}
+
+const registerValidate = async () => {
+  loading.value = true
+  
+  if (
+    !userRegister.value?.email ||
+    !userRegister.value.password ||
+    !userRegister.value.phone ||
+    //!userRegister.value.confirmPassword ||  
+    userRegister.value.email.trim() === '' ||
+    userRegister.value.password.trim() === '' ||
+    //userRegister.value.confirmPassword.trim() === '' ||
+    userRegister.value.phone.trim() === '' 
+  ) {
+    setTimeout(() => {
+      toast.open({
+        message: 'Veuillez remplir tous les champs obligatoires!',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      })
+      loading.value = false
+    }, 300)
+    return
   }
 
-  if (user.value.UserPassword !== confirmPassword.value) {
-    toast.open({
-      message: 'Les mots de passe ne correspondent pas.',
-      type: 'error',
-      position: 'top-right',
-      duration: 5000,
-    });
-    return;
+  const emailforRegex=userRegister.value.email
+  
+  // Validation de l'email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(emailforRegex)) {
+    setTimeout(() => {
+      toast.open({
+        message: 'Veuillez entrer une adresse email valide!',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      })
+      loading.value = false
+    }, 300)
+    return
   }
-
-  if (!user.value.UserName || !user.value.UserEmail || !user.value.UserPhone || !user.value.UserPassword) {
-    toast.open({
-      message: 'Veuillez remplir tous les champs obligatoires.',
-      type: 'error',
-      position: 'top-right',
-      duration: 5000,
-    });
-    return;
+  
+  // Validation de la force du mot de passe
+  if (userRegister.value.password.length < 6) {
+    setTimeout(() => {
+      toast.open({
+        message: 'Le mot de passe doit contenir au moins 6 caractères!',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      })
+      loading.value = false
+    }, 300)
+    return
   }
+  
+  //userRegister.value.password !== userRegister.value.confirmPassword
 
-  await register();
-};
+  // if (userRegister.value.password) {
+  //   setTimeout(() => {
+  //     toast.open({
+  //       message: 'Les mots de passe ne correspondent pas!',
+  //       type: 'error',
+  //       position: 'bottom',
+  //       duration: 5000
+  //     })
+  //     loading.value = false
+  //   }, 300)
+  //   return
+  // }
+  
+  await register()
+}
+
+
 </script>
 
 <template>
@@ -125,18 +211,17 @@ const validateRegister = async () => {
               <h2 class="text-2xl font-bold text-gray-800 mb-1 text-center">Créer un compte</h2>
               <p class="text-gray-500 text-sm mb-8 text-center">Rejoignez notre communauté et accédez à des opportunités exclusives.</p>
 
-              <form @submit.prevent="validateRegister" class="space-y-5">
+              <form @submit.prevent="registerValidate" class="space-y-5">
                 <!-- Nom complet -->
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <UserIcon class="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    v-model="user.UserName"
                     type="text"
                     placeholder="Nom complet"
                     class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
-                    required
+                    
                   />
                 </div>
 
@@ -146,7 +231,7 @@ const validateRegister = async () => {
                     <EnvelopeIcon class="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    v-model="user.UserEmail"
+                    v-model="userRegister.email"
                     type="email"
                     placeholder="Adresse email"
                     class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
@@ -160,7 +245,7 @@ const validateRegister = async () => {
                     <PhoneIcon class="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    v-model="user.UserPhone"
+                    v-model="userRegister.phone"
                     type="tel"
                     placeholder="Téléphone"
                     class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
@@ -174,7 +259,7 @@ const validateRegister = async () => {
                     <LockClosedIcon class="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    v-model="user.UserPassword"
+                    v-model="userRegister.password"
                     :type="showPassword ? 'text' : 'password'"
                     placeholder="Mot de passe"
                     class="w-full pl-10 pr-10 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
@@ -196,11 +281,10 @@ const validateRegister = async () => {
                     <LockClosedIcon class="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    v-model="confirmPassword"
                     :type="showPassword ? 'text' : 'password'"
                     placeholder="Confirmer le mot de passe"
                     class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
-                    required
+                  
                   />
                 </div>
 
