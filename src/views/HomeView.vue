@@ -17,7 +17,6 @@ import FooterComponent from '@/components/footer/FooterComponent.vue'
 </script>
 <template>
   <HeroComponent />
-  <FeaturedJobsComponent />
   <AboutComponent />
   <EntrepriseRecruteComponent />
   <FooterComponent />
