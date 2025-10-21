@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toast-notification';
 import {
@@ -10,7 +10,9 @@ import {
   EyeIcon,
   EyeSlashIcon,
   ArrowRightIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  BriefcaseIcon,
+  AcademicCapIcon
 } from '@heroicons/vue/24/outline';
 //@ts-ignore
 import { useAxiosRequestWithToken } from '@/utils/service/axios_api'
@@ -24,89 +26,99 @@ const router = useRouter();
 const toast = useToast();
 const loading = ref(false);
 const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 const termsAccepted = ref(false);
 const userRegister = ref<IUserRegister>({
   email: '',
   phone: '',
-  role:'CANDIDATE',
+  role: 'CANDIDATE',
   password: ''
-
 })
-
 
 const confirmPassword = ref('');
 
-
-const register = async () => {
-  loading.value = true
-  const data = JSON.parse(JSON.stringify(userRegister.value))
-  const abortController = new AbortController()
-  const abortSignal = abortController.signal
-
-  const networkTimeout = setTimeout(() => {
-    abortController.abort()
-    loading.value = false
-    toast.open({
-      message: 'Network Error, please check your internet.',
-      type: 'error',
-      position: 'bottom',
-      duration: 5000
-    })
-  }, 30000)
-
-      // Debug: affichez l'URL complète
-    const fullUrl = `http://localhost:8080/api/${ApiRoutes.register}`
-    console.log('URL de la requête:', fullUrl)
-    console.log('Données envoyées:', data)
-
-      console.log('🔍 DONNÉES À ENVOYER:', data);
-  console.log('🔍 Type de données:', typeof data);
-  console.log('🔍 Structure complète:', JSON.stringify(data, null, 2));
-
-
-  await useAxiosRequestWithToken()
-    .post(`${ApiRoutes.register}`, data, { signal: abortSignal })
-    .then(function (response) {
-      clearTimeout(networkTimeout)
-      toast.open({
-        message: 'Inscription réussie ! Vous pouvez maintenant vous connecter.',
-        type: 'success',
-        position: 'bottom',
-        duration: 5000
-      })
-      
-      loading.value = false
-
-      setTimeout(() => {
-        router.push('/login')
-      }, 2000)
-    })
-    .catch(function (error) {
-      clearTimeout(networkTimeout)
-          // DEBUG: Vérifiez l'erreur complète
-    console.error('❌ ERREUR COMPLÈTE:', error);
-    console.error('❌ Données de réponse erreur:', error.response?.data);
-      toast.open({
-        message: error.response?.data?.message || 'Erreur lors de l\'inscription',
-        type: 'error',
-        position: 'bottom',
-        duration: 5000
-      })
-      loading.value = false
-    })
+// Fonction pour gérer le changement de rôle
+const setRole = (role: 'CANDIDATE' | 'RECRUITER') => {
+  userRegister.value.role = role;
 }
 
-const registerValidate = async () => {
-  loading.value = true
+// Fonction pour basculer la visibilité du mot de passe
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+}
+
+// Fonction pour basculer la visibilité du mot de passe de confirmation
+const toggleConfirmPasswordVisibility = () => {
+  showConfirmPassword.value = !showConfirmPassword.value;
+}
+
+// Fonction pour vérifier la force du mot de passe
+const getPasswordStrength = () => {
+  const password = userRegister.value.password;
+  if (!password) return { strength: 0, message: '', color: 'bg-gray-200' };
   
+  let strength = 0;
+  let message = '';
+  let color = 'bg-red-500';
+
+  // Longueur minimale de 8 caractères
+  if (password.length >= 8) strength += 20;
+  
+  // Longueur de 12 caractères ou plus
+  if (password.length >= 12) strength += 10;
+  
+  // Contient des lettres minuscules
+  if (/[a-z]/.test(password)) strength += 15;
+  
+  // Contient des lettres majuscules
+  if (/[A-Z]/.test(password)) strength += 15;
+  
+  // Contient des chiffres
+  if (/[0-9]/.test(password)) strength += 20;
+  
+  // Contient des caractères spéciaux
+  if (/[^a-zA-Z0-9]/.test(password)) strength += 20;
+
+  // Limiter à 100%
+  strength = Math.min(strength, 100);
+
+  // Déterminer le message et la couleur selon la force
+  if (strength <= 25) {
+    message = 'Très faible';
+    color = 'bg-red-500';
+  } else if (strength <= 50) {
+    message = 'Faible';
+    color = 'bg-orange-500';
+  } else if (strength <= 75) {
+    message = 'Moyen';
+    color = 'bg-yellow-500';
+  } else if (strength <= 90) {
+    message = 'Fort';
+    color = 'bg-green-500';
+  } else {
+    message = 'Très fort';
+    color = 'bg-green-600';
+  }
+
+  return { strength, message, color };
+}
+
+// Computed pour l'indicateur de force du mot de passe
+const passwordStrength = computed(() => getPasswordStrength());
+
+// Validation du formulaire
+const registerValidate = async () => {
+  loading.value = true;
+  
+  // Validation des champs obligatoires
   if (
     !userRegister.value?.email ||
     !userRegister.value.password ||
     !userRegister.value.phone ||
-    //!userRegister.value.confirmPassword ||  
+    !confirmPassword.value ||
     userRegister.value.email.trim() === '' ||
     userRegister.value.password.trim() === '' ||
-    //userRegister.value.confirmPassword.trim() === '' ||
+    confirmPassword.value.trim() === '' ||
     userRegister.value.phone.trim() === '' 
   ) {
     setTimeout(() => {
@@ -115,16 +127,30 @@ const registerValidate = async () => {
         type: 'error',
         position: 'bottom',
         duration: 5000
-      })
-      loading.value = false
-    }, 300)
-    return
+      });
+      loading.value = false;
+    }, 300);
+    return;
   }
 
-  const emailforRegex = userRegister.value.email as string
+  // Validation des conditions d'utilisation
+  if (!termsAccepted.value) {
+    setTimeout(() => {
+      toast.open({
+        message: 'Veuillez accepter les conditions générales!',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      });
+      loading.value = false;
+    }, 300);
+    return;
+  }
+
+  const emailforRegex = userRegister.value.email as string;
   
   // Validation de l'email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(emailforRegex)) {
     setTimeout(() => {
       toast.open({
@@ -132,45 +158,156 @@ const registerValidate = async () => {
         type: 'error',
         position: 'bottom',
         duration: 5000
-      })
-      loading.value = false
-    }, 300)
-    return
+      });
+      loading.value = false;
+    }, 300);
+    return;
   }
   
-  // Validation de la force du mot de passe
-  if (userRegister.value.password.length < 6) {
+  // Validation du téléphone (format basique)
+  const phoneRegex = /^[+]?[0-9\s\-\(\)]{8,20}$/;
+  if (!phoneRegex.test(userRegister.value.phone)) {
     setTimeout(() => {
       toast.open({
-        message: 'Le mot de passe doit contenir au moins 6 caractères!',
+        message: 'Veuillez entrer un numéro de téléphone valide!',
         type: 'error',
         position: 'bottom',
         duration: 5000
-      })
-      loading.value = false
-    }, 300)
-    return
+      });
+      loading.value = false;
+    }, 300);
+    return;
   }
   
-  //userRegister.value.password !== userRegister.value.confirmPassword
+  // Validation de la force du mot de passe - minimum 8 caractères
+  if (userRegister.value.password.length < 8) {
+    setTimeout(() => {
+      toast.open({
+        message: 'Le mot de passe doit contenir au moins 8 caractères!',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      });
+      loading.value = false;
+    }, 300);
+    return;
+  }
 
-  // if (userRegister.value.password) {
-  //   setTimeout(() => {
-  //     toast.open({
-  //       message: 'Les mots de passe ne correspondent pas!',
-  //       type: 'error',
-  //       position: 'bottom',
-  //       duration: 5000
-  //     })
-  //     loading.value = false
-  //   }, 300)
-  //   return
-  // }
+  // Validation : le mot de passe ne doit pas contenir uniquement des chiffres
+  const onlyDigitsRegex = /^\d+$/;
+  if (onlyDigitsRegex.test(userRegister.value.password)) {
+    setTimeout(() => {
+      toast.open({
+        message: 'Le mot de passe ne doit pas contenir uniquement des chiffres!',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      });
+      loading.value = false;
+    }, 300);
+    return;
+  }
+
+  // Validation : le mot de passe ne doit pas être trop faible
+  if (passwordStrength.value.strength <= 25) {
+    setTimeout(() => {
+      toast.open({
+        message: 'Le mot de passe est trop faible. Utilisez des lettres, chiffres et caractères spéciaux.',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      });
+      loading.value = false;
+    }, 300);
+    return;
+  }
   
-  await register()
+  // Validation de la correspondance des mots de passe
+  if (userRegister.value.password !== confirmPassword.value) {
+    setTimeout(() => {
+      toast.open({
+        message: 'Les mots de passe ne correspondent pas!',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      });
+      loading.value = false;
+    }, 300);
+    return;
+  }
+  
+  await register();
 }
 
+// Fonction d'inscription principale
+const register = async () => {
+  loading.value = true;
+  const data = JSON.parse(JSON.stringify(userRegister.value));
+  const abortController = new AbortController();
+  const abortSignal = abortController.signal;
 
+  const networkTimeout = setTimeout(() => {
+    abortController.abort();
+    loading.value = false;
+    toast.open({
+      message: 'Network Error, please check your internet.',
+      type: 'error',
+      position: 'bottom',
+      duration: 5000
+    });
+  }, 30000);
+
+  // Debug: affichez l'URL complète
+  const fullUrl = `http://localhost:8080/api/${ApiRoutes.register}`;
+  console.log('URL de la requête:', fullUrl);
+  console.log('Données envoyées:', data);
+
+  console.log('🔍 DONNÉES À ENVOYER:', data);
+  console.log('🔍 Type de données:', typeof data);
+  console.log('🔍 Structure complète:', JSON.stringify(data, null, 2));
+
+  await useAxiosRequestWithToken()
+    .post(`${ApiRoutes.register}`, data, { signal: abortSignal })
+    .then(function (response) {
+      clearTimeout(networkTimeout);
+      toast.open({
+        message: 'Inscription réussie ! Vous pouvez maintenant vous connecter.',
+        type: 'success',
+        position: 'bottom',
+        duration: 5000
+      });
+      
+      loading.value = false;
+
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
+    })
+    .catch(function (error) {
+      clearTimeout(networkTimeout);
+      console.error('❌ ERREUR COMPLÈTE:', error);
+      console.error('❌ Données de réponse erreur:', error.response?.data);
+      toast.open({
+        message: error.response?.data?.message || 'Erreur lors de l\'inscription',
+        type: 'error',
+        position: 'bottom',
+        duration: 5000
+      });
+      loading.value = false;
+    });
+}
+
+// Indicateurs de qualité du mot de passe
+const passwordRequirements = computed(() => {
+  const password = userRegister.value.password;
+  return {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[^a-zA-Z0-9]/.test(password)
+  };
+});
 </script>
 
 <template>
@@ -212,6 +349,45 @@ const registerValidate = async () => {
               <p class="text-gray-500 text-sm mb-8 text-center">Rejoignez notre communauté et accédez à des opportunités exclusives.</p>
 
               <form @submit.prevent="registerValidate" class="space-y-5">
+                <!-- Sélection du rôle -->
+                <div class="space-y-3">
+                  <label class="text-sm font-medium text-gray-700">Je suis :</label>
+                  <div class="grid grid-cols-2 gap-3">
+                    <!-- Bouton Candidat -->
+                    <button
+                      type="button"
+                      @click="setRole('CANDIDATE')"
+                      :class="[
+                        'p-4 border-2 cursor-pointer rounded-xl transition-all duration-200 flex flex-col items-center justify-center gap-2',
+                        userRegister.role === 'CANDIDATE'
+                          ? 'border-green-500 bg-green-50 text-green-700 shadow-sm'
+                          : 'border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-25'
+                      ]"
+                    >
+                      <AcademicCapIcon class="h-6 w-6" />
+                      <span class="font-medium">Candidat</span>
+                      <span class="text-xs text-gray-500 text-center">Je cherche un emploi</span>
+                    </button>
+                    
+                    <!-- Bouton Recruteur -->
+                    <button
+                      type="button"
+                      @click="setRole('RECRUITER')"
+                      :class="[
+                        'p-4 border-2 rounded-xl transition-all duration-200 flex flex-col items-center justify-center gap-2',
+                        userRegister.role === 'RECRUITER'
+                          ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm'
+                          : 'border-gray-200 bg-white text-gray-600 hover:border-teal-300 hover:bg-teal-25'
+                      ]"
+                    >
+                      <BriefcaseIcon class="h-6 w-6" />
+                      <span class="font-medium">Recruteur</span>
+                      <span class="text-xs text-gray-500 text-center">Je recrute des talents</span>
+                    </button>
+                  </div>
+                
+                </div>
+
                 <!-- Nom complet -->
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -267,13 +443,75 @@ const registerValidate = async () => {
                   />
                   <button
                     type="button"
-                    @click="showPassword = !showPassword"
-                    class="absolute  inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-green-500"
+                    @click="togglePasswordVisibility"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-green-500"
                   >
                     <component :is="showPassword ? EyeSlashIcon : EyeIcon" class="h-5 w-5" />
                   </button>
                 </div>
-                <p class="text-xs text-gray-500 mt-1">Minimum 8 caractères avec lettres et chiffres.</p>
+
+                <!-- Indicateur de force du mot de passe -->
+                <div v-if="userRegister.password" class="space-y-3">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="text-gray-500">Force du mot de passe:</span>
+                    <span :class="{
+                      'text-red-500': passwordStrength.strength <= 25,
+                      'text-orange-500': passwordStrength.strength > 25 && passwordStrength.strength <= 50,
+                      'text-yellow-500': passwordStrength.strength > 50 && passwordStrength.strength <= 75,
+                      'text-green-500': passwordStrength.strength > 75
+                    }">
+                      {{ passwordStrength.message }}
+                    </span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      :class="passwordStrength.color"
+                      class="h-2 rounded-full transition-all duration-300"
+                      :style="{ width: `${passwordStrength.strength}%` }"
+                    ></div>
+                  </div>
+                  
+                  <!-- Exigences du mot de passe -->
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="flex items-center gap-1">
+                      <div :class="[
+                        'w-2 h-2 rounded-full',
+                        passwordRequirements.length ? 'bg-green-500' : 'bg-gray-300'
+                      ]"></div>
+                      <span :class="passwordRequirements.length ? 'text-green-600' : 'text-gray-500'">
+                        8 caractères min
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <div :class="[
+                        'w-2 h-2 rounded-full',
+                        passwordRequirements.uppercase ? 'bg-green-500' : 'bg-gray-300'
+                      ]"></div>
+                      <span :class="passwordRequirements.uppercase ? 'text-green-600' : 'text-gray-500'">
+                        Majuscule
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <div :class="[
+                        'w-2 h-2 rounded-full',
+                        passwordRequirements.lowercase ? 'bg-green-500' : 'bg-gray-300'
+                      ]"></div>
+                      <span :class="passwordRequirements.lowercase ? 'text-green-600' : 'text-gray-500'">
+                        Minuscule
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <div :class="[
+                        'w-2 h-2 rounded-full',
+                        passwordRequirements.number ? 'bg-green-500' : 'bg-gray-300'
+                      ]"></div>
+                      <span :class="passwordRequirements.number ? 'text-green-600' : 'text-gray-500'">
+                        Chiffre
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <p v-else class="text-xs text-gray-500 mt-1">Minimum 8 caractères avec majuscules, minuscules et chiffres</p>
 
                 <!-- Confirmation mot de passe -->
                 <div class="relative">
@@ -281,11 +519,30 @@ const registerValidate = async () => {
                     <LockClosedIcon class="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    :type="showPassword ? 'text' : 'password'"
+                    v-model="confirmPassword"
+                    :type="showConfirmPassword ? 'text' : 'password'"
                     placeholder="Confirmer le mot de passe"
-                    class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
-                  
+                    class="w-full pl-10 pr-10 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+                    required
                   />
+                  <button
+                    type="button"
+                    @click="toggleConfirmPasswordVisibility"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-green-500"
+                  >
+                    <component :is="showConfirmPassword ? EyeSlashIcon : EyeIcon" class="h-5 w-5" />
+                  </button>
+                </div>
+
+                <!-- Indicateur de correspondance des mots de passe -->
+                <div v-if="userRegister.password && confirmPassword" class="text-xs">
+                  <span v-if="userRegister.password === confirmPassword" class="text-green-600 flex items-center">
+                    <ShieldCheckIcon class="h-4 w-4 mr-1" />
+                    Les mots de passe correspondent
+                  </span>
+                  <span v-else class="text-red-600">
+                    Les mots de passe ne correspondent pas
+                  </span>
                 </div>
 
                 <!-- Conditions d'utilisation -->
@@ -309,13 +566,13 @@ const registerValidate = async () => {
                 <!-- Bouton d'inscription -->
                 <button
                   type="submit"
-                  :disabled="loading"
-                  class="w-full cursor-pointer py-3 px-6 bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-white font-medium rounded-lg shadow-sm transition-all duration-300 flex items-center justify-center relative overflow-hidden group"
+                  :disabled="loading || !termsAccepted"
+                  class="w-full cursor-pointer py-3 px-6 bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-white font-medium rounded-lg shadow-sm transition-all duration-300 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   <span class="relative z-10 flex items-center">
                     <template v-if="!loading">
-                      <span>S'inscrire</span>
+                      <span>S'inscrire en tant que {{ userRegister.role === 'CANDIDATE' ? 'Candidat' : 'Recruteur' }}</span>
                       <ArrowRightIcon class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </template>
                     <template v-else>
@@ -334,27 +591,8 @@ const registerValidate = async () => {
                     <div class="w-full border-t border-gray-200"></div>
                   </div>
                   <div class="relative flex justify-center text-sm">
-                    <span class="px-2 bg-white text-gray-500">Ou continuez avec</span>
+                    <span class="px-2 bg-white text-gray-500"></span>
                   </div>
-                </div>
-
-                <!-- Boutons de connexion sociale -->
-                <div class="grid grid-cols-3 gap-3">
-                  <button type="button" class="w-full py-2 px-4 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5 text-[#4285F4]" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
-                    </svg>
-                  </button>
-                  <button type="button" class="w-full py-2 px-4 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5 text-[#1DA1F2]" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                    </svg>
-                  </button>
-                  <button type="button" class="w-full py-2 px-4 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5 text-[#EA4335]" fill="currentColor" viewBox="0 0 24 24">
-                      <path fill-rule="evenodd" d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" clip-rule="evenodd" />
-                    </svg>
-                  </button>
                 </div>
 
                 <!-- Lien de connexion -->
