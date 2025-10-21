@@ -17,6 +17,7 @@ import 'vue-toast-notification/dist/theme-sugar.css'
 import { setUser } from '@/stores/user'
 //@ts-ignore
 import { setToken } from '@/stores/token'
+import { getToken } from '@/stores/authStorage';
 
 
 const router = useRouter();
@@ -24,9 +25,8 @@ const toast = useToast();
 const loading = ref(false);
 const showPassword = ref(false);
 const auth = ref<IUserAuth>({
-  email: '',
-  password: '',
-  phone:'0854434602'
+  login: '',
+  password: ''
 })
 
 
@@ -47,30 +47,58 @@ const login = async () => {
     })
   }, 30000)
 
-       
   console.log('🔍 Type de données:', typeof data);
   console.log('🔍 Structure complète:', JSON.stringify(data, null, 2));
 
   await useAxiosRequestWithToken()
     .post(`${ApiRoutes.login}`, data, { signal: abortSignal })
     .then(function (response) {
-       console.log('🔍 DONNÉES À ENVOYER:', response.data);
-      //success
+      console.log('🔍 DONNÉES À ENVOYER:', response.data);
+      
       clearTimeout(networkTimeout)
-      const token = response.data.token
-      if (token != null) {
-        setToken(token as IToken)
-        setUser(response.data as IUser)
+      
+      // Stocker les données dans le localStorage
+      const authData = {
+        jwt: response.data.jwt,
+        user: response.data.user
       }
-      router.push('/')
+
+      // Stocker l'objet complet d'authentification
+      localStorage.setItem('auth_data', JSON.stringify(authData))
+    
+      if (response.data.jwt) {
+        const tokenData = {
+          token: response.data.jwt,
+          expiration: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 heures
+        }
+        setToken(tokenData)
+      }
+      
+      if (response.data.user) {
+        setUser(response.data.user)
+      }
+      // Forcer le rechargement du navbar
+      window.dispatchEvent(new Event('storage'))
+      
+      toast.open({
+        message: 'Connexion réussie !',
+        type: 'success',
+        position: 'bottom',
+        duration: 3000
+      })
+      
+      setTimeout(() => {
+        router.push('/')
+      }, 1000)
+      
       loading.value = false
     })
     .catch(function (error) {
-      //error
+      // Error
       clearTimeout(networkTimeout)
-      console.error('❌ ERREUR COMPLÈTE:', error);
+      console.error('ERREUR COMPLÈTE:', error);
       toast.open({
-        message: error.response.data.message,
+        message: error.response?.data?.message || 'Erreur lors de la connexion',
         type: 'error',
         position: 'bottom',
         duration: 5000
@@ -82,9 +110,9 @@ const login = async () => {
 const loginValidate = async () => {
   loading.value = true
   if (
-    !auth.value.email ||
+    !auth.value.login ||
     !auth.value.password ||
-    auth.value.email.trim() === '' ||
+    auth.value.login.trim() === '' ||
     auth.value.password.trim() === ''
   ) {
     setTimeout(() => {
@@ -150,14 +178,13 @@ const loginValidate = async () => {
                     <EnvelopeIcon class="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    v-model="auth.email"
-                    type="email"
-                    placeholder="Adresse email"
+                    v-model="auth.login"
+                    type="text"
+                    placeholder="Email ou numéro de téléphone"
                     class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
                     required
                   />
                 </div>
-
                 <!-- Champ Mot de passe -->
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
