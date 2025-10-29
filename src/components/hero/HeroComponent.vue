@@ -1,6 +1,7 @@
 <!-- eslint-disable @typescript-eslint/ban-ts-comment -->
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 //@ts-ignore
 import jobSearch from '../../assets/carousel-1.jpg'
 //@ts-ignore
@@ -12,9 +13,10 @@ import careerGrowth from '../../assets/carousel-4.jpg'
 //@ts-ignore
 import Navbar from '../navbar/NavBarComponent.vue'
 
-import { MagnifyingGlassIcon, MapPinIcon, BriefcaseIcon } from '@heroicons/vue/24/outline'
-
-import {
+import { 
+  MagnifyingGlassIcon, 
+  MapPinIcon, 
+  BriefcaseIcon,
   CodeBracketIcon,
   ChartBarIcon,
   ComputerDesktopIcon,
@@ -22,140 +24,182 @@ import {
   BeakerIcon,
   GlobeAltIcon,
   DevicePhoneMobileIcon,
+  AcademicCapIcon,
+  WrenchScrewdriverIcon,
+  TruckIcon,
+  ShoppingBagIcon,
+  BuildingStorefrontIcon,
+  DocumentTextIcon,
+  CogIcon,
+  WrenchIcon,
+  HomeIcon,
+  ShieldCheckIcon
 } from '@heroicons/vue/24/outline'
+//@ts-ignore
+import { useJobService } from '@/utils/service/jobService'
+//@ts-ignore
+import { useCompanyService } from '@/utils/service/CompagnyService'
+//@ts-ignore
+import { IJob, IJobResponse } from '@/utils/interface/IJobOffers'
+import type { ICompany } from '@/utils/interface/ICompagny'
 
-const featuredJobs = ref([
-  {
-    title: 'Développeur Full Stack',
-    company: 'TechSolutions Inc.',
-    location: 'Moscou, Remote possible',
-    salary: '180 000 - 220 000 ₽/mois',
-    type: 'full-time',
-    typeLabel: 'Temps plein',
-    excerpt:
-      'Nous recherchons un développeur full stack expérimenté pour rejoindre notre équipe produit.',
-    skills: ['React', 'Node.js', 'TypeScript', 'MongoDB'],
-    logo: 'https://via.placeholder.com/40',
-  },
-  {
-    title: 'Designer UX/UI',
-    company: 'Creative Agency',
-    location: 'Saint-Pétersbourg',
-    salary: '150 000 - 190 000 ₽/mois',
-    type: 'full-time',
-    typeLabel: 'Temps plein',
-    excerpt: 'Créez des expériences utilisateur exceptionnelles pour nos clients internationaux.',
-    skills: ['Figma', 'Sketch', 'Prototypage', 'User Research'],
-    logo: 'https://via.placeholder.com/40',
-  },
-  {
-    title: 'Data Scientist',
-    company: 'Data Insights',
-    location: 'Remote',
-    salary: '200 000 - 250 000 ₽/mois',
-    type: 'contract',
-    typeLabel: 'Contrat',
-    excerpt: 'Analyse de données complexes et création de modèles prédictifs pour nos clients.',
-    skills: ['Python', 'Machine Learning', 'SQL', 'TensorFlow'],
-    logo: 'https://via.placeholder.com/40',
-  },
-  {
-    title: 'Responsable Marketing Digital',
-    company: 'Global Brands',
-    location: 'Kazan',
-    salary: '160 000 - 200 000 ₽/mois',
-    type: 'full-time',
-    typeLabel: 'Temps plein',
-    excerpt: 'Gérez nos campagnes digitales et optimisez notre présence en ligne.',
-    skills: ['SEO', 'Google Ads', 'Réseaux sociaux', 'Analytics'],
-    logo: 'https://via.placeholder.com/40',
-  },
-])
+// Services
+const jobService = useJobService();
+const companyService = useCompanyService();
+const router = useRouter();
+
+const featuredJobs = ref<any[]>([])
+const loading = ref(false)
+
+const companyCache = new Map<number, any>();
 
 const jobCategories = ref([
   {
+    id: 'development',
     name: 'Développement',
-    jobs: '1,240',
     icon: CodeBracketIcon,
     color: '#16a34a',
+    sectors: ['IT']
   },
   {
+    id: 'business',
     name: 'Business',
-    jobs: '890',
     icon: BriefcaseIcon,
     color: '#10B981',
+    sectors: ['SALES', 'CONSULTING', 'BUSINESS']
   },
   {
-    name: 'Data',
-    jobs: '540',
-    icon: ChartBarIcon,
-    color: '#F59E0B',
-  },
-  {
-    name: 'Design',
-    jobs: '720',
-    icon: ComputerDesktopIcon,
-    color: '#EC4899',
-  },
-  {
-    name: 'Finance',
-    jobs: '680',
+    id: 'finance',
+    name: 'Finance & Comptabilité',
     icon: BanknotesIcon,
     color: '#06B6D4',
+    sectors: ['FINANCE', 'ACCOUNTING', 'BANKING']
   },
   {
-    name: 'Scientifique',
-    jobs: '320',
-    icon: BeakerIcon,
-    color: '#8B5CF6',
-  },
-  {
-    name: 'Marketing',
-    jobs: '950',
+    id: 'marketing',
+    name: 'Marketing & Communication',
     icon: GlobeAltIcon,
     color: '#F97316',
+    sectors: ['MARKETING', 'COMMUNICATION', 'ADVERTISING']
   },
   {
-    name: 'Mobile',
-    jobs: '430',
-    icon: DevicePhoneMobileIcon,
-    color: '#16a34a',
+    id: 'design',
+    name: 'Design & Création',
+    icon: ComputerDesktopIcon,
+    color: '#EC4899',
+    sectors: ['DESIGN', 'CREATIVE', 'ARTS']
   },
+  {
+    id: 'health',
+    name: 'Santé & Social',
+    icon: BeakerIcon,
+    color: '#DC2626',
+    sectors: ['HEALTH', 'MEDICAL', 'SOCIAL', 'CARE']
+  },
+  {
+    id: 'education',
+    name: 'Éducation & Formation',
+    icon: AcademicCapIcon,
+    color: '#8B5CF6',
+    sectors: ['EDUCATION', 'TRAINING', 'TEACHING']
+  },
+  {
+    id: 'construction',
+    name: 'BTP & Construction',
+    icon: WrenchScrewdriverIcon,
+    color: '#F59E0B',
+    sectors: ['CONSTRUCTION', 'BUILDING', 'ENGINEERING']
+  },
+  {
+    id: 'logistics',
+    name: 'Logistique & Transport',
+    icon: TruckIcon,
+    color: '#475569',
+    sectors: ['LOGISTICS', 'TRANSPORT', 'SUPPLY_CHAIN']
+  },
+  {
+    id: 'retail',
+    name: 'Commerce & Vente',
+    icon: ShoppingBagIcon,
+    color: '#84CC16',
+    sectors: ['RETAIL', 'SALES', 'COMMERCE']
+  },
+  {
+    id: 'hospitality',
+    name: 'Hôtellerie & Restauration',
+    icon: BuildingStorefrontIcon,
+    color: '#EC4899',
+    sectors: ['HOSPITALITY', 'RESTAURANT', 'TOURISM']
+  },
+  {
+    id: 'admin',
+    name: 'Administration & Secrétariat',
+    icon: DocumentTextIcon,
+    color: '#6B7280',
+    sectors: ['ADMINISTRATION', 'SECRETARIAL', 'OFFICE']
+  },
+  {
+    id: 'production',
+    name: 'Production & Industrie',
+    icon: CogIcon,
+    color: '#1E40AF',
+    sectors: ['PRODUCTION', 'MANUFACTURING', 'INDUSTRY']
+  },
+  {
+    id: 'maintenance',
+    name: 'Maintenance & Réparation',
+    icon: WrenchIcon,
+    color: '#D97706',
+    sectors: ['MAINTENANCE', 'REPAIR', 'TECHNICAL']
+  },
+  {
+    id: 'cleaning',
+    name: 'Nettoyage & Services',
+    icon: HomeIcon,
+    color: '#059669',
+    sectors: ['CLEANING', 'DOMESTIC', 'SERVICES']
+  },
+  {
+    id: 'security',
+    name: 'Sécurité & Surveillance',
+    icon: ShieldCheckIcon,
+    color: '#374151',
+    sectors: ['SECURITY', 'SURVEILLANCE', 'PROTECTION']
+  }
 ])
-
 const slides = ref([
   {
     image: jobSearch,
-    title: 'Find your perfect job',
-    highlight: 'in Russia and beyond',
-    subtitle: 'Thousands of opportunities waiting for you',
+    title: 'Trouvez votre emploi idéal',
+    highlight: 'en France et au-delà',
+    subtitle: 'Des milliers d\'opportunités vous attendent',
     description:
-      'Access the best job listings across all industries with competitive salaries and benefits.',
-    cta: 'Browse jobs',
+      'Accédez aux meilleures offres d\'emploi dans tous les secteurs avec des salaires compétitifs et des avantages attractifs.',
+    cta: 'Parcourir les offres',
   },
   {
     image: hiring,
-    title: 'Looking for talent?',
-    highlight: "We've got you covered",
-    subtitle: 'Connect with qualified professionals',
-    description: 'Our platform helps companies find the right candidates quickly and efficiently.',
-    cta: 'Post a job',
+    title: 'Vous recrutez ?',
+    highlight: 'Nous avons la solution',
+    subtitle: 'Connectez-vous avec des professionnels qualifiés',
+    description: 'Notre plateforme aide les entreprises à trouver les bons candidats rapidement et efficacement.',
+    cta: 'Publier une offre',
   },
   {
     image: remoteWork,
-    title: 'Flexible work',
-    highlight: 'opportunities',
-    subtitle: 'Find positions that fit your lifestyle',
-    description: 'Discover full-time, part-time and remote jobs across various sectors.',
-    cta: 'Find flexible jobs',
+    title: 'Travail flexible',
+    highlight: 'et opportunités',
+    subtitle: 'Trouvez des postes qui correspondent à votre style de vie',
+    description: 'Découvrez des emplois en CDI, CDD, temps partiel et télétravail dans divers secteurs.',
+    cta: 'Trouver des emplois flexibles',
   },
   {
     image: careerGrowth,
-    title: 'Career development',
-    highlight: 'made easy',
-    subtitle: 'Take the next step in your professional journey',
-    description: 'Get matched with positions that align with your skills and aspirations.',
-    cta: 'Advance your career',
+    title: 'Développement de carrière',
+    highlight: 'simplifié',
+    subtitle: 'Faites le prochain pas dans votre parcours professionnel',
+    description: 'Soyez mis en relation avec des postes qui correspondent à vos compétences et aspirations.',
+    cta: 'Faire progresser votre carrière',
   },
 ])
 
@@ -164,19 +208,299 @@ const isHovering = ref(false)
 const isTransitioning = ref(false)
 let interval: number
 
-// Search form data
 const searchQuery = ref('')
 const locationQuery = ref('')
 const jobType = ref('')
 
 const jobTypes = ref([
-  { value: '', label: 'All Types' },
-  { value: 'full-time', label: 'Full Time' },
-  { value: 'part-time', label: 'Part Time' },
-  { value: 'contract', label: 'Contract' },
-  { value: 'internship', label: 'Internship' },
-  { value: 'remote', label: 'Remote' },
+  { value: '', label: 'Tous types' },
+  { value: 'full-time', label: 'CDI' },
+  { value: 'part-time', label: 'Temps partiel' },
+  { value: 'contract', label: 'CDD' },
+  { value: 'internship', label: 'Stage' },
+  { value: 'remote', label: 'Télétravail' },
 ])
+
+// Fonction pour déterminer les catégories d'un job basée uniquement sur le secteur
+const determineJobCategories = (job: any): string[] => {
+  const categories = new Set<string>();
+  
+  console.log('🔍 Analyzing job sector:', job.sector);
+  
+  // Détection basée uniquement sur job.sector
+  if (job.sector) {
+    jobCategories.value.forEach(category => {
+      if (category.sectors.includes(job.sector)) {
+        console.log(`✅ Job ${job.id} (${job.sector}) matches category: ${category.id}`);
+        categories.add(category.id);
+      }
+    });
+  }
+  
+  // Si aucune catégorie trouvée, mettre dans "other"
+  if (categories.size === 0) {
+    console.log(`❌ Job ${job.id} (${job.sector}) has no matching category, adding to 'other'`);
+    categories.add('other');
+  }
+  
+  console.log(`📋 Job ${job.id} categories:`, Array.from(categories));
+  return Array.from(categories);
+};
+
+// Obtenir le nombre d'offres par catégorie
+const getJobsCountByCategory = computed(() => {
+  const counts: { [key: string]: number } = {};
+  
+  // Initialiser tous les compteurs à 0
+  jobCategories.value.forEach(category => {
+    counts[category.id] = 0;
+  });
+  counts['other'] = 0;
+  
+  console.log('📊 Counting jobs by category...');
+  console.log('📈 Total featured jobs:', featuredJobs.value.length);
+  
+  // Compter les jobs pour chaque catégorie
+  featuredJobs.value.forEach(job => {
+    const jobCategoriesList = determineJobCategories(job);
+    jobCategoriesList.forEach(categoryId => {
+      if (counts[categoryId] !== undefined) {
+        counts[categoryId]++;
+      } else {
+        counts['other']++;
+      }
+    });
+  });
+  
+  console.log('🎯 Final counts:', counts);
+  return counts;
+});
+
+// Fonction pour naviguer vers la page catégories avec filtre
+const navigateToCategory = (categoryId: string) => {
+  router.push(`/jobs/categories?category=${categoryId}`);
+};
+
+// Fonction pour obtenir le nombre d'offres formaté
+const getFormattedJobsCount = (categoryId: string) => {
+  const count = getJobsCountByCategory.value[categoryId] || 0;
+  return `${count}+`;
+};
+
+// Fonction pour extraire le domaine d'une URL
+const getDomainFromUrl = (url: string): string => {
+  if (!url) return ''
+  try {
+    const fullUrl = url.startsWith('http') ? url : `https://${url}`
+    const domain = new URL(fullUrl).hostname.replace('www.', '')
+    return domain
+  } catch {
+    return url
+  }
+}
+
+// Fonction pour générer le logo via Clearbit
+const getCompanyLogo = (company: ICompany): string => {
+  if (!company) return getFallbackLogo(company)
+  
+  if (company.webSiteUrl) {
+    try {
+      const domain = getDomainFromUrl(company.webSiteUrl)
+      return `https://logo.clearbit.com/${domain}?size=120&format=png`
+    } catch {
+      return getFallbackLogo(company)
+    }
+  }
+  return getFallbackLogo(company)
+}
+
+// Fallback logo avec placeholder
+const getFallbackLogo = (company: ICompany): string => {
+  if (!company) return 'https://via.placeholder.com/60x60/6b7280/ffffff?text=?&font-size=14'
+  
+  const firstLetter = company.name ? company.name.charAt(0).toUpperCase() : '?'
+  const colors = [
+    '10b981', // emerald
+    '3b82f6', // blue
+    'f59e0b', // amber
+    'ef4444', // red
+    '8b5cf6', // violet
+    '06b6d4', // cyan
+    'f97316', // orange
+  ]
+  const color = colors[Math.abs(company.id) % colors.length] || '6b7280'
+  return `https://via.placeholder.com/60x60/${color}/ffffff?text=${firstLetter}&font-size=16&font-weight=bold`
+}
+
+// Gestion des erreurs de chargement d'image
+const handleImageError = (event: Event, company: ICompany) => {
+  const target = event.target as HTMLImageElement
+  target.src = getFallbackLogo(company)
+}
+
+// Enrichir les jobs avec les données des entreprises
+const enrichJobsWithCompanyData = async (jobs: IJob[]): Promise<any[]> => {
+  try {
+    const enrichedJobs = await Promise.all(
+      jobs.map(async (job) => {
+        if (companyCache.has(job.companyId)) {
+          const cachedCompany = companyCache.get(job.companyId);
+          return {
+            ...job,
+            company: cachedCompany,
+            companyLogo: getCompanyLogo(cachedCompany)
+          };
+        }
+
+        try {
+          const company = await companyService.getCompanyById(job.companyId);
+          const companyData = {
+            id: company.id,
+            name: company.name,
+            location: company.location,
+            webSiteUrl: company.webSiteUrl,
+            description: company.description
+          };
+          
+          companyCache.set(job.companyId, companyData);
+          return {
+            ...job,
+            company: companyData,
+            companyLogo: getCompanyLogo(companyData)
+          };
+        } catch (error) {
+          console.warn(`Impossible de récupérer l'entreprise pour l'offre ${job.id}:`, error);
+          const fallbackCompany = {
+            id: job.companyId,
+            name: `Entreprise #${job.companyId}`,
+            location: 'Non spécifié',
+            webSiteUrl: ''
+          };
+          
+          companyCache.set(job.companyId, fallbackCompany);
+          return {
+            ...job,
+            company: fallbackCompany,
+            companyLogo: getFallbackLogo(fallbackCompany)
+          };
+        }
+      })
+    );
+    
+    return enrichedJobs;
+  } catch (error) {
+    console.error('Erreur lors de l\'enrichissement des offres:', error);
+    return jobs.map(job => ({
+      ...job,
+      companyLogo: getFallbackLogo({} as ICompany)
+    }));
+  }
+};
+
+// Formater les jobs pour l'affichage
+const formatJobForDisplay = (job: any) => {
+  const categories = determineJobCategories(job);
+  
+  return {
+    title: job.title || 'Titre non spécifié',
+    company: job.company?.name || `Entreprise #${job.companyId}`,
+    companyData: job.company,
+    location: job.location || 'Non spécifié',
+    salary: formatSalary(job.salaryMin, job.salaryMax),
+    type: job.jobType?.toLowerCase() || 'full-time',
+    typeLabel: formatJobType(job.jobType),
+    excerpt: job.description ? job.description.substring(0, 100) + '...' : 'Description non disponible',
+    skills: job.skills?.map((skill: any) => skill.skillName) || [job.sector, job.experienceLevel].filter(Boolean),
+    logo: job.companyLogo || getFallbackLogo(job.company || {} as ICompany),
+    id: job.id,
+    remote: job.location?.toLowerCase().includes('remote') || false,
+    webSiteUrl: job.company?.webSiteUrl || '',
+    categories: categories,
+    sector: job.sector // Conserver le secteur pour le débogage
+  };
+};
+
+// Helper pour formater le salaire
+const formatSalary = (min: number | null, max: number | null): string => {
+  if (!min && !max) return 'Salaire à négocier';
+  if (!min) return `Jusqu'à ${max?.toLocaleString()} €`;
+  if (!max) return `À partir de ${min?.toLocaleString()} €`;
+  return `${min?.toLocaleString()} - ${max?.toLocaleString()} €`;
+};
+
+// Helper pour formater le type de job
+const formatJobType = (jobType: string): string => {
+  const types: { [key: string]: string } = {
+    'FULL_TIME': 'CDI',
+    'PART_TIME': 'Temps partiel',
+    'CONTRACT': 'CDD',
+    'FREELANCE': 'Freelance',
+    'INTERNSHIP': 'Stage',
+    'HYBRID': 'Hybride',
+    'REMOTE': 'Télétravail'
+  };
+  return types[jobType] || jobType || 'Non spécifié';
+};
+
+// États pour le toggle des catégories
+const showAllCategories = ref(false)
+const initialCategoriesCount = 8 // Nombre de catégories affichées initialement
+
+// Computed pour les catégories affichées
+const displayedCategories = computed(() => {
+  if (showAllCategories.value) {
+    return jobCategories.value
+  }
+  return jobCategories.value.slice(0, initialCategoriesCount)
+})
+
+// Fonction pour toggle l'affichage des catégories
+const toggleCategories = () => {
+  showAllCategories.value = !showAllCategories.value
+}
+
+// Récupérer les offres featured
+const fetchFeaturedJobs = async () => {
+  try {
+    loading.value = true;
+    console.log('📡 Fetching featured jobs...');
+
+    // Récupérer 50 offres pour avoir des statistiques significatives
+    const response: IJobResponse = await jobService.getAllJobs(0, 50);
+    
+    console.log('✅ Featured jobs response:', response);
+
+    if (response && Array.isArray(response.content)) {
+      // Enrichir avec les données des entreprises
+      const enrichedJobs = await enrichJobsWithCompanyData(response.content);
+      
+      // Formater pour l'affichage
+      featuredJobs.value = enrichedJobs.map(formatJobForDisplay);
+      
+      console.log('🎨 Jobs formatted with logos:', featuredJobs.value);
+      console.log('📊 Jobs count by category:', getJobsCountByCategory.value);
+      
+      // Debug: Afficher les secteurs disponibles
+      const sectors = [...new Set(featuredJobs.value.map(job => job.sector))];
+      console.log('🏷️ Available sectors in jobs:', sectors);
+      
+    } else {
+      console.warn('⚠️ Aucune offre trouvée ou format de réponse invalide');
+      featuredJobs.value = [];
+    }
+
+  } catch (error: any) {
+    console.error('❌ Erreur lors du chargement des offres:', error);
+    featuredJobs.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Computed pour limiter à 6 offres pour l'affichage
+const limitedFeaturedJobs = computed(() => {
+  return featuredJobs.value.slice(0, 6);
+});
 
 const nextSlide = () => {
   if (isTransitioning.value) return
@@ -216,16 +540,19 @@ const resetTimer = () => {
 }
 
 const handleSearch = () => {
-  // Implement search functionality
-  console.log('Searching for:', {
-    query: searchQuery.value,
+  // Rediriger vers la page de recherche avec les paramètres
+  const queryParams = new URLSearchParams({
+    q: searchQuery.value,
     location: locationQuery.value,
-    type: jobType.value,
-  })
+    type: jobType.value
+  }).toString()
+  
+  window.location.href = `/jobs?${queryParams}`;
 }
 
 onMounted(() => {
   startAutoPlay()
+  fetchFeaturedJobs()
 })
 
 onUnmounted(() => {
@@ -265,8 +592,7 @@ onUnmounted(() => {
           <div class="gradient-overlay"></div>
           <img
             :src="slide.image"
-            class="w-full h-full object-cover transition-transform duration-1000"
-            :class="{ 'scale-105': currentSlide === index }"
+            class="w-full h-full object-cover"
             :alt="`Slide ${index + 1}: ${slide.title}`"
             loading="lazy"
           />
@@ -290,21 +616,6 @@ onUnmounted(() => {
                 <p class="slide-description">
                   {{ slide.description }}
                 </p>
-                <!-- <a href="#" class="cta-button">
-                  {{ slide.cta }}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="cta-icon"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </a> -->
               </div>
             </div>
           </div>
@@ -312,7 +623,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Carousel Controls -->
-      <button class="carousel-control prev" @click="prevSlide" aria-label="Previous slide">
+      <button class="carousel-control prev" @click="prevSlide" aria-label="Slide précédent">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="control-icon"
@@ -326,7 +637,7 @@ onUnmounted(() => {
           />
         </svg>
       </button>
-      <button class="carousel-control next" @click="nextSlide" aria-label="Next slide">
+      <button class="carousel-control next" @click="nextSlide" aria-label="Slide suivant">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="control-icon"
@@ -348,7 +659,7 @@ onUnmounted(() => {
           :key="index"
           :class="['indicator', { active: currentSlide === index }]"
           @click="goToSlide(index)"
-          :aria-label="`Go to slide ${index + 1}`"
+          :aria-label="`Aller au slide ${index + 1}`"
         >
           <span class="progress-bar" v-if="currentSlide === index && !isHovering"></span>
         </button>
@@ -362,7 +673,7 @@ onUnmounted(() => {
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Job title, keywords, or company"
+              placeholder="Poste, compétences ou entreprise"
               class="search-input"
             />
           </div>
@@ -371,7 +682,7 @@ onUnmounted(() => {
             <input
               v-model="locationQuery"
               type="text"
-              placeholder="Location"
+              placeholder="Localisation"
               class="search-input"
             />
           </div>
@@ -384,7 +695,7 @@ onUnmounted(() => {
             </select>
           </div>
           <button type="submit" class="search-button">
-            <span>Search Jobs</span>
+            <span>Rechercher</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="button-icon"
@@ -403,35 +714,72 @@ onUnmounted(() => {
     </div>
     <div class="transition-spacer"></div>
   </div>
-    <section class="featured-jobs">
+  
+  <section class="featured-jobs">
     <div class="container">
-      <!-- Section Catégories en premier -->
       <div class="categories-section">
-        <div class="section-header">
-          <h2 class="section-title">Explorez par Catégories</h2>
-          <p class="section-subtitle">Trouvez le poste qui correspond à vos compétences</p>
+        <div class="section-header with-toggle">
+          <div class="header-content">
+            <div class="header-text">
+              <h2 class="section-title">Explorez par Catégories</h2>
+              <p class="section-subtitle">Trouvez le poste qui correspond à vos compétences</p>
+            </div>
+            
+            <div class="header-toggle" v-if="jobCategories.length > initialCategoriesCount">
+              <button 
+                @click="toggleCategories" 
+                class="toggle-button header-toggle-btn"
+              >
+                <span>{{ showAllCategories ? 'Voir moins' : 'Voir plus' }}</span>
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  class="toggle-icon" 
+                  :class="{ 'rotated': showAllCategories }"
+                  viewBox="0 0 20 20" 
+                  fill="currentColor"
+                >
+                  <path 
+                    fill-rule="evenodd" 
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                    clip-rule="evenodd" 
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="categories-grid">
-          <a v-for="(category, index) in jobCategories" :key="index" href="#" class="category-card">
-            <div class="category-icon" :style="{ backgroundColor: category.color }">
-              <component :is="category.icon" />
-            </div>
-            <div class="category-info">
-              <h4>{{ category.name }}</h4>
-              <p>{{ category.jobs }} offres</p>
-            </div>
-          </a>
+        
+        <div class="categories-container">
+          <div 
+            class="categories-grid"
+            :class="{ 'expanded': showAllCategories }"
+          >
+            <button 
+              v-for="category in displayedCategories" 
+              :key="category.id" 
+              @click="navigateToCategory(category.id)"
+              class="category-card"
+            >
+              <div class="category-icon" :style="{ backgroundColor: category.color }">
+                <component :is="category.icon" />
+              </div>
+              <div class="category-info">
+                <h4>{{ category.name }}</h4>
+                <p>{{ getFormattedJobsCount(category.id) }} offres</p>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Section Opportunités en vedette après -->
+
+
+      <!-- Section Opportunités en vedette -->
       <div class="jobs-section">
-        <!-- Remplacez la section header existante par : -->
         <div class="section-header text-left">
-          <!-- Ajoutez text-left ici -->
           <h2 class="section-title">Opportunités en Vedette</h2>
           <p class="section-subtitle">Découvrez les postes les plus recherchés actuellement</p>
-          <a href="#" class="view-all">
+          <a href="/jobs" class="view-all">
             Voir toutes les offres
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -448,11 +796,51 @@ onUnmounted(() => {
           </a>
         </div>
 
-        <div class="jobs-grid">
-          <div v-for="(job, index) in featuredJobs" :key="index" class="job-card">
+        <!-- État de chargement -->
+        <div v-if="loading" class="loading-container">
+          <div class="loading-grid">
+            <div v-for="n in 6" :key="n" class="job-card loading">
+              <div class="card-header">
+                <div class="company-logo shimmer"></div>
+                <div class="job-meta">
+                  <div class="job-type shimmer" style="width: 80px; height: 24px"></div>
+                  <div class="salary-range shimmer" style="width: 100px; height: 20px"></div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="job-title shimmer" style="width: 70%; height: 24px; margin-bottom: 10px"></div>
+                <div class="company-info">
+                  <div class="company-name shimmer" style="width: 120px; height: 16px"></div>
+                  <div class="location shimmer" style="width: 100px; height: 16px"></div>
+                </div>
+                <div class="job-excerpt">
+                  <div class="shimmer" style="width: 100%; height: 16px; margin-bottom: 8px"></div>
+                  <div class="shimmer" style="width: 80%; height: 16px"></div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <div class="skills">
+                  <div class="skill-tag shimmer" style="width: 60px; height: 24px"></div>
+                  <div class="skill-tag shimmer" style="width: 70px; height: 24px"></div>
+                </div>
+                <div class="apply-button shimmer" style="width: 80px; height: 32px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Offres chargées -->
+        <div v-else-if="limitedFeaturedJobs.length > 0" class="jobs-grid">
+          <div v-for="(job, index) in limitedFeaturedJobs" :key="job.id || index" class="job-card">
             <div class="card-header">
               <div class="company-logo">
-                <img :src="job.logo" :alt="`Logo ${job.company}`" loading="lazy" />
+                <img 
+                  :src="job.logo" 
+                  :alt="`Logo ${job.company}`"
+                  loading="lazy" 
+                  @error="(e: Event) => handleImageError(e, job.companyData || {} as ICompany)"
+                  class="logo-image"
+                />
               </div>
               <div class="job-meta">
                 <span class="job-type" :class="job.type">{{ job.typeLabel }}</span>
@@ -480,7 +868,7 @@ onUnmounted(() => {
               <div class="skills">
                 <span v-for="(skill, i) in job.skills" :key="i" class="skill-tag">{{ skill }}</span>
               </div>
-              <router-link to="/detail/jobs" class="apply-button">
+              <router-link :to="`/detail/jobs/${job.id}`" class="apply-button">
                 Postuler
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path
@@ -493,12 +881,27 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
+
+        <!-- État vide -->
+        <div v-else class="empty-state">
+          <div class="empty-content">
+              <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-3xl flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            <h3>Aucune offre disponible</h3>
+            <p>Il n'y a actuellement aucune offre d'emploi à afficher.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <style scoped>
+/* Les styles restent exactement les mêmes que dans le code précédent */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 .hero-carousel {
@@ -510,12 +913,13 @@ onUnmounted(() => {
   --transition-speed: 0.5s;
   font-family: 'Inter', sans-serif;
 }
+
 .transition-spacer {
-  height: 8rem; /* Ajustez selon vos besoins */
+  height: 8rem;
   position: relative;
   z-index: 5;
   background: linear-gradient(to bottom, transparent 0%, #f9fafb 100%);
-  margin-top: -8rem; /* Remonte l'élément pour qu'il chevauche */
+  margin-top: -8rem;
 }
 
 .carousel-container {
@@ -595,38 +999,6 @@ onUnmounted(() => {
     opacity 0.7s ease-out 0.2s;
 }
 
-.cta-button {
-  display: inline-flex;
-  align-items: center;
-  background-color: var(--primary-color);
-  color: white;
-  padding: 0.875rem 2rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition: all var(--transition-speed) ease 0.3s;
-  text-decoration: none;
-  font-size: 1.125rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  will-change: transform;
-}
-
-.cta-button:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-}
-
-.cta-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-left: 0.75rem;
-  transition: transform var(--transition-speed) ease;
-}
-
-.cta-button:hover .cta-icon {
-  transform: translateX(4px);
-}
-
 .carousel-control {
   position: absolute;
   top: 50%;
@@ -667,7 +1039,7 @@ onUnmounted(() => {
 
 .indicators-container {
   position: absolute;
-  bottom: 6rem; /* Adjusted to make space for search bar */
+  bottom: 6rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -716,6 +1088,150 @@ onUnmounted(() => {
   }
 }
 
+.section-header.with-toggle {
+  margin-bottom: 3rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 2rem;
+}
+
+.header-text {
+  flex: 1;
+  max-width: 600px;
+}
+
+.header-toggle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.toggle-button.header-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  background-color: white;
+  white-space: nowrap;
+}
+
+.toggle-button.header-toggle-btn:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.toggle-icon {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.toggle-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* Pour la section des opportunités en vedette */
+.section-header.with-action {
+  margin-bottom: 3rem;
+}
+
+.section-header.with-action .header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 2rem;
+}
+
+.view-all.header-action {
+  display: inline-flex;
+  align-items: center;
+  color: #16a34a;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #16a34a;
+  border-radius: 0.5rem;
+}
+
+.view-all.header-action:hover {
+  background-color: #16a34a;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.view-all.header-action .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.view-all.header-action:hover .icon {
+  transform: translateX(4px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+  
+  .header-toggle {
+    justify-content: flex-start;
+  }
+  
+  .toggle-button.header-toggle-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .view-all.header-action {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .section-header.with-toggle,
+  .section-header.with-action {
+    margin-bottom: 2rem;
+  }
+  
+  .header-content {
+    gap: 1rem;
+  }
+  
+  .toggle-button.header-toggle-btn,
+  .view-all.header-action {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+}
+
 /* Modern Search Bar Styles */
 .search-container {
   position: absolute;
@@ -730,24 +1246,24 @@ onUnmounted(() => {
 .search-form {
   display: flex;
   background: white;
-  border-radius: 1rem; /* Bordure plus arrondie */
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* Ombre plus prononcée */
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   overflow: hidden;
-  padding: 0.75rem; /* Plus d'espace interne */
-  gap: 0.75rem; /* Plus d'espace entre les éléments */
-  border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure subtile */
-  backdrop-filter: blur(4px); /* Effet de flou léger */
+  padding: 0.75rem;
+  gap: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
 }
 
 .search-input-group {
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 0 1.25rem; /* Plus d'espace interne */
-  background: rgba(248, 250, 252, 0.8); /* Léger effet de transparence */
-  border-radius: 0.75rem; /* Bordure plus arrondie */
+  padding: 0 1.25rem;
+  background: rgba(248, 250, 252, 0.8);
+  border-radius: 0.75rem;
   transition: all 0.3s ease;
-  border: 1px solid rgba(203, 213, 225, 0.3); /* Bordure subtile */
+  border: 1px solid rgba(203, 213, 225, 0.3);
 }
 
 .search-input-group:focus-within {
@@ -766,13 +1282,13 @@ onUnmounted(() => {
 
 .search-input {
   flex: 1;
-  padding: 1.125rem 0; /* Un peu plus de hauteur */
+  padding: 1.125rem 0;
   border: none;
   background: transparent;
   font-size: 1rem;
   color: #1e293b;
   outline: none;
-  font-weight: 500; /* Texte un peu plus gras */
+  font-weight: 500;
 }
 
 .search-input::placeholder {
@@ -855,184 +1371,7 @@ onUnmounted(() => {
   opacity: 1;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .search-container {
-    bottom: -2rem;
-  }
-
-  .search-form {
-    flex-wrap: wrap;
-    padding: 0.5rem;
-    gap: 0.5rem;
-  }
-
-  .search-input-group {
-    flex: 1 1 40%;
-    min-width: 200px;
-    padding: 0 1rem;
-  }
-
-  .search-button {
-    padding: 1rem 1.5rem;
-    flex: 1 1 100%;
-  }
-}
-
-@media (max-width: 768px) {
-  .search-container {
-    bottom: -1.5rem;
-    width: 95%;
-  }
-
-  .search-form {
-    flex-direction: column;
-  }
-
-  .search-input-group {
-    width: 100%;
-  }
-
-  .search-button {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .search-container {
-    bottom: -1rem;
-  }
-
-  .search-input {
-    padding: 1rem 0;
-    font-size: 0.9375rem;
-  }
-
-  .search-select {
-    padding: 1rem 0;
-    font-size: 0.9375rem;
-  }
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .slide-content {
-    padding: 0 5%;
-  }
-
-  .slide-title {
-    font-size: 2.25rem;
-  }
-
-  .slide-description {
-    font-size: 1.125rem;
-  }
-
-  .search-form {
-    flex-wrap: wrap;
-  }
-
-  .search-input-group {
-    flex: 1 1 40%;
-    min-width: 200px;
-  }
-
-  .search-button {
-    flex: 1 1 100%;
-  }
-}
-
-@media (max-width: 768px) {
-  .slide-content {
-    padding: 0 2rem;
-    justify-content: center;
-    text-align: center;
-  }
-
-  .text-content {
-    max-width: 100%;
-  }
-
-  .gradient-overlay {
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 100%);
-  }
-
-  .slide-title {
-    font-size: 2rem;
-  }
-
-  .carousel-control {
-    width: 3rem;
-    height: 3rem;
-  }
-
-  .indicators-container {
-    bottom: 7rem;
-  }
-
-  .search-container {
-    bottom: 1rem;
-    width: 95%;
-  }
-
-  .search-form {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .search-input-group {
-    width: 100%;
-  }
-
-  .search-button {
-    width: 100%;
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .slide-pre-title {
-    font-size: 1rem;
-  }
-
-  .slide-title {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .slide-description {
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .cta-button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-  }
-
-  .carousel-control {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-
-  .control-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-
-  .indicators-container {
-    bottom: 6rem;
-  }
-
-  .indicator {
-    width: 2rem;
-    height: 0.25rem;
-  }
-
-  .search-container {
-    padding: 0 1rem;
-  }
-}
+/* Featured Jobs Section */
 .featured-jobs {
   padding: 5rem 0;
   background-color: #f9fafb;
@@ -1134,7 +1473,13 @@ onUnmounted(() => {
   padding: 1.5rem 1.5rem 0;
 }
 
-.company-logo img {
+.company-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-image {
   width: 40px;
   height: 40px;
   border-radius: 0.5rem;
@@ -1160,9 +1505,29 @@ onUnmounted(() => {
   color: #065f46;
 }
 
-.job-type.contract {
+.job-type.part-time {
   background-color: #e0e7ff;
   color: #3730a3;
+}
+
+.job-type.contract {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.job-type.internship {
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+.job-type.remote {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.job-type.hybrid {
+  background-color: #f3e8ff;
+  color: #6b21a8;
 }
 
 .salary-range {
@@ -1282,11 +1647,15 @@ onUnmounted(() => {
   text-decoration: none;
   transition: all 0.3s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
 }
 
 .category-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .category-icon {
@@ -1317,7 +1686,85 @@ onUnmounted(() => {
   color: #6b7280;
 }
 
+/* Loading States */
+.loading-container {
+  width: 100%;
+}
+
+.loading-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.empty-content {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  color: #9ca3af;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: #6b7280;
+}
+
+/* Responsive Design */
 @media (max-width: 1024px) {
+  .search-container {
+    bottom: -2rem;
+  }
+
+  .search-form {
+    flex-wrap: wrap;
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .search-input-group {
+    flex: 1 1 40%;
+    min-width: 200px;
+    padding: 0 1rem;
+  }
+
+  .search-button {
+    padding: 1rem 1.5rem;
+    flex: 1 1 100%;
+  }
+
   .jobs-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
@@ -1328,12 +1775,60 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .search-container {
+    bottom: -1.5rem;
+    width: 95%;
+  }
+
+  .search-form {
+    flex-direction: column;
+  }
+
+  .search-input-group {
+    width: 100%;
+  }
+
+  .search-button {
+    width: 100%;
+  }
+
+  .slide-content {
+    padding: 0 2rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .text-content {
+    max-width: 100%;
+  }
+
+  .gradient-overlay {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 100%);
+  }
+
+  .slide-title {
+    font-size: 2rem;
+  }
+
+  .carousel-control {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .indicators-container {
+    bottom: 7rem;
+  }
+
   .section-title {
     font-size: 1.875rem;
   }
 
   .categories-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .jobs-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1344,6 +1839,57 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
+  .search-container {
+    bottom: -1rem;
+  }
+
+  .search-input {
+    padding: 1rem 0;
+    font-size: 0.9375rem;
+  }
+
+  .search-select {
+    padding: 1rem 0;
+    font-size: 0.9375rem;
+  }
+
+  .slide-pre-title {
+    font-size: 1rem;
+  }
+
+  .slide-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .slide-description {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .carousel-control {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .control-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .indicators-container {
+    bottom: 6rem;
+  }
+
+  .indicator {
+    width: 2rem;
+    height: 0.25rem;
+  }
+
+  .search-container {
+    padding: 0 1rem;
+  }
+
   .featured-jobs {
     padding: 3rem 0;
   }
@@ -1376,6 +1922,15 @@ onUnmounted(() => {
   .card-footer {
     padding: 1rem;
   }
+
+  .logo-image {
+    width: 35px;
+    height: 35px;
+  }
+
+  .job-title {
+    font-size: 1.2rem;
+  }
 }
 
 @media (max-width: 380px) {
@@ -1400,5 +1955,264 @@ onUnmounted(() => {
   .category-info h4 {
     font-size: 0.9375rem;
   }
+
+  .logo-image {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.categories-section {
+  margin-bottom: 4rem;
+}
+
+.categories-container {
+  position: relative;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  transition: all 0.3s ease;
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.categories-grid.expanded {
+  max-height: none;
+  overflow: visible;
+}
+
+.category-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  min-height: 100px;
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.category-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.category-icon svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.category-info h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.25rem;
+  line-height: 1.3;
+}
+
+.category-info p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.categories-toggle {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  position: relative;
+}
+
+.categories-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  background-color: white;
+}
+
+.toggle-button:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.toggle-icon {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.toggle-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* Gradient overlay pour l'état réduit */
+.categories-grid:not(.expanded) {
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .categories-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.25rem;
+  }
+  
+  .category-card {
+    padding: 1.25rem;
+    min-height: 90px;
+  }
+  
+  .category-info h4 {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .categories-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    max-height: 350px;
+  }
+  
+  .category-card {
+    padding: 1rem;
+    min-height: 85px;
+    gap: 0.75rem;
+  }
+  
+  .category-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .category-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .category-info h4 {
+    font-size: 0.875rem;
+  }
+  
+  .category-info p {
+    font-size: 0.8125rem;
+  }
+  
+  .initial-categories-count {
+    initialCategoriesCount: 6;
+  }
+}
+
+@media (max-width: 640px) {
+  .categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: 300px;
+  }
+  
+  .category-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.25rem 1rem;
+    min-height: 110px;
+  }
+  
+  .category-info h4 {
+    font-size: 0.875rem;
+  }
+  
+  .toggle-button {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .initial-categories-count {
+    initialCategoriesCount: 4;
+  }
+}
+
+@media (max-width: 480px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+    max-height: 280px;
+  }
+  
+  .category-card {
+    flex-direction: row;
+    text-align: left;
+    min-height: 80px;
+  }
+  
+  .categories-section {
+    margin-bottom: 3rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+  }
+  
+  .section-subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Animation pour le déploiement */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.categories-grid.expanded .category-card:nth-child(n+9) {
+  animation: fadeIn 0.4s ease-out;
 }
 </style>
