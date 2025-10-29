@@ -22,7 +22,7 @@ const companyService = useCompanyService();
 const user=getUser()
 const userId=user?.id
 
-// États réactifs
+
 const job = ref<IJobCreate>({
   companyId: 0,
   title: '',
@@ -51,7 +51,6 @@ const newCompany = ref({
   webSiteUrl: ''
 });
 
-// Données pour les selects
 const jobTypes = [
   { value: JobType.FULL_TIME, label: 'Temps plein' },
   { value: JobType.PART_TIME, label: 'Temps partiel' },
@@ -79,6 +78,42 @@ const sectors = [
   { value: 'ENGINEERING', label: 'Ingénierie' },
   { value: 'CONSULTING', label: 'Consulting' },
   { value: 'RETAIL', label: 'Commerce' },
+  { value: 'BUSINESS', label: 'Business' },
+  { value: 'ACCOUNTING', label: 'Comptabilité' },
+  { value: 'BANKING', label: 'Banque' },
+  { value: 'COMMUNICATION', label: 'Communication' },
+  { value: 'ADVERTISING', label: 'Publicité' },
+  { value: 'CREATIVE', label: 'Créatif' },
+  { value: 'ARTS', label: 'Arts' },
+  { value: 'MEDICAL', label: 'Médical' },
+  { value: 'SOCIAL', label: 'Social' },
+  { value: 'CARE', label: 'Soins' },
+  { value: 'TRAINING', label: 'Formation' },
+  { value: 'TEACHING', label: 'Enseignement' },
+  { value: 'CONSTRUCTION', label: 'Construction' },
+  { value: 'BUILDING', label: 'Bâtiment' },
+  { value: 'LOGISTICS', label: 'Logistique' },
+  { value: 'TRANSPORT', label: 'Transport' },
+  { value: 'SUPPLY_CHAIN', label: 'Chaîne d\'approvisionnement' },
+  { value: 'COMMERCE', label: 'Commerce' },
+  { value: 'HOSPITALITY', label: 'Hôtellerie' },
+  { value: 'RESTAURANT', label: 'Restauration' },
+  { value: 'TOURISM', label: 'Tourisme' },
+  { value: 'ADMINISTRATION', label: 'Administration' },
+  { value: 'SECRETARIAL', label: 'Secrétariat' },
+  { value: 'OFFICE', label: 'Bureau' },
+  { value: 'PRODUCTION', label: 'Production' },
+  { value: 'MANUFACTURING', label: 'Fabrication' },
+  { value: 'INDUSTRY', label: 'Industrie' },
+  { value: 'MAINTENANCE', label: 'Maintenance' },
+  { value: 'REPAIR', label: 'Réparation' },
+  { value: 'TECHNICAL', label: 'Technique' },
+  { value: 'CLEANING', label: 'Nettoyage' },
+  { value: 'DOMESTIC', label: 'Domestique' },
+  { value: 'SERVICES', label: 'Services' },
+  { value: 'SECURITY', label: 'Sécurité' },
+  { value: 'SURVEILLANCE', label: 'Surveillance' },
+  { value: 'PROTECTION', label: 'Protection' }
 ];
 
 const jobStatuses = [
@@ -87,22 +122,19 @@ const jobStatuses = [
   { value: JobStatus.CLOSED, label: 'Fermé' },
 ];
 
-// Entreprise sélectionnée
 const selectedCompany = computed(() => {
   return companies.value.find((company: any) => company.id === job.value.companyId);
 });
 
 
-// Charger les entreprises de l'utilisateur
 const loadUserCompanies = async () => {
   try {
     isLoadingCompanies.value = true;
-    console.log('🔍 User ID utilisé:', userId);
+    console.log('User ID utilisé:', userId);
     
-    const userCompanies = await companyService.getCompaniesByUser(userId);
-    console.log('📦 Données récupérées:', userCompanies);
+    const userCompanies = await companyService.getCompaniesByUser(userId ?? 0);
+    console.log('Données récupérées:', userCompanies);
     
-    // CORRECTION : Gérer le cas où c'est un objet unique
     if (userCompanies && typeof userCompanies === 'object' && !Array.isArray(userCompanies)) {
       // Si c'est un objet unique, le mettre dans un tableau
       companies.value = [userCompanies];
@@ -137,7 +169,6 @@ const loadUserCompanies = async () => {
 };
 
 
-// Réinitialiser le formulaire d'entreprise
 const resetCompanyForm = () => {
   newCompany.value = {
     name: '',
@@ -147,14 +178,12 @@ const resetCompanyForm = () => {
   };
 };
 
-// Charger les compétences disponibles
 const loadAvailableSkills = async () => {
   try {
     const response = await jobService.getAllSkills(0, 100);
     availableSkills.value = [...new Set(response.content.map(skill => skill.skillName))];
   } catch (error) {
     console.error('Erreur lors du chargement des compétences:', error);
-    // Compétences par défaut en cas d'erreur
     availableSkills.value = [
       'JavaScript', 'Vue.js', 'React', 'Node.js', 'Python', 'Java',
       'TypeScript', 'AWS', 'Docker', 'Kubernetes', 'SQL', 'NoSQL',
@@ -163,18 +192,16 @@ const loadAvailableSkills = async () => {
   }
 };
 
-// Ajouter une compétence
 const addSkill = (skillName: string, experienceYear: number = 1) => {
   if (!skills.value.find(s => s.skillName === skillName)) {
     skills.value.push({
       skillName,
-      jobOfferId: 0, // Sera mis à jour après création de l'offre
+      jobOfferId: 0, 
       experienceYear
     });
   }
 };
 
-// Ajouter une compétence personnalisée
 const addCustomSkill = () => {
   if (customSkill.value.trim() && !skills.value.find(s => s.skillName === customSkill.value.trim())) {
     skills.value.push({
@@ -187,12 +214,11 @@ const addCustomSkill = () => {
   }
 };
 
-// Supprimer une compétence
 const removeSkill = (skillName: string) => {
   skills.value = skills.value.filter(s => s.skillName !== skillName);
 };
 
-// Soumettre l'offre
+
 const submitJob = async () => {
   if (!validateForm()) {
     return;
@@ -200,18 +226,15 @@ const submitJob = async () => {
 
   isSubmitting.value = true;
   try {
-    // CORRECTION : S'assurer que la localisation est bien incluse
     const jobData = {
       ...job.value,
-      location: job.value.location.trim() // Nettoyer la localisation
+      location: job.value.location.trim() 
     };
     
     console.log('📤 Données envoyées:', jobData);
-    
-    // 1. Créer l'offre d'emploi
+
     const createdJob = await jobService.createJob(jobData);
     
-    // 2. Créer les compétences associées
     if (skills.value.length > 0) {
       const skillsWithJobId = skills.value.map(skill => ({
         ...skill,
@@ -227,7 +250,6 @@ const submitJob = async () => {
       duration: 5000,
     });
     
-    // 3. Réinitialiser le formulaire
     resetForm();
     
   } catch (error: any) {
@@ -243,7 +265,6 @@ const submitJob = async () => {
   }
 };
 
-// Valider le formulaire
 const validateForm = (): boolean => {
   if (!job.value.companyId) {
     toast.open({
@@ -298,7 +319,6 @@ const validateForm = (): boolean => {
   return true;
 };
 
-// Réinitialiser le formulaire
 const resetForm = () => {
   job.value = {
     companyId: companies.value.length > 0 ? companies.value[0].id : 0,
@@ -315,7 +335,6 @@ const resetForm = () => {
   skills.value = [];
 };
 
-// Au montage du composant
 onMounted(() => {
   loadUserCompanies();
   loadAvailableSkills();
@@ -324,8 +343,6 @@ onMounted(() => {
 
 <template>
   <Navbar />
-  
-  <!-- Header Hero -->
   <header class="relative overflow-hidden bg-gradient-to-br mt-5 sm:mt-15 from-emerald-700 to-teal-600 py-24 px-4 sm:px-6 lg:px-8">
     <div class="absolute inset-0 overflow-hidden">
       <div class="absolute inset-0 bg-gradient-to-br from-emerald-800/30 to-teal-500/20"></div>
@@ -354,16 +371,13 @@ onMounted(() => {
     <div class="absolute bottom-0 left-0 right-0 h-16 bg-white/5 transform -skew-y-3 origin-bottom-left animate-wave"></div>
   </header>
 
-  <!-- Formulaire principal -->
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50/30 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
       <div class="flex flex-col lg:flex-row gap-8">
-        
-        <!-- Section Formulaire -->
+      
         <div class="w-full lg:w-2/3">
           <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-            <!-- En-tête du formulaire -->
             <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -380,7 +394,6 @@ onMounted(() => {
 
             <div class="p-6 md:p-8">
               <form @submit.prevent="submitJob" class="space-y-8">
-                <!-- Sélection de l'entreprise -->
                 <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100">
                   <label class="block text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -408,9 +421,7 @@ onMounted(() => {
                   </div>
                 </div>
 
-                <!-- Informations principales -->
                 <div class="grid grid-cols-1 gap-8">
-                  <!-- Titre du poste -->
                   <div>
                     <label class="block text-lg font-semibold text-gray-800 mb-4 flex items-center">
                       <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -426,8 +437,6 @@ onMounted(() => {
                       required
                     />
                   </div>
-
-                  <!-- Localisation et Secteur -->
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label class="block text-sm font-semibold text-gray-700 mb-3">
@@ -461,8 +470,6 @@ onMounted(() => {
                       </select>
                     </div>
                   </div>
-
-                  <!-- Type de contrat et Niveau d'expérience -->
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label class="block text-sm font-semibold text-gray-700 mb-3">
@@ -492,7 +499,6 @@ onMounted(() => {
                     </div>
                   </div>
 
-                  <!-- Salaire Min et Max -->
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label class="block text-sm font-semibold text-gray-700 mb-3">
@@ -530,7 +536,6 @@ onMounted(() => {
                     </div>
                   </div>
 
-                  <!-- Statut -->
                   <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-3">
                       Statut de l'offre <span class="text-red-500">*</span>
@@ -546,7 +551,6 @@ onMounted(() => {
                   </div>
                 </div>
 
-                <!-- Compétences -->
                 <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100">
                   <label class="block text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -555,7 +559,6 @@ onMounted(() => {
                     Compétences requises
                   </label>
                   
-                  <!-- Compétences sélectionnées -->
                   <div class="mb-6">
                     <p class="text-sm font-medium text-gray-700 mb-3">Compétences sélectionnées :</p>
                     <div class="flex flex-wrap gap-3">
@@ -582,7 +585,6 @@ onMounted(() => {
                     </p>
                   </div>
                   
-                  <!-- Compétences disponibles -->
                   <div class="mb-6">
                     <p class="text-sm font-medium text-gray-700 mb-3">Compétences populaires :</p>
                     <div class="flex flex-wrap gap-2">
@@ -602,7 +604,6 @@ onMounted(() => {
                     </div>
                   </div>
                   
-                  <!-- Compétence personnalisée -->
                   <div>
                     <p class="text-sm font-medium text-gray-700 mb-3">Ajouter une compétence personnalisée :</p>
                     <div class="flex flex-col sm:flex-row gap-3">
@@ -637,7 +638,7 @@ onMounted(() => {
                   </div>
                 </div>
 
-                <!-- Description -->
+
                 <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100">
                   <label class="block text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -649,11 +650,11 @@ onMounted(() => {
                     v-model="job.description"
                     rows="8"
                     placeholder="Décrivez en détail :
-• Les responsabilités du poste
-• Les qualifications requises
-• Les avantages offerts
-• La culture d'entreprise
-• Les perspectives d'évolution..."
+  • Les responsabilités du poste
+  • Les qualifications requises
+  • Les avantages offerts
+  • La culture d'entreprise
+  • Les perspectives d'évolution..."
                     class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm resize-vertical"
                     required
                   ></textarea>
@@ -662,7 +663,6 @@ onMounted(() => {
                   </p>
                 </div>
 
-                <!-- Bouton de soumission -->
                 <div class="pt-6 border-t border-gray-200">
                   <button
                     type="submit"
@@ -697,10 +697,8 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Aperçu -->
         <div class="w-full lg:w-1/3">
           <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 sticky top-6">
-            <!-- En-tête aperçu -->
             <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
               <div class="flex items-center">
                 <svg class="w-6 h-6 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -711,7 +709,6 @@ onMounted(() => {
             </div>
 
             <div class="p-6 bg-gradient-to-b from-emerald-50 to-white">
-              <!-- En-tête offre -->
               <div class="text-center mb-6 pb-6 border-b border-gray-200">
                 <div class="w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -733,7 +730,6 @@ onMounted(() => {
                 </p>
               </div>
               
-              <!-- Métadonnées -->
               <div class="mb-6">
                 <h4 class="text-sm font-semibold text-gray-700 mb-3">Détails du poste :</h4>
                 <div class="grid grid-cols-2 gap-3">
@@ -764,7 +760,6 @@ onMounted(() => {
                 </div>
               </div>
               
-              <!-- Compétences -->
               <div v-if="skills.length > 0" class="mb-6">
                 <h4 class="text-sm font-semibold text-gray-700 mb-3">Compétences requises :</h4>
                 <div class="flex flex-wrap gap-2">
@@ -778,7 +773,6 @@ onMounted(() => {
                 </div>
               </div>
               
-              <!-- Description -->
               <div>
                 <h4 class="text-sm font-semibold text-gray-700 mb-3">Description :</h4>
                 <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm max-h-48 overflow-y-auto">
@@ -788,8 +782,7 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-            
-            <!-- Statut -->
+ 
             <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -810,7 +803,6 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Indicateur de progression -->
           <div class="mt-6 bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
             <h4 class="text-lg font-semibold text-gray-800 mb-4">Progression de création</h4>
             <div class="space-y-4">
@@ -854,36 +846,10 @@ onMounted(() => {
       </div>
     </div>
   </div>
-
-  <!-- Modal de création d'entreprise -->
-  <div v-if="showCompanyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto transform animate-scale-in">
-      <div class="p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl font-bold text-gray-800 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-            </svg>
-            Nouvelle entreprise
-          </h3>
-          <button
-            @click="showCompanyModal = false"
-            class="text-gray-400 hover:text-gray-600 transition duration-200 p-1 hover:bg-gray-100 rounded-lg"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
   <Footer />
 </template>
 
 <style>
-/* Animations */
 @keyframes blobSlow {
   0%, 100% { transform: translate(0, 0) scale(1); }
   50% { transform: translate(20px, -30px) scale(1.05); }
