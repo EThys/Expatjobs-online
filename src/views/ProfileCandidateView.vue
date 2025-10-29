@@ -797,7 +797,7 @@ import { getUser } from '@/stores/user';
 const candidateService = useCandidateService();
 
 const user=getUser()
-const userId=user?.id
+const userId = user!.id 
 
 const candidateData = ref<ICandidateData>({
   profile: {

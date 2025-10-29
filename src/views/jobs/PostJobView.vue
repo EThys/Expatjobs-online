@@ -12,7 +12,7 @@ import { useCompanyService } from '@/utils/service/CompagnyService'
 //@ts-ignore
 import  { IJobCreate, ISkillCreate, JobType, ExperienceLevel, JobStatus } from '@/utils/interface/IJobOffers'
 //@ts-ignore
-import  { ICompany } from '@/utils/interface/ICompany'
+import  { ICompany } from '@/utils/interface/ICompagny'
 import {getUser} from '@/stores/authStorage'
 
 const toast = useToast();
