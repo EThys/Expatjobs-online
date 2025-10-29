@@ -133,7 +133,6 @@ const registerValidate = async () => {
     return;
   }
 
-  // Validation des conditions d'utilisation
   if (!termsAccepted.value) {
     setTimeout(() => {
       toast.open({
@@ -149,7 +148,6 @@ const registerValidate = async () => {
 
   const emailforRegex = userRegister.value.email as string;
   
-  // Validation de l'email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(emailforRegex)) {
     setTimeout(() => {
@@ -239,7 +237,6 @@ const registerValidate = async () => {
   await register();
 }
 
-// Fonction d'inscription principale
 const register = async () => {
   loading.value = true;
   const data = JSON.parse(JSON.stringify(userRegister.value));
@@ -257,7 +254,6 @@ const register = async () => {
     });
   }, 30000);
 
-  // Debug: affichez l'URL complète
   const fullUrl = `http://localhost:8080/api/${ApiRoutes.register}`;
   console.log('URL de la requête:', fullUrl);
   console.log('Données envoyées:', data);
@@ -312,22 +308,17 @@ const passwordRequirements = computed(() => {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-green-50 p-4 relative overflow-hidden">
-    <!-- Effets de fond animés -->
     <div class="absolute inset-0 overflow-hidden -z-10">
       <div class="absolute -top-20 -left-20 w-96 h-96 bg-green-200/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
       <div class="absolute -bottom-20 -right-20 w-96 h-96 bg-teal-200/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
       <div class="absolute -top-10 right-1/3 w-72 h-72 bg-cyan-200/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
     </div>
 
-    <!-- Conteneur principal -->
     <div class="w-full max-w-5xl mx-auto relative z-10">
       <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-50">
         <div class="grid grid-cols-1 md:grid-cols-2">
-          <!-- Section visuelle (gauche) -->
           <div class="relative p-10 bg-gradient-to-br from-green-600 to-teal-500 text-white overflow-hidden hidden md:block">
-            <!-- Effet de verre dépoli -->
             <div class="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-            <!-- Contenu -->
             <div class="relative z-10 flex flex-col h-full justify-center items-center text-center px-6">
               <div class="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mb-6 shadow-lg border border-white/30">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -336,24 +327,19 @@ const passwordRequirements = computed(() => {
               </div>
               <h1 class="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-green-100">Expat<span class="font-light">Jobs</span></h1>
               <p class="text-green-100/90 mb-8 max-w-xs">Rejoignez notre communauté professionnelle et accédez à des opportunités mondiales.</p>
-              <!-- Éléments décoratifs -->
               <div class="absolute bottom-6 left-6 w-16 h-16 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20"></div>
               <div class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20"></div>
             </div>
           </div>
-
-          <!-- Section formulaire (droite) -->
           <div class="p-8 sm:p-12">
             <div class="max-w-md mx-auto">
               <h2 class="text-2xl font-bold text-gray-800 mb-1 text-center">Créer un compte</h2>
               <p class="text-gray-500 text-sm mb-8 text-center">Rejoignez notre communauté et accédez à des opportunités exclusives.</p>
 
               <form @submit.prevent="registerValidate" class="space-y-5">
-                <!-- Sélection du rôle -->
                 <div class="space-y-3">
                   <label class="text-sm font-medium text-gray-700">Je suis :</label>
                   <div class="grid grid-cols-2 gap-3">
-                    <!-- Bouton Candidat -->
                     <button
                       type="button"
                       @click="setRole('CANDIDATE')"
@@ -368,8 +354,7 @@ const passwordRequirements = computed(() => {
                       <span class="font-medium">Candidat</span>
                       <span class="text-xs text-gray-500 text-center">Je cherche un emploi</span>
                     </button>
-                    
-                    <!-- Bouton Recruteur -->
+
                     <button
                       type="button"
                       @click="setRole('RECRUITER')"
@@ -388,7 +373,6 @@ const passwordRequirements = computed(() => {
                 
                 </div>
 
-                <!-- Nom complet -->
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <UserIcon class="h-5 w-5 text-gray-400" />
@@ -401,7 +385,6 @@ const passwordRequirements = computed(() => {
                   />
                 </div>
 
-                <!-- Email -->
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <EnvelopeIcon class="h-5 w-5 text-gray-400" />
@@ -415,7 +398,6 @@ const passwordRequirements = computed(() => {
                   />
                 </div>
 
-                <!-- Téléphone -->
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <PhoneIcon class="h-5 w-5 text-gray-400" />
@@ -429,7 +411,6 @@ const passwordRequirements = computed(() => {
                   />
                 </div>
 
-                <!-- Mot de passe -->
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <LockClosedIcon class="h-5 w-5 text-gray-400" />
@@ -545,7 +526,6 @@ const passwordRequirements = computed(() => {
                   </span>
                 </div>
 
-                <!-- Conditions d'utilisation -->
                 <div class="flex items-start">
                   <div class="flex items-center h-5">
                     <input
@@ -563,7 +543,7 @@ const passwordRequirements = computed(() => {
                   </div>
                 </div>
 
-                <!-- Bouton d'inscription -->
+  
                 <button
                   type="submit"
                   :disabled="loading || !termsAccepted"
@@ -585,7 +565,6 @@ const passwordRequirements = computed(() => {
                   </span>
                 </button>
 
-                <!-- Séparateur -->
                 <div class="relative my-6">
                   <div class="absolute inset-0 flex items-center">
                     <div class="w-full border-t border-gray-200"></div>
@@ -595,7 +574,6 @@ const passwordRequirements = computed(() => {
                   </div>
                 </div>
 
-                <!-- Lien de connexion -->
                 <div class="mt-6 text-center text-sm text-gray-500">
                   <p>
                     Vous avez déjà un compte ?
@@ -614,7 +592,6 @@ const passwordRequirements = computed(() => {
 </template>
 
 <style scoped>
-/* Animation des "blobs" en arrière-plan */
 @keyframes blob {
   0% { transform: translate(0px, 0px) scale(1); }
   33% { transform: translate(30px, -50px) scale(1.1); }
@@ -631,7 +608,6 @@ const passwordRequirements = computed(() => {
   animation-delay: 4s;
 }
 
-/* Animation du spinner */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -640,35 +616,30 @@ const passwordRequirements = computed(() => {
   animation: spin 1s linear infinite;
 }
 
-/* Effet de survol des boutons */
 button:hover {
   transform: translateY(-1px);
 }
 
-/* Transition douce */
 button, input {
   transition: all 0.3s ease;
 }
 
-/* Effet de focus personnalisé */
 input:focus {
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
   border-color: #10B981;
 }
 
-/* Effet de verre dépoli */
 .backdrop-blur-sm {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* Dégradé de texte */
 .bg-clip-text {
   background-clip: text;
   -webkit-background-clip: text;
 }
 
-/* Responsive : masquer la section visuelle sur mobile */
+
 @media (max-width: 768px) {
   .md\:grid-cols-2 {
     grid-template-columns: 1fr;
