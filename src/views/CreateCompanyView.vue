@@ -9,6 +9,8 @@ import Footer from '../components/footer/FooterComponent.vue'
 //@ts-ignore
 import { useCompanyService } from '@/utils/service/CompagnyService'
 import { getUser } from '@/stores/authStorage'
+import type { ICompagny } from '@/utils/interface/user/ICompagny';
+import type { ICompanyCreate } from '@/utils/interface/ICompagny';
 
 const toast = useToast();
 const router = useRouter();
@@ -105,13 +107,33 @@ const createCompany = async () => {
 
   isSubmitting.value = true;
   try {
-    const companyData = {
+    const companyData :ICompagny= {
       ...company.value,
       userId: userId
     };
+
+    const createCompanyHandler = async (companyData: ICompagny) => {
+  // Valider que userId existe
+  if (!companyData.userId) {
+    throw new Error('User ID is required to create a company')
+  }
+
+  const createData: ICompanyCreate = {
+      name: companyData.name,
+      location: companyData.location,
+      webSiteUrl: companyData.webSiteUrl,
+      description: companyData.description?? "",
+      userId: companyData.userId 
+  }
+
+    const createdCompany = await companyService.createCompany(createData)
+    return createdCompany
+  }
+
+
+const createdCompany = await createCompanyHandler(companyData)
     
 
-    const createdCompany = await companyService.createCompany(companyData);
     
     toast.open({
       message: 'Entreprise créée avec succès ! 🎉',
