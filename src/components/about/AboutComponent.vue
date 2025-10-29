@@ -240,10 +240,6 @@
   perspective: 1000px;
 }
 
-.group:hover .group-hover\:translate-y-\\[-5px\\] {
-  transform: translateY(-5px);
-}
-
 .group:hover .group-hover\:opacity-100 {
   opacity: 1;
 }
