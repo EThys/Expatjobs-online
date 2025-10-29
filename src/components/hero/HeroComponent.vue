@@ -354,12 +354,13 @@ const enrichJobsWithCompanyData = async (jobs: IJob[]): Promise<any[]> => {
 
         try {
           const company = await companyService.getCompanyById(job.companyId);
-          const companyData = {
+          const companyData: ICompany = {
             id: company.id,
             name: company.name,
             location: company.location,
             webSiteUrl: company.webSiteUrl,
-            description: company.description
+            description: company.description,
+            userId:0,
           };
           
           companyCache.set(job.companyId, companyData);
@@ -370,11 +371,13 @@ const enrichJobsWithCompanyData = async (jobs: IJob[]): Promise<any[]> => {
           };
         } catch (error) {
           console.warn(`Impossible de récupérer l'entreprise pour l'offre ${job.id}:`, error);
-          const fallbackCompany = {
+          const fallbackCompany :ICompany = {
             id: job.companyId,
             name: `Entreprise #${job.companyId}`,
             location: 'Non spécifié',
-            webSiteUrl: ''
+            webSiteUrl: '',
+            userId:0,
+            description:''
           };
           
           companyCache.set(job.companyId, fallbackCompany);
