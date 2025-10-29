@@ -1,0 +1,13 @@
+{
+  "author": {
+    "name": "Muzola_Ethberg",
+    "email": "ethbergmuzola@gmail.com",
+    "website": "https://muzolaethberg.vercel.app",
+    "signature": "Développé par Muzola ethberg"
+  },
+  "project": {
+    "name": "ExpatsJobs",
+    "version": "1.0.0",
+    "description": "Plateforme de recherche d'emploi "
+  }
+}
