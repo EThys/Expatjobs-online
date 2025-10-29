@@ -4,11 +4,10 @@
     <div class="absolute inset-0 overflow-hidden -z-10">
       <div class="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-300/10 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
       <div class="absolute -bottom-40 -right-40 w-[700px] h-[700px] bg-cyan-300/10 rounded-full mix-blend-multiply filter blur-3xl animate-float-reverse"></div>
-      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9InVybCgjZ3JhZGllbnQpIj48L3JlY3Q+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudCIgeDE9IjAiIHkxPSIwIiB4Mj0iMTAwIiB5Mj0iMTAwIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmZmZmYiIvPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2ZmZmZmYiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZmZmZmYiIvPjwvbGluZWFyR3JhZGllbnQ+PC9zdmc+')] opacity-10"></div>
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9InVybCgjZ3JhZGllbnQpIj48L3JlY3Q+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudCIgeDE9IjAiIHkxPSIwIiB4Mj0iMTAwIiB5Mj0iMTAwIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmZmZmYiLz48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmZmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmZmZmYiLz48L2xpbmVhckdyYWRpZW50Pjwvc3ZnPg==')] opacity-10"></div>
     </div>
 
     <div class="max-w-7xl mx-auto">
-      <!-- En-tête de section avec badge moderne -->
       <div class="text-center mb-12 md:mb-16">
         <div class="inline-flex items-center justify-center px-6 py-3 mb-6 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-white/30">
           <BuildingOfficeIcon class="w-6 h-6 mr-3 text-emerald-600" />
@@ -24,9 +23,26 @@
         </p>
       </div>
 
-      <!-- Carrousel d'entreprises avec effets 3D -->
-      <div class="relative">
-        <!-- Navigation -->
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-12">
+        <div class="inline-flex items-center justify-center px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full">
+          <ArrowPathIcon class="w-6 h-6 mr-3 text-emerald-600 animate-spin" />
+          <span class="text-sm font-medium text-gray-700">Chargement des entreprises...</span>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-12">
+        <div class="inline-flex items-center justify-center px-6 py-3 bg-red-50 border border-red-200 rounded-full">
+          <ExclamationTriangleIcon class="w-6 h-6 mr-3 text-red-600" />
+          <span class="text-sm font-medium text-red-700">{{ error }}</span>
+        </div>
+        <button @click="loadCompanies" class="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition-colors">
+          Réessayer
+        </button>
+      </div>
+
+      <div v-else-if="companies.length > 0" class="relative">
         <button @click="prevSlide" class="carousel-nav prev" aria-label="Previous">
           <ChevronLeftIcon class="w-6 h-6" />
         </button>
@@ -34,16 +50,18 @@
           <ChevronRightIcon class="w-6 h-6" />
         </button>
 
-        <!-- Conteneur du carrousel -->
         <div class="carousel-container">
           <div class="companies-grid" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
             <div v-for="company in companies" :key="company.id" class="company-card">
               <div class="card-inner">
-                <!-- En-tête de la carte avec logo -->
                 <div class="card-header">
                   <div class="company-logo-container">
                     <div class="company-logo">
-                      <img :src="company.logo" :alt="company.name" @error="(e: any) => e.target.src = `https://via.placeholder.com/80x80/10b981/ffffff?text=${company.name.charAt(0)}`" />
+                      <img 
+                        :src="getCompanyLogo(company)" 
+                        :alt="company.name" 
+                        @error="(e: any) => e.target.src = getFallbackLogo(company)" 
+                      />
                     </div>
                     <CheckBadgeIcon v-if="company.isFavorite" class="verified-badge" />
                   </div>
@@ -53,43 +71,41 @@
                     <HeartIcon v-else class="w-6 h-6 text-gray-400 hover:text-red-400" />
                   </button>
                 </div>
-
-                <!-- Corps de la carte -->
                 <div class="card-body">
                   <h3 class="company-name">{{ company.name }}</h3>
 
                   <div class="company-meta">
                     <div class="meta-item">
                       <MapPinIcon class="w-4 h-4 text-gray-400" />
-                      <span>{{ company.location }}</span>
+                      <span>{{ company.location || 'Localisation non spécifiée' }}</span>
                     </div>
                     <div class="meta-item">
-                      <BuildingOfficeIcon class="w-4 h-4 text-gray-400" />
-                      <span>{{ company.industry }}</span>
+                      <GlobeAltIcon class="w-4 h-4 text-gray-400" />
+                      <span>{{ getDomainFromUrl(company.webSiteUrl) || 'Site web non spécifié' }}</span>
                     </div>
                   </div>
 
+                  <p class="company-description">{{ truncateDescription(company.description) }}</p>
+
                   <div class="highlights">
-                    <span v-for="(highlight, index) in company.highlights" :key="index" class="highlight-tag">
+                    <span v-for="(highlight, index) in getCompanyHighlights(company)" :key="index" class="highlight-tag">
                       {{ highlight }}
                     </span>
                   </div>
                 </div>
 
-                <!-- Pied de carte -->
                 <div class="card-footer">
                   <div class="jobs-info">
                     <ArrowPathIcon class="w-4 h-4 text-emerald-600" />
-                    <span>{{ company.jobsCount }} postes ouverts</span>
+                    <span>{{ getRandomJobsCount(company.id) }} postes ouverts</span>
                   </div>
-                  <a href="#" class="view-jobs-btn">Voir les offres →</a>
+                  <a :href="company.webSiteUrl || '#'" target="_blank" class="view-jobs-btn">Visiter le site →</a>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Indicateurs -->
         <div class="carousel-indicators">
           <button
             v-for="(_, index) in Math.ceil(companies.length / visibleSlides)"
@@ -100,8 +116,13 @@
           ></button>
         </div>
       </div>
+      <div v-else class="text-center py-12">
+        <div class="inline-flex items-center justify-center px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full">
+          <BuildingOfficeIcon class="w-6 h-6 mr-3 text-gray-400" />
+          <span class="text-sm font-medium text-gray-700">Aucune entreprise disponible</span>
+        </div>
+      </div>
 
-      <!-- Section CTA moderne -->
       <div class="cta-section mt-20">
         <div class="cta-content">
           <div class="cta-badge">
@@ -145,110 +166,84 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   HeartIcon,
-  CheckBadgeIcon
+  CheckBadgeIcon,
+  GlobeAltIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/vue/24/outline'
 import { HeartIcon as HeartIconSolid } from '@heroicons/vue/24/solid'
+import { useCompanyService } from '../../utils/service/CompagnyService'
+import type { ICompany } from '@/utils/interface/ICompagny'
 
-interface Company {
-  id: number
-  name: string
-  logo: string
-  location: string
-  jobsCount: number
-  industry: string
+interface CompanyWithUI extends ICompany {
   isFavorite: boolean
   highlights: string[]
+  jobsCount: number
 }
 
-const companies = ref<Company[]>([
-  {
-    id: 1,
-    name: 'Yandex',
-    logo: 'https://logo.clearbit.com/yandex.com',
-    location: 'Moscou, Russie',
-    jobsCount: 42,
-    industry: 'Technologie',
-    isFavorite: false,
-    highlights: ['Flex-office', 'Télétravail', 'Bonus annuel']
-  },
-  {
-    id: 2,
-    name: 'Tinkoff',
-    logo: 'https://logo.clearbit.com/tinkoff.ru',
-    location: 'Remote',
-    jobsCount: 28,
-    industry: 'Fintech',
-    isFavorite: true,
-    highlights: ['100% remote', 'Stock options', 'Équipe internationale']
-  },
-  {
-    id: 3,
-    name: 'Wildberries',
-    logo: 'https://logo.clearbit.com/wildberries.ru',
-    location: 'Saint-Pétersbourg',
-    jobsCount: 15,
-    industry: 'E-commerce',
-    isFavorite: false,
-    highlights: ['Croissance rapide', 'Panier repas', 'Horaires flexibles']
-  },
-  {
-    id: 4,
-    name: 'VK (Mail.ru Group)',
-    logo: 'https://logo.clearbit.com/vk.com',
-    location: 'Moscou',
-    jobsCount: 36,
-    industry: 'Réseaux sociaux',
-    isFavorite: false,
-    highlights: ['Projets innovants', 'Formations', 'Événements tech']
-  },
-  {
-    id: 5,
-    name: 'Ozon',
-    logo: 'https://logo.clearbit.com/ozon.ru',
-    location: 'Kazan',
-    jobsCount: 19,
-    industry: 'E-commerce',
-    isFavorite: true,
-    highlights: ['Programme de formation', 'Crèche', 'Tickets restaurant']
-  },
-  {
-    id: 6,
-    name: 'SberTech',
-    logo: 'https://logo.clearbit.com/sber.ru',
-    location: 'Moscou',
-    jobsCount: 31,
-    industry: 'Banque & Tech',
-    isFavorite: false,
-    highlights: ['Laboratoire R&D', 'Conférences', 'Prime de transport']
-  },
-  {
-    id: 7,
-    name: 'Gazprom Neft',
-    logo: 'https://logo.clearbit.com/gazprom-neft.com',
-    location: 'Saint-Pétersbourg',
-    jobsCount: 22,
-    industry: 'Énergie',
-    isFavorite: false,
-    highlights: ['Avantages sociaux', 'Stabilité', 'Programme de carrière']
-  },
-  {
-    id: 8,
-    name: 'MTS',
-    logo: 'https://logo.clearbit.com/mts.ru',
-    location: 'Moscou',
-    jobsCount: 17,
-    industry: 'Télécommunications',
-    isFavorite: false,
-    highlights: ['Forfait mobile', 'Télétravail partiel', 'Bonus performance']
-  }
-])
-
+const companies = ref<CompanyWithUI[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
 const currentSlide = ref(0)
+
+const companyService = useCompanyService()
+
 const visibleSlides = computed(() => {
+  if (typeof window === 'undefined') return 3
   if (window.innerWidth >= 1280) return 3
   if (window.innerWidth >= 768) return 2
   return 1
 })
+
+const getCompanyLogo = (company: ICompany): string => {
+  if (company.webSiteUrl) {
+    try {
+      const domain = new URL(company.webSiteUrl).hostname.replace('www.', '')
+      return `https://logo.clearbit.com/${domain}`
+    } catch {
+      return getFallbackLogo(company)
+    }
+  }
+  return getFallbackLogo(company)
+}
+
+const getFallbackLogo = (company: ICompany): string => {
+  const firstLetter = company.name.charAt(0).toUpperCase()
+  return `https://via.placeholder.com/80x80/10b981/ffffff?text=${firstLetter}`
+}
+
+const getDomainFromUrl = (url: string): string => {
+  if (!url) return ''
+  try {
+    return new URL(url).hostname.replace('www.', '')
+  } catch {
+    return url
+  }
+}
+
+const truncateDescription = (description: string, maxLength: number = 120): string => {
+  if (!description) return 'Aucune description disponible'
+  return description.length > maxLength 
+    ? `${description.substring(0, maxLength)}...` 
+    : description
+}
+
+const getCompanyHighlights = (company: CompanyWithUI): string[] => {
+  if (company.highlights && company.highlights.length > 0) {
+    return company.highlights.slice(0, 3)
+  }
+  
+  const defaultHighlights = [
+    'Entreprise internationale',
+    'Environnement dynamique',
+    'Projets innovants'
+  ]
+  
+  return defaultHighlights.slice(0, 2)
+}
+
+const getRandomJobsCount = (companyId: number): number => {
+  return (companyId % 10) + 5
+}
 
 const toggleFavorite = (id: number) => {
   const company = companies.value.find(c => c.id === id)
@@ -256,10 +251,12 @@ const toggleFavorite = (id: number) => {
 }
 
 const nextSlide = () => {
+  if (companies.value.length === 0) return
   currentSlide.value = (currentSlide.value + 1) % Math.ceil(companies.value.length / visibleSlides.value)
 }
 
 const prevSlide = () => {
+  if (companies.value.length === 0) return
   currentSlide.value = (currentSlide.value - 1 + Math.ceil(companies.value.length / visibleSlides.value)) % Math.ceil(companies.value.length / visibleSlides.value)
 }
 
@@ -267,27 +264,45 @@ const goToSlide = (index: number) => {
   currentSlide.value = index
 }
 
-// Gestion du touch pour mobile
-const touchStartX = ref(0)
-const touchEndX = ref(0)
-
-const handleTouchStart = (e: TouchEvent) => {
-  touchStartX.value = e.touches[0].clientX
-}
-
-const handleTouchMove = (e: TouchEvent) => {
-  touchEndX.value = e.touches[0].clientX
-}
-
-const handleTouchEnd = () => {
-  if (touchStartX.value - touchEndX.value > 50) {
-    nextSlide()
+// Chargement des données
+const loadCompanies = async () => {
+  loading.value = true
+  error.value = null
+  
+  try {
+    const response = await companyService.getAllCompanies(0, 20, 'name,asc')
+    
+    // Transformation des données de l'API vers le format UI
+    companies.value = response.content.map(company => ({
+      ...company,
+      isFavorite: Math.random() > 0.7, // Exemple: 30% des entreprises sont favorites
+      highlights: [
+        'Flex-office',
+        'Télétravail',
+        'Bonus annuel'
+      ].sort(() => Math.random() - 0.5).slice(0, 2), // 2 highlights aléatoires
+      jobsCount: getRandomJobsCount(company.id)
+    } as CompanyWithUI))
+    
+  } catch (err) {
+    console.error('Erreur lors du chargement des entreprises:', err)
+    error.value = 'Impossible de charger les entreprises. Veuillez réessayer.'
+  } finally {
+    loading.value = false
   }
-  if (touchStartX.value - touchEndX.value < -50) {
-    prevSlide()
-  }
 }
+
+onMounted(() => {
+  loadCompanies()
+  
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', () => {
+      currentSlide.value = 0
+    })
+  }
+})
 </script>
+
 
 <style scoped>
 /* Animations */
@@ -318,7 +333,6 @@ const handleTouchEnd = () => {
   animation: pulse 3s ease-in-out infinite;
 }
 
-/* Section principale */
 .companies-showcase {
   position: relative;
   min-height: 100vh;
@@ -511,7 +525,6 @@ const handleTouchEnd = () => {
   transform: translateX(3px);
 }
 
-/* Navigation du carrousel */
 .carousel-nav {
   position: absolute;
   top: 50%;
@@ -543,7 +556,6 @@ const handleTouchEnd = () => {
   right: -1.75rem;
 }
 
-/* Indicateurs */
 .carousel-indicators {
   display: flex;
   justify-content: center;
@@ -566,7 +578,6 @@ const handleTouchEnd = () => {
   transform: scale(1.2);
 }
 
-/* Section CTA moderne */
 .cta-section {
   margin-top: 4rem;
   text-align: center;
@@ -675,7 +686,6 @@ const handleTouchEnd = () => {
   transform: translateY(-2px);
 }
 
-/* Responsive */
 @media (max-width: 1280px) {
   .company-card {
     flex: 0 0 calc(50% - 1rem);
