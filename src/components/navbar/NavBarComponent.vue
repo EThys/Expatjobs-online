@@ -23,20 +23,41 @@ const currentUser = ref<IUser | null>(null)
 const isMobile = computed(() => windowWidth.value < 1024)
 const isLoggedIn = computed(() => currentUser.value !== null)
 
+const parseUser = (userData: any): IUser => {
+  const validRoles = ["CANDIDATE", "RECRUITER", "ADMIN"] as const
+  const role = validRoles.includes(userData.role) 
+    ? userData.role 
+    : "CANDIDATE" 
+
+  return {
+    id: userData.id,
+    email: userData.email,
+    phone: userData.phone,
+    role: role,
+    createdAt: userData.createdAt,
+    updatedAt: userData.updatedAt
+  }
+}
+
 const loadUser = () => {
   const authData = getAuthData()
   if (authData) {
-    currentUser.value = authData.user
+    currentUser.value = parseUser(authData.user)
   } else {
     const userString = localStorage.getItem('user')
     if (userString) {
-      currentUser.value = JSON.parse(userString)
+      try {
+        const userData = JSON.parse(userString)
+        currentUser.value = parseUser(userData)
+      } catch (error) {
+        console.error('Error parsing user data:', error)
+        currentUser.value = null
+      }
     } else {
       currentUser.value = null
     }
   }
 }
-
 const canPostJob = computed(() => {
   if (!currentUser.value) return false
   const userRole = currentUser.value.role?.toLowerCase()
