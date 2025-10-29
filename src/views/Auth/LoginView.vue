@@ -14,10 +14,9 @@ import type { IToken } from '@/utils/interface/token'
 import { useToast } from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-sugar.css'
 //@ts-ignore
-import { setUser } from '@/stores/user'
+import { setToken} from '@/stores/token';
 //@ts-ignore
-import { setToken } from '@/stores/token'
-import { getToken } from '@/stores/authStorage';
+import { setUser} from '@/stores/user';
 
 
 const router = useRouter();
@@ -64,14 +63,19 @@ const login = async () => {
       }
 
       // Stocker l'objet complet d'authentification
-      localStorage.setItem('auth_data', JSON.stringify(authData))
+      //localStorage.setItem('auth_data', JSON.stringify(authData))
     
       if (response.data.jwt) {
-        const tokenData = {
-          token: response.data.jwt,
-          expiration: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 heures
+        const authData = {
+          jwt: response.data.jwt,
+          user: response.data.user,
+          timestamp: new Date().toISOString(),
+          expiration: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24h
         }
-        setToken(tokenData)
+        
+        // Stocker tout dans auth_data
+        localStorage.setItem('auth_data', JSON.stringify(authData))
+        setToken(response.data.jwt)
       }
       
       if (response.data.user) {
@@ -80,12 +84,12 @@ const login = async () => {
       // Forcer le rechargement du navbar
       window.dispatchEvent(new Event('storage'))
       
-      toast.open({
-        message: 'Connexion réussie !',
-        type: 'success',
-        position: 'bottom',
-        duration: 3000
-      })
+      // toast.open({
+      //   message: 'Connexion réussie !',
+      //   type: 'success',
+      //   position: 'bottom',
+      //   duration: 3000
+      // })
       
       setTimeout(() => {
         router.push('/')
@@ -135,22 +139,16 @@ const loginValidate = async () => {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-green-50 p-4 relative overflow-hidden">
-    <!-- Effets de fond animés -->
     <div class="absolute inset-0 overflow-hidden -z-10">
       <div class="absolute -top-20 -left-20 w-96 h-96 bg-green-200/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
       <div class="absolute -bottom-20 -right-20 w-96 h-96 bg-teal-200/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
       <div class="absolute -top-10 right-1/3 w-72 h-72 bg-cyan-200/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
     </div>
-
-    <!-- Conteneur principal -->
     <div class="w-full max-w-4xl mx-auto relative z-10">
       <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-50">
         <div class="grid grid-cols-1 md:grid-cols-2">
-          <!-- Section visuelle (gauche) -->
           <div class="relative p-10 bg-gradient-to-br from-green-600 to-teal-500 text-white overflow-hidden hidden md:block">
-            <!-- Effet de verre dépoli -->
             <div class="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-            <!-- Contenu -->
             <div class="relative z-10 flex flex-col h-full justify-center items-center text-center px-6">
               <div class="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mb-6 shadow-lg border border-white/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -165,14 +163,12 @@ const loginValidate = async () => {
             </div>
           </div>
 
-          <!-- Section formulaire (droite) -->
           <div class="p-8 sm:p-12">
             <div class="max-w-md mx-auto">
               <h2 class="text-2xl font-bold text-gray-800 mb-1 text-center">Connexion</h2>
               <p class="text-gray-500 text-sm mb-8 text-center">Connectez-vous pour accéder à votre espace personnel.</p>
 
               <form @submit.prevent="loginValidate" class="space-y-6">
-                <!-- Champ Email -->
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <EnvelopeIcon class="h-5 w-5 text-gray-400" />
@@ -185,7 +181,7 @@ const loginValidate = async () => {
                     required
                   />
                 </div>
-                <!-- Champ Mot de passe -->
+      
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <LockClosedIcon class="h-5 w-5 text-gray-400" />
@@ -206,7 +202,7 @@ const loginValidate = async () => {
                   </button>
                 </div>
 
-                <!-- Options -->
+      
                 <div class="flex items-center justify-between">
                   <div class="flex items-center">
                     <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
@@ -217,7 +213,7 @@ const loginValidate = async () => {
                   </div>
                 </div>
 
-                <!-- Bouton de soumission -->
+          
                 <button
                   type="submit"
                   :disabled="loading"
@@ -239,7 +235,7 @@ const loginValidate = async () => {
                   </span>
                 </button>
 
-                <!-- Séparateur -->
+      
                 <div class="relative my-6">
                   <div class="absolute inset-0 flex items-center">
                     <div class="w-full border-t border-gray-200"></div>
@@ -249,7 +245,7 @@ const loginValidate = async () => {
                   </div>
                 </div>
 
-                <!-- Boutons de connexion sociale -->
+          
                 <div class="grid grid-cols-3 gap-3">
                   <button type="button" class="w-full py-2 px-4 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                     <svg class="w-5 h-5 text-[#4285F4]" fill="currentColor" viewBox="0 0 24 24">
@@ -268,7 +264,7 @@ const loginValidate = async () => {
                   </button>
                 </div>
 
-                <!-- Lien d'inscription -->
+          
                 <div class="mt-6 text-center text-sm text-gray-500">
                   <p>
                     Vous n'avez pas de compte ?
@@ -287,7 +283,6 @@ const loginValidate = async () => {
 </template>
 
 <style scoped>
-/* Animation des "blobs" en arrière-plan */
 @keyframes blob {
   0% { transform: translate(0px, 0px) scale(1); }
   33% { transform: translate(30px, -50px) scale(1.1); }
@@ -304,12 +299,10 @@ const loginValidate = async () => {
   animation-delay: 4s;
 }
 
-/* Effet de surbrillance au survol des boutons */
 button:hover {
   transform: translateY(-1px);
 }
 
-/* Animation du spinner */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -318,30 +311,25 @@ button:hover {
   animation: spin 1s linear infinite;
 }
 
-/* Transition douce pour les inputs */
 input, button {
   transition: all 0.3s ease;
 }
-
-/* Effet de focus personnalisé */
 input:focus {
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
   border-color: #10B981;
 }
 
-/* Effet de verre dépoli */
 .backdrop-blur-sm {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* Dégradé de texte */
 .bg-clip-text {
   background-clip: text;
   -webkit-background-clip: text;
 }
 
-/* Responsive : masquer la section visuelle sur mobile */
+
 @media (max-width: 768px) {
   .md\:grid-cols-2 {
     grid-template-columns: 1fr;
