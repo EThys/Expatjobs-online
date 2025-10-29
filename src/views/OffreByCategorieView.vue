@@ -318,7 +318,7 @@
 
              
                 <template v-for="page in visiblePages" :key="page">
-                  <button
+                 <button
                     v-if="typeof page === 'number'"
                     @click="changePage(page - 1)"
                     :class="[
@@ -328,7 +328,7 @@
                         : 'border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-emerald-600 bg-white'
                     ]"
                     :aria-label="`Aller à la page ${page}`"
-                    :aria-current="currentPage === page - 1 ? 'page' : null"
+                    :aria-current="currentPage === page - 1 ? 'page' : undefined"
                   >
                     {{ page }}
                   </button>
@@ -586,12 +586,13 @@ const enrichJobsWithCompanyData = async (jobs: IJob[]): Promise<any[]> => {
 
         try {
           const company = await companyService.getCompanyById(job.companyId);
-          const companyData = {
+          const companyData: ICompany = {
             id: company.id,
             name: company.name,
             location: company.location,
             webSiteUrl: company.webSiteUrl,
-            description: company.description
+            description: company.description,
+            userId: 0
           };
           
           companyCache.set(job.companyId, companyData);
@@ -602,11 +603,13 @@ const enrichJobsWithCompanyData = async (jobs: IJob[]): Promise<any[]> => {
           };
         } catch (error) {
           console.warn(`Impossible de récupérer l'entreprise pour l'offre ${job.id}:`, error);
-          const fallbackCompany = {
+          const fallbackCompany: ICompany = {
             id: job.companyId,
             name: `Entreprise #${job.companyId}`,
             location: 'Non spécifié',
-            webSiteUrl: ''
+            webSiteUrl: '',
+            description: '', // Ajout de description
+            userId: 0
           };
           
           companyCache.set(job.companyId, fallbackCompany);
@@ -622,13 +625,20 @@ const enrichJobsWithCompanyData = async (jobs: IJob[]): Promise<any[]> => {
     return enrichedJobs;
   } catch (error) {
     console.error('Erreur lors de l\'enrichissement des offres:', error);
+    const fallback: ICompany = {
+      id: 0,
+      name: 'Entreprise inconnue',
+      location: '',
+      webSiteUrl: '',
+      description: '',
+      userId: 0
+    };
     return jobs.map(job => ({
       ...job,
-      companyLogo: getFallbackLogo({} as ICompany)
+      companyLogo: getFallbackLogo(fallback)
     }));
   }
 };
-
 const formatSalary = (min: number | null, max: number | null): string => {
   if (!min && !max) return 'Salaire à négocier';
   if (!min) return `Jusqu'à ${max?.toLocaleString()} €`;
@@ -830,7 +840,7 @@ const clearAllFilters = () => {
 };
 
 // Watchers 
-const searchTimeout = ref<NodeJS.Timeout>();
+const searchTimeout = ref<number>();
 
 watch(
   () => route.query.category,
