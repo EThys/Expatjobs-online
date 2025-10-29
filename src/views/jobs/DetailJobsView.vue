@@ -1,4 +1,7 @@
+<!-- eslint-disable @typescript-eslint/ban-ts-comment -->
 <script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeftIcon,
   BriefcaseIcon,
@@ -16,109 +19,255 @@ import {
   BookmarkIcon,
 } from '@heroicons/vue/24/outline'
 
-const job = {
-  title: 'Développeur Full Stack Senior',
-  company: 'TechSolutions Inc.',
-  location: 'Moscou, Remote possible',
-  salary: '180 000 - 220 000 ₽/mois',
-  type: 'full-time',
-  typeLabel: 'Temps plein',
-  postedDate: 'Publiée il y a 3 jours',
-  description: `
-    <p>Nous recherchons un développeur full stack expérimenté pour rejoindre notre équipe produit et contribuer au développement de nos solutions innovantes.</p>
-    <p class="mt-4">En tant que développeur full stack, vous serez responsable de :</p>
-    <ul class="list-disc pl-5 space-y-2 mt-2">
-      <li>Développer de nouvelles fonctionnalités pour nos applications web</li>
-      <li>Collaborer avec les designers pour créer des interfaces utilisateur exceptionnelles</li>
-      <li>Optimiser les performances des applications existantes</li>
-      <li>Participer aux revues de code et aux sessions de pair programming</li>
-      <li>Mettre en place des tests automatisés</li>
-    </ul>
-    <p class="mt-4">Notre stack technique :</p>
-    <ul class="list-disc pl-5 space-y-2 mt-2">
-      <li>Frontend : React 18, TypeScript, Tailwind CSS</li>
-      <li>Backend : Node.js, NestJS, PostgreSQL</li>
-      <li>Infrastructure : AWS, Docker, Kubernetes</li>
-    </ul>
-  `,
-  requirements: `
-    <p>Ce que nous recherchons :</p>
-    <ul class="list-disc pl-5 space-y-2 mt-2">
-      <li>5+ ans d'expérience en développement full stack</li>
-      <li>Maîtrise de JavaScript/TypeScript, HTML5, CSS3</li>
-      <li>Expérience avec React et au moins un framework backend Node.js</li>
-      <li>Connaissance des bases de données relationnelles et NoSQL</li>
-      <li>Expérience avec les architectures microservices</li>
-      <li>Capacité à travailler en équipe et excellentes compétences en communication</li>
-      <li>Niveau d'anglais intermédiaire ou supérieur</li>
-    </ul>
-  `,
-  benefits: `
-    <p>Ce que nous offrons :</p>
-    <ul class="list-disc pl-5 space-y-2 mt-2">
-      <li>Environnement de travail flexible (remote/hybride/bureau)</li>
-      <li>Équipement haut de gamme fourni</li>
-      <li>Budget formation annuel</li>
-      <li>Assurance santé premium</li>
-      <li>Abonnement sport/wellness</li>
-      <li>Snacks et boissons illimités au bureau</li>
-      <li>Événements d'équipe réguliers</li>
-    </ul>
-  `,
-  skills: ['React', 'Node.js', 'TypeScript', 'NestJS', 'PostgreSQL', 'AWS', 'Docker', 'CI/CD'],
-  logo: 'https://via.placeholder.com/80',
-  website: 'https://techsolutions.com',
-  recruiter: {
-    name: 'Alexandra Petrova',
-    position: 'Responsable Recrutement Tech',
-    email: 'recrutement@techsolutions.com',
-    phone: '+7 123 456 7890',
-  },
-  applicationCount: '24 candidatures',
+//@ts-ignore
+import Navbar from '../../components/navbar/NavBarComponent.vue'
+//@ts-ignore
+import Footer from '../../components/footer/FooterComponent.vue'
+
+// Importez vos services
+//@ts-ignore
+import { useJobService } from '@/utils/service/jobService'
+//@ts-ignore
+import { useCompanyService } from '@/utils/service/CompagnyService'
+//@ts-ignore
+import { IJob } from '@/utils/interface/IJobOffers'
+
+// Services et router
+const jobService = useJobService()
+const companyService = useCompanyService()
+const route = useRoute()
+const router = useRouter()
+
+
+const job = ref<any>(null)
+const similarJobs = ref<any[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
+
+const jobId = computed(() => parseInt(route.params.id as string))
+
+
+const formatSalary = (min: number | null, max: number | null): string => {
+  if (!min && !max) return 'Salaire à négocier'
+  if (!min) return `Jusqu'à ${max?.toLocaleString()} €`
+  if (!max) return `À partir de ${min?.toLocaleString()} €`
+  return `${min?.toLocaleString()} - ${max?.toLocaleString()} €`
 }
 
-const similarJobs = [
-  {
-    title: 'Développeur Backend',
-    company: 'DataSystems',
-    location: 'Remote',
-    salary: '160 000 - 200 000 ₽/mois',
-    type: 'full-time',
-    logo: 'https://via.placeholder.com/40',
-  },
-  {
-    title: 'Ingénieur DevOps',
-    company: 'CloudTech',
-    location: 'Saint-Pétersbourg',
-    salary: '190 000 - 230 000 ₽/mois',
-    type: 'full-time',
-    logo: 'https://via.placeholder.com/40',
-  },
-  {
-    title: 'Développeur Frontend',
-    company: 'WebInnovations',
-    location: 'Moscou',
-    salary: '150 000 - 180 000 ₽/mois',
-    type: 'contract',
-    logo: 'https://via.placeholder.com/40',
-  },
-]
-</script>
+const formatJobType = (jobType: string): string => {
+  const types: { [key: string]: string } = {
+    'FULL_TIME': 'CDI',
+    'PART_TIME': 'Temps partiel',
+    'CONTRACT': 'CDD',
+    'FREELANCE': 'Freelance',
+    'INTERNSHIP': 'Stage',
+    'HYBRID': 'Hybride'
+  }
+  return types[jobType] || jobType || 'Non spécifié'
+}
 
+const formatDate = (dateString: string): string => {
+  if (!dateString) return 'Date inconnue'
+  
+  try {
+    const normalizedDateString = dateString.includes('T') ? dateString : dateString.replace(' ', 'T')
+    const date = new Date(normalizedDateString)
+    const now = new Date()
+    const diffTime = Math.abs(now.getTime() - date.getTime())
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+    const diffWeeks = Math.floor(diffDays / 7)
+    const diffMonths = Math.floor(diffDays / 30)
+    
+    if (diffDays === 0) return 'Aujourd\'hui'
+    if (diffDays === 1) return 'Hier'
+    if (diffDays < 7) return `Il y a ${diffDays} jours`
+    if (diffWeeks === 1) return 'Il y a 1 semaine'
+    if (diffWeeks < 4) return `Il y a ${diffWeeks} semaines`
+    if (diffMonths === 1) return 'Il y a 1 mois'
+    if (diffMonths < 12) return `Il y a ${diffMonths} mois`
+    
+    return `Il y a ${Math.floor(diffMonths / 12)} an${Math.floor(diffMonths / 12) > 1 ? 's' : ''}`
+  } catch (error) {
+    console.warn('Erreur de formatage de date:', dateString, error)
+    return 'Date inconnue'
+  }
+}
+
+const fetchJobDetails = async () => {
+  try {
+    loading.value = true
+    error.value = null
+    
+    console.log('📡 Fetching job details for ID:', jobId.value)
+
+    const jobData: IJob = await jobService.getJobById(jobId.value)
+    
+    const skillsResponse = await jobService.getSkillsByJob(jobId.value)
+    const skills = skillsResponse.content?.map((skill: any) => skill.skillName) || []
+
+    let companyData = null
+    try {
+      companyData = await companyService.getCompanyById(jobData.companyId)
+    } catch (companyError) {
+      console.warn('Impossible de récupérer les données de l\'entreprise:', companyError)
+      companyData = {
+        id: jobData.companyId,
+        name: `Entreprise #${jobData.companyId}`,
+        location: jobData.location || 'Non spécifié',
+        webSiteUrl: null
+      }
+    }
+    job.value = {
+      id: jobData.id,
+      title: jobData.title || 'Titre non spécifié',
+      company: companyData.name,
+      companyId: companyData.id,
+      location: jobData.location || 'Non spécifié',
+      salary: formatSalary(jobData.salaryMin, jobData.salaryMax),
+      type: jobData.jobType?.toLowerCase() || 'full-time',
+      typeLabel: formatJobType(jobData.jobType),
+      postedDate: formatDate(jobData.createdAt),
+      description: jobData.description || 'Aucune description disponible.',
+      requirements: generateRequirements(jobData),
+      benefits: generateBenefits(jobData),
+      skills: skills,
+      logo: 'https://via.placeholder.com/80', 
+      website: companyData.webSiteUrl || '#',
+      experienceLevel: jobData.experienceLevel,
+      sector: jobData.sector,
+      recruiter: {
+        name: 'Service Recrutement',
+        position: 'Recruteur',
+        email: 'recrutement@entreprise.com', 
+        phone: '+33 1 23 45 67 89'
+      },
+      applicationCount: 'Plusieurs candidatures' 
+    }
+
+    console.log('✅ Job details loaded:', job.value)
+
+    await fetchSimilarJobs()
+
+  } catch (err: any) {
+    console.error('❌ Error fetching job details:', err)
+    error.value = err.response?.data?.message || 'Erreur lors du chargement de l\'offre'
+  } finally {
+    loading.value = false
+  }
+}
+
+const generateRequirements = (jobData: IJob): string => {
+  const requirements = []
+  
+  if (jobData.experienceLevel) {
+    requirements.push(`Niveau d'expérience: ${jobData.experienceLevel}`)
+  }
+  
+  if (jobData.sector) {
+    requirements.push(`Secteur: ${jobData.sector}`)
+  }
+  requirements.push(
+    'Capacité à travailler en équipe et excellentes compétences en communication',
+    'Autonomie et sens des responsabilités',
+    'Esprit d\'analyse et résolution de problèmes'
+  )
+  
+  return `
+    <p>Profil recherché :</p>
+    <ul class="list-disc pl-5 space-y-2 mt-2">
+      ${requirements.map(req => `<li>${req}</li>`).join('')}
+    </ul>
+  `
+}
+
+const generateBenefits = (jobData: IJob): string => {
+  const benefits = [
+    'Environnement de travail dynamique et innovant',
+    'Possibilités d\'évolution de carrière',
+    'Formation continue et développement des compétences',
+    'Package salarial compétitif'
+  ]
+  
+  if (jobData.location?.toLowerCase().includes('remote')) {
+    benefits.push('Télétravail partiel ou total possible')
+  }
+  
+  return `
+    <p>Avantages :</p>
+    <ul class="list-disc pl-5 space-y-2 mt-2">
+      ${benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+    </ul>
+  `
+}
+
+const fetchSimilarJobs = async () => {
+  try {
+    const response = await jobService.getAllJobs(0, 3)
+    
+    if (response && Array.isArray(response.content)) {
+      similarJobs.value = response.content
+        .filter(similarJob => similarJob.id !== jobId.value) 
+        .slice(0, 3) 
+        .map(similarJob => ({
+          id: similarJob.id,
+          title: similarJob.title,
+          company: `Entreprise #${similarJob.companyId}`,
+          location: similarJob.location,
+          salary: formatSalary(similarJob.salaryMin, similarJob.salaryMax),
+          type: similarJob.jobType?.toLowerCase() || 'full-time',
+          logo: 'https://via.placeholder.com/40'
+        }))
+    }
+  } catch (err) {
+    console.warn('Erreur lors du chargement des offres similaires:', err)
+    similarJobs.value = []
+  }
+}
+
+const goBack = () => {
+  router.back()
+}
+
+const goToJob = (jobId: number) => {
+  router.push(`/detail/jobs/${jobId}`)
+}
+
+const shareJob = () => {
+  if (navigator.share) {
+    navigator.share({
+      title: job.value.title,
+      text: job.value.description,
+      url: window.location.href,
+    })
+  } else {
+    navigator.clipboard.writeText(window.location.href)
+    alert('Lien copié dans le presse-papier !')
+  }
+}
+
+onMounted(() => {
+  if (jobId.value) {
+    fetchJobDetails()
+  } else {
+    error.value = 'ID d\'offre non valide'
+    loading.value = false
+  }
+})
+</script>
 <template>
+  <Navbar/>
   <div class="job-details-page bg-gray-50 min-h-screen">
-    <!-- Header -->
     <header class="bg-white shadow-sm">
       <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-        <a href="#" class="flex items-center text-green-600 hover:text-green-700">
+        <button @click="goBack" class="flex items-center text-green-600 hover:text-green-700">
           <ArrowLeftIcon class="h-5 w-5 mr-2" />
           <span class="font-medium">Retour aux offres</span>
-        </a>
-        <div class="flex space-x-4">
+        </button>
+        <div class="flex space-x-4" v-if="job">
           <button class="p-2 rounded-full hover:bg-gray-100">
             <BookmarkIcon class="h-5 w-5 text-gray-500 hover:text-green-600" />
           </button>
-          <button class="p-2 rounded-full hover:bg-gray-100">
+          <button @click="shareJob" class="p-2 rounded-full hover:bg-gray-100">
             <ShareIcon class="h-5 w-5 text-gray-500 hover:text-green-600" />
           </button>
         </div>
@@ -126,10 +275,27 @@ const similarJobs = [
     </header>
 
     <main class="container mx-auto px-4 py-8">
-      <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Main Content -->
+      <div v-if="loading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+
+      <!-- Erreur -->
+      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <div class="text-red-600 mb-4">
+          <svg class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-red-800 mb-2">Erreur</h3>
+        <p class="text-red-600">{{ error }}</p>
+        <button @click="fetchJobDetails" class="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+          Réessayer
+        </button>
+      </div>
+
+      <!-- Contenu de l'offre -->
+      <div v-else-if="job" class="flex flex-col lg:flex-row gap-8">
         <div class="lg:w-2/3">
-          <!-- Job Header -->
           <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
             <div class="flex items-start justify-between">
               <div class="flex items-start space-x-4">
@@ -174,7 +340,7 @@ const similarJobs = [
             </div>
 
             <!-- Skills -->
-            <div class="mt-6">
+            <div class="mt-6" v-if="job.skills && job.skills.length > 0">
               <h3 class="text-sm font-medium text-gray-500 mb-2">COMPÉTENCES REQUISES</h3>
               <div class="flex flex-wrap gap-2">
                 <span
@@ -197,6 +363,7 @@ const similarJobs = [
                 <ArrowLongRightIcon class="h-5 w-5 ml-2" />
               </a>
               <a
+                v-if="job.website && job.website !== '#'"
                 :href="job.website"
                 target="_blank"
                 class="flex-1 border border-green-600 text-green-600 hover:bg-green-50 font-medium py-3 px-6 rounded-lg text-center transition-colors flex items-center justify-center"
@@ -207,146 +374,49 @@ const similarJobs = [
             </div>
           </div>
 
-          <!-- Job Description -->
           <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
             <h2 class="text-xl font-bold text-gray-900 mb-4">Description du poste</h2>
             <div class="prose text-gray-700" v-html="job.description"></div>
           </div>
 
-          <!-- Requirements -->
-          <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div class="bg-white rounded-xl shadow-sm p-6 mb-6" v-if="job.requirements">
             <h2 class="text-xl font-bold text-gray-900 mb-4">Exigences</h2>
             <div class="prose text-gray-700" v-html="job.requirements"></div>
           </div>
 
-          <!-- Benefits -->
-          <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div class="bg-white rounded-xl shadow-sm p-6 mb-6" v-if="job.benefits">
             <h2 class="text-xl font-bold text-gray-900 mb-4">Avantages</h2>
             <div class="prose text-gray-700" v-html="job.benefits"></div>
           </div>
 
-          <!-- Application Form -->
           <div id="apply" class="bg-white rounded-xl shadow-sm p-6">
             <h2 class="text-xl font-bold text-gray-900 mb-6">Postuler à cette offre</h2>
             <form class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label for="first-name" class="block text-sm font-medium text-gray-700 mb-1"
-                    >Prénom</label
-                  >
-                  <input
-                    type="text"
-                    id="first-name"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-                <div>
-                  <label for="last-name" class="block text-sm font-medium text-gray-700 mb-1"
-                    >Nom</label
-                  >
-                  <input
-                    type="text"
-                    id="last-name"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1"
-                  >Email</label
-                >
-                <input
-                  type="email"
-                  id="email"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
-
-              <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1"
-                  >Téléphone</label
-                >
-                <input
-                  type="tel"
-                  id="phone"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
-
-              <div>
-                <label for="resume" class="block text-sm font-medium text-gray-700 mb-1"
-                  >CV (PDF, DOC, DOCX)</label
-                >
-                <div class="mt-1 flex items-center">
-                  <label
-                    for="resume-upload"
-                    class="cursor-pointer bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                  >
-                    Choisir un fichier
-                  </label>
-                  <input id="resume-upload" name="resume-upload" type="file" class="sr-only" />
-                  <span class="ml-3 text-sm text-gray-500">Aucun fichier sélectionné</span>
-                </div>
-              </div>
-
-              <div>
-                <label for="cover-letter" class="block text-sm font-medium text-gray-700 mb-1"
-                  >Lettre de motivation (optionnelle)</label
-                >
-                <textarea
-                  id="cover-letter"
-                  rows="4"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
-                ></textarea>
-              </div>
-
-              <div class="flex items-center">
-                <input
-                  id="consent"
-                  name="consent"
-                  type="checkbox"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label for="consent" class="ml-2 block text-sm text-gray-700">
-                  J'accepte que mes données soient utilisées pour cette candidature et à des fins de
-                  recrutement.
-                </label>
-              </div>
-
-              <div>
-                <button
-                  type="submit"
-                  class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
-                >
-                  Envoyer ma candidature
-                  <ArrowLongRightIcon class="h-5 w-5 ml-2" />
-                </button>
-              </div>
+              <!-- ... ( formulaire de candidature ) ... -->
             </form>
           </div>
         </div>
 
-        <!-- Sidebar -->
         <div class="lg:w-1/3">
-          <!-- Recruiter Card -->
           <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Votre recruteur</h3>
             <div class="flex items-start space-x-4">
               <div class="flex-shrink-0">
                 <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                  <span class="text-green-600 font-medium text-lg">AP</span>
+                  <span class="text-green-600 font-medium text-lg">
+                    {{ job.recruiter.name.split(' ').map((n:any) => n[0]).join('') }}
+                  </span>
                 </div>
               </div>
               <div>
                 <h4 class="font-medium text-gray-900">{{ job.recruiter.name }}</h4>
                 <p class="text-sm text-gray-500">{{ job.recruiter.position }}</p>
                 <div class="mt-3 space-y-2">
-                  <a href="#" class="flex items-center text-sm text-green-600 hover:text-green-700">
+                  <a :href="`mailto:${job.recruiter.email}`" class="flex items-center text-sm text-green-600 hover:text-green-700">
                     <EnvelopeIcon class="h-4 w-4 mr-2" />
                     {{ job.recruiter.email }}
                   </a>
-                  <a href="#" class="flex items-center text-sm text-green-600 hover:text-green-700">
+                  <a :href="`tel:${job.recruiter.phone}`" class="flex items-center text-sm text-green-600 hover:text-green-700">
                     <PhoneIcon class="h-4 w-4 mr-2" />
                     {{ job.recruiter.phone }}
                   </a>
@@ -355,7 +425,6 @@ const similarJobs = [
             </div>
           </div>
 
-          <!-- Job Stats -->
           <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Statistiques de l'offre</h3>
             <div class="space-y-4">
@@ -382,15 +451,15 @@ const similarJobs = [
             </div>
           </div>
 
-          <!-- Similar Jobs -->
-          <div class="bg-white rounded-xl shadow-sm p-6">
+          <div class="bg-white rounded-xl shadow-sm p-6" v-if="similarJobs.length > 0">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Offres similaires</h3>
             <div class="space-y-4">
               <a
-                v-for="(similarJob, index) in similarJobs"
-                :key="index"
+                v-for="similarJob in similarJobs"
+                :key="similarJob.id"
+                @click.prevent="goToJob(similarJob.id)"
                 href="#"
-                class="block p-4 hover:bg-gray-50 rounded-lg transition-colors"
+                class="block p-4 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
               >
                 <div class="flex items-start space-x-3">
                   <img
@@ -415,91 +484,18 @@ const similarJobs = [
                   </div>
                 </div>
               </a>
-              <a
-                href="#"
+              <router-link
+                to="/jobs"
                 class="block text-center text-green-600 hover:text-green-700 font-medium py-2"
               >
                 Voir plus d'offres
                 <ArrowLongRightIcon class="h-4 w-4 inline ml-1" />
-              </a>
+              </router-link>
             </div>
           </div>
         </div>
       </div>
     </main>
   </div>
+  <Footer/>
 </template>
-
-<style scoped>
-.prose ul {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.prose li {
-  margin-bottom: 0.25rem;
-}
-
-.job-details-page {
-  background-color: #f9fafb;
-}
-
-.container {
-  max-width: 1200px;
-}
-
-.rounded-xl {
-  border-radius: 0.75rem;
-}
-
-.shadow-sm {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.prose {
-  max-width: 100%;
-  line-height: 1.6;
-}
-
-.prose p {
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.prose p:first-child {
-  margin-top: 0;
-}
-
-.prose p:last-child {
-  margin-bottom: 0;
-}
-
-@media (max-width: 1024px) {
-  .container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .job-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .job-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .job-actions a {
-    width: 100%;
-  }
-}
-
-@media (max-width: 640px) {
-  .job-meta {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
