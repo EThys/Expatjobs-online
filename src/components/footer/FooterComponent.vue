@@ -1,15 +1,12 @@
 <template>
   <footer class="bg-gradient-to-br from-emerald-800 via-teal-700 to-teal-800 text-white pt-16 pb-10 relative overflow-hidden">
-    <!-- Éléments décoratifs -->
     <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
       <div class="absolute top-20 left-10 w-32 h-32 rounded-full bg-emerald-400 filter blur-3xl"></div>
       <div class="absolute bottom-10 right-20 w-40 h-40 rounded-full bg-teal-400 filter blur-3xl"></div>
     </div>
 
     <div class="container mx-auto px-6 relative">
-      <!-- Contenu principal du footer -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-        <!-- Colonne Logo + Description -->
         <div class="md:col-span-2">
           <div class="flex items-center mb-6">
             <div class="bg-white/20 p-2.5 rounded-xl mr-4 backdrop-blur-sm transform transition duration-500 hover:rotate-12 hover:scale-110">
@@ -70,7 +67,6 @@
           </div>
         </div>
 
-        <!-- Colonne Liens rapides -->
         <div>
           <h3 class="text-xl font-semibold mb-5 pb-2 relative inline-block">
             <span class="relative z-10">Liens rapides</span>
@@ -109,8 +105,6 @@
             </li>
           </ul>
         </div>
-
-        <!-- Colonne Contact -->
         <div>
           <h3 class="text-xl font-semibold mb-5 pb-2 relative inline-block">
             <span class="relative z-10">Contact</span>
@@ -186,23 +180,6 @@
         </div>
       </div>
 
-      <!-- Newsletter -->
-      <!-- <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-10 border border-white/10">
-        <h3 class="text-xl font-semibold mb-3 text-white">Abonnez-vous à notre newsletter</h3>
-        <p class="text-emerald-100/90 mb-4">Recevez les dernières offres d'emploi directement dans votre boîte mail.</p>
-        <div class="flex flex-col sm:flex-row gap-3">
-          <input 
-            type="email" 
-            placeholder="Votre email" 
-            class="flex-grow px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-emerald-200/70 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all"
-          >
-          <button class="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-emerald-500/20">
-            S'abonner
-          </button>
-        </div>
-      </div> -->
-
-      <!-- Copyright et mentions légales -->
       <div class="border-t border-emerald-500/20 pt-8 flex flex-col md:flex-row justify-between items-center">
         <p class="text-emerald-100/80 text-sm mb-4 md:mb-0">
           © 2025 ExpatJobs. Tous droits réservés.
@@ -239,23 +216,10 @@ footer {
   100% { background-position: 0% 50%; }
 }
 
-/* Animation des icônes sociales */
+
 a:hover svg {
   filter: drop-shadow(0 2px 4px rgba(74, 222, 128, 0.3));
 }
 
-/* Effet de vague optionnel (décommenter pour utiliser) */
-/*
-footer::before {
-  content: '';
-  position: absolute;
-  top: -50px;
-  left: 0;
-  width: 100%;
-  height: 50px;
-  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z' fill='%230f766e' opacity='.25'/%3E%3Cpath d='M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z' fill='%230f766e' opacity='.5'/%3E%3Cpath d='M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z' fill='%2314b8a6'/%3E%3C/svg%3E");
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-*/
+
 </style>
