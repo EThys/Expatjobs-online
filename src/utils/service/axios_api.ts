@@ -9,6 +9,7 @@ export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
       'Content-type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
       Authorization: `Bearer ${token}`
+      
     }
   })
 

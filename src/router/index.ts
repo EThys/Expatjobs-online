@@ -10,6 +10,9 @@ import PostJobView from '@/views/jobs/PostJobView.vue'
 import NotFoundView from '../views/Errors/NotFoundView.vue'
 //@ts-ignore
 import AllJobs from '@/views/jobs/AllJobsView.vue'
+import ProfileCandidateView from '@/views/ProfileCandidateView.vue'
+import CreateCompanyView from '@/views/CreateCompanyView.vue'
+import OffreByCategorieView from '@/views/OffreByCategorieView.vue'
 
 // Définition des métadonnées de route étendues
 declare module 'vue-router' {
@@ -30,7 +33,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: 'Accueil' },
   },
   {
-    path: '/detail/jobs',
+    path: '/detail/jobs/:id',
     name: 'detailJobs',
     component: DetailJobsView,
     meta: { title: 'jobs_detail' },
@@ -41,17 +44,35 @@ const routes: Array<RouteRecordRaw> = [
     component: ContactView,
     meta: { title: 'Contact' },
   },
-    {
+  {
     path: '/postjob',
     name: 'postjob',
     component: PostJobView,
     meta: { title: 'postjob' },
   },
   {
-    path: '/alljobs',
-    name: 'alljobs',
+    path: '/jobs/categories',
+    name: 'JobCategories',
+    component: OffreByCategorieView,
+    meta: { title: 'Job-by-Categories' },
+  },
+  {
+    path: '/company',
+    name: 'company',
+    component: CreateCompanyView,
+    meta: { title: 'company' },
+  },
+  {
+    path: '/jobs',
+    name: 'jobs',
     component: AllJobs,
-    meta: { title: 'alljobs' },
+    meta: { title: 'jobs' },
+  },
+    {
+    path: '/profile',
+    name: 'profile',
+    component: ProfileCandidateView,
+    meta: { title: 'profile' },
   },
   {
     path: '/login',
