@@ -1,29 +1,22 @@
 export interface IUser {
-  userId: Number,
-  firstName: String,
-  email:String,
-  password:String,
-  phone:String,
-  role:String,
-  lastName: String,
-  location: String,
-  salaryExpectationMin: Number,
-  salaryExpectationMax: Number,
-  resumeUrl: String
+  id: number;
+  email: string;
+  phone: string;
+  role: 'CANDIDATE' | 'RECRUITER' | 'ADMIN';
+  createdAt?: string;
+  updatedAt?: string;
 }
-
 export interface IUserRegister {
-  email: String,
-  phone: String,
-  role:String,
-  password: String,
+  email: string,
+  phone: string,
+  role:string,
+  password: string,
 
 }
 
 export interface IUserAuth {
   password: string
-  email: string
-  phone:string
+  login: string
 }
 
 export interface IChangePassword {
