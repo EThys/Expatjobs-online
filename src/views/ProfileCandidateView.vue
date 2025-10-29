@@ -1,12 +1,17 @@
 <template>
   <Navbar/>
   <div class="min-h-screen bg-gray-50/30 pt-20 pb-12">
-    <!-- Header avec background gradient -->
+    <div v-if="isLoading && !profile.candidateProfileId" class="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
+      <div class="text-center">
+        <div class="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-gray-600 font-medium">Loading your profile...</p>
+      </div>
+    </div>
+
     <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-12">
       <div class="container mx-auto px-4 sm:px-6">
         <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between">
           <div class="flex items-center space-x-6">
-            <!-- Avatar avec édition -->
             <div class="relative">
               <div class="w-24 h-24 lg:w-28 lg:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border-2 border-white/30">
                 <div class="w-20 h-20 lg:w-24 lg:h-24 bg-emerald-500 rounded-xl flex items-center justify-center text-white text-2xl lg:text-3xl font-bold shadow-lg">
@@ -23,7 +28,7 @@
               </button>
             </div>
             
-            <!-- Info principale -->
+
             <div class="flex-1">
               <h1 class="text-2xl lg:text-4xl font-bold mb-2">
                 {{ profile.firstName }} {{ profile.lastName }}
@@ -43,27 +48,32 @@
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                   </svg>
-                  <span>{{ profile.candidate.phone }}</span>
+                  <span>{{ profile.candidate?.phone || 'Phone not specified' }}</span>
                 </div>
                 <div class="flex items-center space-x-2">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                   </svg>
-                  <span>{{ profile.candidate.email }}</span>
+                  <span>{{ profile.candidate?.email || 'Email not specified' }}</span>
                 </div>
               </div>
             </div>
           </div>
           
-          <!-- Actions -->
           <div class="flex items-center space-x-3 mt-6 lg:mt-0">
-            <button class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105">
-              Download CV
+            <button 
+              v-if="profile.resumeUrl"
+              @click="downloadCV"
+              class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105 flex items-center space-x-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <span>Download CV</span>
             </button>
             <button class="bg-white text-emerald-700 hover:bg-emerald-50 px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg">
               Contact
             </button>
-            <!-- Bouton d'édition principal -->
             <button 
               @click="openEditModal('profile')"
               class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105 flex items-center space-x-2"
@@ -78,12 +88,9 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="container mx-auto px-4 sm:px-6 -mt-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Sidebar -->
         <div class="lg:col-span-1 space-y-6">
-          <!-- Salary Expectations -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
@@ -104,14 +111,13 @@
             <div class="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-100">
               <div class="text-center">
                 <div class="text-2xl font-bold text-emerald-700 mb-1">
-                  ${{ profile.salaryExpectationMin }}k - ${{ profile.salaryExpectationMax }}k
+                  ${{ profile.salaryExpectationMin || 0 }}k - ${{ profile.salaryExpectationMax || 0 }}k
                 </div>
                 <div class="text-sm text-emerald-600">Annual salary range</div>
               </div>
             </div>
           </div>
 
-          <!-- Skills -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
@@ -157,10 +163,21 @@
                   </svg>
                 </button>
               </div>
+              <div v-if="skills.length === 0" class="text-center py-4 text-gray-500">
+                <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                <p>No skills added yet</p>
+                <button 
+                  @click="openEditModal('skills')"
+                  class="text-emerald-600 hover:text-emerald-700 font-medium mt-2"
+                >
+                  Add your first skill
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Contact Info -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
@@ -187,7 +204,7 @@
                 </div>
                 <div>
                   <div class="text-sm text-gray-500">Email</div>
-                  <div class="font-medium text-gray-900">{{ profile.candidate.email }}</div>
+                  <div class="font-medium text-gray-900">{{ profile.candidate?.email || 'Not specified' }}</div>
                 </div>
               </div>
               <div class="flex items-center space-x-3 p-3 rounded-lg bg-gray-50/50 hover:bg-emerald-50 transition-colors">
@@ -198,7 +215,7 @@
                 </div>
                 <div>
                   <div class="text-sm text-gray-500">Phone</div>
-                  <div class="font-medium text-gray-900">{{ profile.candidate.phone }}</div>
+                  <div class="font-medium text-gray-900">{{ profile.candidate?.phone || 'Not specified' }}</div>
                 </div>
               </div>
               <div class="flex items-center space-x-3 p-3 rounded-lg bg-gray-50/50 hover:bg-emerald-50 transition-colors">
@@ -217,9 +234,7 @@
           </div>
         </div>
 
-        <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- About -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
@@ -242,7 +257,6 @@
             </p>
           </div>
 
-          <!-- Work Experience -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
@@ -294,10 +308,21 @@
                   <p class="text-gray-700 leading-relaxed">{{ exp.description }}</p>
                 </div>
               </div>
+              <div v-if="experiences.length === 0" class="text-center py-8 text-gray-500">
+                <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                <p class="text-lg mb-2">No work experience added</p>
+                <button 
+                  @click="openEditModal('experience')"
+                  class="text-emerald-600 hover:text-emerald-700 font-medium"
+                >
+                  Add your first work experience
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Education -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
@@ -350,16 +375,26 @@
                   <p v-if="edu.description" class="text-gray-700 leading-relaxed mt-2">{{ edu.description }}</p>
                 </div>
               </div>
+              <div v-if="educations.length === 0" class="text-center py-8 text-gray-500">
+                <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                </svg>
+                <p class="text-lg mb-2">No education added</p>
+                <button 
+                  @click="openEditModal('education')"
+                  class="text-emerald-600 hover:text-emerald-700 font-medium"
+                >
+                  Add your first education
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal d'édition -->
     <div v-if="showEditModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <!-- Header du modal -->
         <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-6 rounded-t-2xl">
           <div class="flex items-center justify-between">
             <h3 class="text-xl font-bold">{{ getModalTitle() }}</h3>
@@ -374,9 +409,7 @@
           </div>
         </div>
 
-        <!-- Contenu du modal -->
         <div class="p-6">
-          <!-- Formulaire de profil -->
           <div v-if="editMode === 'profile'" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -418,7 +451,6 @@
             </div>
           </div>
 
-          <!-- Formulaire About -->
           <div v-if="editMode === 'about'" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
@@ -431,7 +463,6 @@
             </div>
           </div>
 
-          <!-- Formulaire Salary -->
           <div v-if="editMode === 'salary'" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -455,7 +486,6 @@
             </div>
           </div>
 
-          <!-- Formulaire Contact -->
           <div v-if="editMode === 'contact'" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
@@ -476,8 +506,6 @@
               >
             </div>
           </div>
-
-          <!-- Formulaire Skills -->
           <div v-if="editMode === 'skills'" class="space-y-4">
             <div class="flex items-center justify-between">
               <h4 class="text-lg font-semibold text-gray-900">Manage Skills</h4>
@@ -526,7 +554,7 @@
             </div>
           </div>
 
-          <!-- Formulaire Experience -->
+
           <div v-if="editMode === 'experience'" class="space-y-4">
             <div class="flex items-center justify-between">
               <h4 class="text-lg font-semibold text-gray-900">Work Experience</h4>
@@ -721,7 +749,6 @@
             </div>
           </div>
 
-          <!-- Actions du modal -->
           <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
             <button 
               @click="closeEditModal"
@@ -731,12 +758,17 @@
             </button>
             <button 
               @click="saveChanges"
-              class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center space-x-2"
+              :disabled="isLoading"
+              class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg v-if="isLoading" class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
-              <span>Save Changes</span>
+              <span>{{ isLoading ? 'Saving...' : 'Save Changes' }}</span>
             </button>
           </div>
         </div>
@@ -748,99 +780,56 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from 'vue'
-import type { 
-  ICandidateProfile, 
-  ICandidateExperience, 
-  ICandidateEducation, 
-  ICandidateSkill,
-  ICandidateData 
-} from '@/interface/candidate/ICandidateData'
+import type { ICandidateProfile} from '@/utils/interface/candidate/ICandidateProfile'
+import type { ICandidateEducation} from '@/utils/interface/candidate/ICandidateEducation'
+import type { ICandidateExperience} from '@/utils/interface/candidate/ICandidateExperience'
+import type { ICandidateSkill} from '@/utils/interface/candidate/ICandidateSkill'
+import type { ICandidateData} from '@/utils/interface/candidate/ICandidateData'
+// Import du service
+import { useCandidateService } from '@/utils/service/CandidateService'
 
 //@ts-ignore
 import Navbar from '../components/navbar/NavBarComponent.vue'
 //@ts-ignore
 import Footer from '../components/footer/FooterComponent.vue'
+import { getUser } from '@/stores/user';
 
-// Données mockées
+const candidateService = useCandidateService();
+
+const user=getUser()
+const userId=user?.id
+
 const candidateData = ref<ICandidateData>({
   profile: {
-    candidateProfileId: 1,
+    candidateProfileId: 0,
     candidate: {
-      id: 318,
-      email: "user@example.com",
-      phone: "+243813233432",
+      id: 0,
+      email: "",
+      phone: "",
       role: "CANDIDATE"
     },
-    firstName: "John",
-    lastName: "Doe",
-    location: "Kinshasa, DR Congo",
-    salaryExpectationMin: 50,
-    salaryExpectationMax: 80,
-    resumeUrl: "https://example.com/resume.pdf",
-    bio: "Experienced software developer with 5+ years in web development. Passionate about creating efficient and scalable solutions. Strong background in full-stack development and team leadership.",
-    title: "Senior Software Developer"
+    firstName: "",
+    lastName: "",
+    location: "",
+    salaryExpectationMin: 0,
+    salaryExpectationMax: 0,
+    resumeUrl: "",
+    bio: "",
+    title: ""
   },
-  experiences: [
-    {
-      id: 1,
-      profileId: 1,
-      companyName: "WebInnovations",
-      jobTitle: "Java QA Engineer",
-      description: "Responsible for quality assurance and testing of Java-based applications. Implemented automated testing frameworks and improved testing processes.",
-      startDate: "2023-05-23",
-      endDate: "2025-03-30",
-      currentExperienceStatus: "current",
-      location: "Remote"
-    },
-    {
-      id: 2,
-      profileId: 1,
-      companyName: "TechSolutions Inc",
-      jobTitle: "Software Developer",
-      description: "Developed and maintained web applications using modern technologies. Collaborated with cross-functional teams to deliver high-quality software solutions.",
-      startDate: "2021-01-15",
-      endDate: "2023-05-20",
-      currentExperienceStatus: "previous",
-      location: "New York, USA"
-    }
-  ],
-  educations: [
-    {
-      id: 1,
-      profileId: 1,
-      institutionName: "University of Technology",
-      degree: "Master",
-      fieldStudy: "Software Engineering",
-      startDate: "2018-09-01",
-      endDate: "2020-06-30",
-      description: "Specialized in software architecture and distributed systems. Graduated with honors."
-    },
-    {
-      id: 2,
-      profileId: 1,
-      institutionName: "State University",
-      degree: "Bachelor",
-      fieldStudy: "Computer Science",
-      startDate: "2014-09-01",
-      endDate: "2018-06-30",
-      description: "Focus on algorithms, data structures, and software development methodologies."
-    }
-  ],
-  skills: [
-    { id: 1, profileId: 1, skillName: "Java Development", experienceYears: 5 },
-    { id: 2, profileId: 1, skillName: "Quality Assurance", experienceYears: 4 },
-    { id: 3, profileId: 1, skillName: "Automated Testing", experienceYears: 3 },
-    { id: 4, profileId: 1, skillName: "Spring Framework", experienceYears: 4 },
-    { id: 5, profileId: 1, skillName: "SQL & Databases", experienceYears: 4 },
-    { id: 6, profileId: 1, skillName: "API Development", experienceYears: 3 }
-  ]
+  experiences: [],
+  educations: [],
+  skills: []
 })
 
-const { profile, experiences, educations, skills } = candidateData.value
+const profile = ref(candidateData.value.profile)
+const experiences = ref(candidateData.value.experiences)
+const educations = ref(candidateData.value.educations)
+const skills = ref(candidateData.value.skills)
 
-// États pour la gestion des modals
 const showEditModal = ref(false)
 const editMode = ref('')
+const isLoading = ref(false)
 const editForm = reactive({
   firstName: '',
   lastName: '',
@@ -856,31 +845,74 @@ const editForm = reactive({
   educations: [] as any[]
 })
 
-// Fonctions pour ouvrir les modals
+// Charger les données du profil
+const loadCandidateProfile = async () => {
+  try {
+    isLoading.value = true
+    const data = await candidateService.getCompleteCandidateData(userId)
+    
+    candidateData.value = data
+    profile.value = data.profile
+    experiences.value = data.experiences
+    educations.value = data.educations
+    skills.value = data.skills
+    
+  } catch (error) {
+    console.error('Error loading candidate profile:', error)
+    showNotification('error', 'Failed to load profile data')
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const openEditModal = (mode: string) => {
   editMode.value = mode
   showEditModal.value = true
   
-  // Pré-remplir le formulaire avec les données actuelles
+  // Pré-remplir le formulaire avec les données
   if (mode === 'profile') {
-    editForm.firstName = profile.firstName
-    editForm.lastName = profile.lastName
-    editForm.title = profile.title || ''
-    editForm.location = profile.location
+    editForm.firstName = profile.value.firstName
+    editForm.lastName = profile.value.lastName
+    editForm.title = profile.value.title || ''
+    editForm.location = profile.value.location
   } else if (mode === 'about') {
-    editForm.bio = profile.bio || ''
+    editForm.bio = profile.value.bio || ''
   } else if (mode === 'salary') {
-    editForm.salaryExpectationMin = profile.salaryExpectationMin
-    editForm.salaryExpectationMax = profile.salaryExpectationMax
+    editForm.salaryExpectationMin = profile.value.salaryExpectationMin
+    editForm.salaryExpectationMax = profile.value.salaryExpectationMax
   } else if (mode === 'contact') {
-    editForm.email = profile.candidate.email
-    editForm.phone = profile.candidate.phone
+    editForm.email = profile.value.candidate?.email || ''
+    editForm.phone = profile.value.candidate?.phone || ''
   } else if (mode === 'skills') {
-    editForm.skills = skills.map(skill => ({ ...skill }))
+    editForm.skills = skills.value.map(skill => ({ 
+      id: skill.id,
+      skillName: skill.skillName,
+      experienceYears: skill.experienceYears,
+      profileId: skill.profileId
+    }))
   } else if (mode === 'experience') {
-    editForm.experiences = experiences.map(exp => ({ ...exp }))
+    editForm.experiences = experiences.value.map(exp => ({ 
+      id: exp.id,
+      jobTitle: exp.jobTitle,
+      companyName: exp.companyName,
+      description: exp.description,
+      startDate: exp.startDate,
+      endDate: exp.endDate,
+      currentExperienceStatus: exp.currentExperienceStatus,
+      location: exp.location,
+      profileId: exp.profileId
+    }))
   } else if (mode === 'education') {
-    editForm.educations = educations.map(edu => ({ ...edu }))
+    editForm.educations = educations.value.map(edu => ({ 
+      id: edu.id,
+      institutionName: edu.institutionName,
+      degree: edu.degree,
+      fieldStudy: edu.fieldStudy,
+      startDate: edu.startDate,
+      endDate: edu.endDate,
+      description: edu.description,
+      profileId: edu.profileId
+    }))
   }
 }
 
@@ -904,66 +936,134 @@ const closeEditModal = () => {
   })
 }
 
-const saveChanges = () => {
-  // Sauvegarder les modifications selon le mode
-  if (editMode.value === 'profile') {
-    profile.firstName = editForm.firstName
-    profile.lastName = editForm.lastName
-    profile.title = editForm.title
-    profile.location = editForm.location
-  } else if (editMode.value === 'about') {
-    profile.bio = editForm.bio
-  } else if (editMode.value === 'salary') {
-    profile.salaryExpectationMin = editForm.salaryExpectationMin
-    profile.salaryExpectationMax = editForm.salaryExpectationMax
-  } else if (editMode.value === 'contact') {
-    profile.candidate.email = editForm.email
-    profile.candidate.phone = editForm.phone
-  } else if (editMode.value === 'skills') {
-    // Mettre à jour les compétences
-    skills.length = 0
-    skills.push(...editForm.skills.map((skill, index) => ({
-      id: index + 1,
-      profileId: 1,
-      skillName: skill.skillName,
-      experienceYears: Number(skill.experienceYears)
-    })))
-  } else if (editMode.value === 'experience') {
-    // Mettre à jour les expériences
-    experiences.length = 0
-    experiences.push(...editForm.experiences.map((exp, index) => ({
-      id: index + 1,
-      profileId: 1,
-      companyName: exp.companyName,
-      jobTitle: exp.jobTitle,
-      description: exp.description,
-      startDate: exp.startDate,
-      endDate: exp.currentExperienceStatus === 'current' ? '' : exp.endDate,
-      currentExperienceStatus: exp.currentExperienceStatus || 'previous',
-      location: exp.location
-    })))
-  } else if (editMode.value === 'education') {
-    // Mettre à jour les formations
-    educations.length = 0
-    educations.push(...editForm.educations.map((edu, index) => ({
-      id: index + 1,
-      profileId: 1,
-      institutionName: edu.institutionName,
-      degree: edu.degree,
-      fieldStudy: edu.fieldStudy,
-      startDate: edu.startDate,
-      endDate: edu.endDate,
-      description: edu.description
-    })))
+const saveChanges = async () => {
+  try {
+    isLoading.value = true
+    
+    if (editMode.value === 'profile') {
+      await candidateService.updateCandidateProfile(userId, {
+        firstName: editForm.firstName,
+        lastName: editForm.lastName,
+        title: editForm.title,
+        location: editForm.location
+      })
+      profile.value.firstName = editForm.firstName
+      profile.value.lastName = editForm.lastName
+      profile.value.title = editForm.title
+      profile.value.location = editForm.location
+      showNotification('success', 'Profile updated successfully')
+      
+    } else if (editMode.value === 'about') {
+      await candidateService.updateCandidateProfile(userId, {
+        bio: editForm.bio
+      })
+      profile.value.bio = editForm.bio
+      showNotification('success', 'Bio updated successfully')
+      
+    } else if (editMode.value === 'salary') {
+      // Mise à jour via le service de profil
+      await candidateService.updateCandidateProfile(userId, {
+        salaryExpectationMin: editForm.salaryExpectationMin,
+        salaryExpectationMax: editForm.salaryExpectationMax
+      })
+      profile.value.salaryExpectationMin = editForm.salaryExpectationMin
+      profile.value.salaryExpectationMax = editForm.salaryExpectationMax
+      showNotification('success', 'Salary expectations updated successfully')
+      
+    } else if (editMode.value === 'contact') {
+      await candidateService.updateCandidateProfile(userId, {})
+      showNotification('success', 'Contact information updated successfully')
+      
+    } else if (editMode.value === 'skills') {
+      const updatedSkills = await Promise.all(
+        editForm.skills.map(async (skill) => {
+          if (skill.id) {
+            return await candidateService.updateCandidateSkill(skill.id, {
+              skillName: skill.skillName,
+              experienceYears: skill.experienceYears
+            })
+          } else {
+            return await candidateService.createCandidateSkill({
+              skillName: skill.skillName,
+              experienceYears: skill.experienceYears,
+              profileId: profile.value.candidateProfileId
+            })
+          }
+        })
+      )
+      skills.value = updatedSkills
+      showNotification('success', 'Skills updated successfully')
+      
+    } else if (editMode.value === 'experience') {
+      const updatedExperiences = await Promise.all(
+        editForm.experiences.map(async (exp) => {
+          if (exp.id) {
+            return await candidateService.updateCandidateExperience(exp.id, {
+              jobTitle: exp.jobTitle,
+              companyName: exp.companyName,
+              description: exp.description,
+              startDate: exp.startDate,
+              endDate: exp.endDate,
+              currentExperienceStatus: exp.currentExperienceStatus,
+              location: exp.location
+            })
+          } else {
+            return await candidateService.createCandidateExperience({
+              jobTitle: exp.jobTitle,
+              companyName: exp.companyName,
+              description: exp.description,
+              startDate: exp.startDate,
+              endDate: exp.endDate,
+              currentExperienceStatus: exp.currentExperienceStatus,
+              location: exp.location,
+              profileId: profile.value.candidateProfileId
+            })
+          }
+        })
+      )
+      experiences.value = updatedExperiences
+      showNotification('success', 'Work experience updated successfully')
+      
+    } else if (editMode.value === 'education') {
+      const updatedEducations = await Promise.all(
+        editForm.educations.map(async (edu) => {
+          if (edu.id) {
+            // Mise à jour
+            return await candidateService.updateCandidateEducation(edu.id, {
+              institutionName: edu.institutionName,
+              degree: edu.degree,
+              fieldStudy: edu.fieldStudy,
+              startDate: edu.startDate,
+              endDate: edu.endDate,
+              description: edu.description
+            })
+          } else {
+            // Création
+            return await candidateService.createCandidateEducation({
+              institutionName: edu.institutionName,
+              degree: edu.degree,
+              fieldStudy: edu.fieldStudy,
+              startDate: edu.startDate,
+              endDate: edu.endDate,
+              description: edu.description,
+              profileId: profile.value.candidateProfileId
+            })
+          }
+        })
+      )
+      educations.value = updatedEducations
+      showNotification('success', 'Education updated successfully')
+    }
+    
+  } catch (error) {
+    console.error('Error saving changes:', error)
+    showNotification('error', 'Failed to save changes')
+  } finally {
+    isLoading.value = false
+    closeEditModal()
   }
-  
-  // Simuler un appel API
-  console.log('Saving changes:', editForm)
-  
-  closeEditModal()
 }
 
-// Fonctions pour gérer les listes dynamiques
 const addNewSkill = () => {
   editForm.skills.push({
     skillName: '',
@@ -971,7 +1071,18 @@ const addNewSkill = () => {
   })
 }
 
-const removeSkill = (index: number) => {
+const removeSkill = async (index: number) => {
+  const skill = editForm.skills[index]
+  if (skill.id) {
+    try {
+      await candidateService.deleteCandidateSkill(skill.id)
+      showNotification('success', 'Skill deleted successfully')
+    } catch (error) {
+      console.error('Error deleting skill:', error)
+      showNotification('error', 'Failed to delete skill')
+      return
+    }
+  }
   editForm.skills.splice(index, 1)
 }
 
@@ -987,7 +1098,18 @@ const addNewExperience = () => {
   })
 }
 
-const removeExperience = (index: number) => {
+const removeExperience = async (index: number) => {
+  const exp = editForm.experiences[index]
+  if (exp.id) {
+    try {
+      await candidateService.deleteCandidateExperience(exp.id)
+      showNotification('success', 'Experience deleted successfully')
+    } catch (error) {
+      console.error('Error deleting experience:', error)
+      showNotification('error', 'Failed to delete experience')
+      return
+    }
+  }
   editForm.experiences.splice(index, 1)
 }
 
@@ -1002,23 +1124,39 @@ const addNewEducation = () => {
   })
 }
 
-const removeEducation = (index: number) => {
+const removeEducation = async (index: number) => {
+  const edu = editForm.educations[index]
+  if (edu.id) {
+    try {
+      await candidateService.deleteCandidateEducation(edu.id)
+      showNotification('success', 'Education deleted successfully')
+    } catch (error) {
+      console.error('Error deleting education:', error)
+      showNotification('error', 'Failed to delete education')
+      return
+    }
+  }
   editForm.educations.splice(index, 1)
 }
 
 const editSkill = (skill: ICandidateSkill) => {
   openEditModal('skills')
-  // Vous pouvez implémenter une logique pour éditer une compétence spécifique
 }
 
 const editExperience = (experience: ICandidateExperience) => {
   openEditModal('experience')
-  // Vous pouvez implémenter une logique pour éditer une expérience spécifique
 }
 
 const editEducation = (education: ICandidateEducation) => {
   openEditModal('education')
-  // Vous pouvez implémenter une logique pour éditer une formation spécifique
+}
+
+const downloadCV = () => {
+  if (profile.value.resumeUrl) {
+    window.open(profile.value.resumeUrl, '_blank')
+  } else {
+    showNotification('info', 'No CV available for download')
+  }
 }
 
 const getModalTitle = () => {
@@ -1035,29 +1173,37 @@ const getModalTitle = () => {
   return titles[editMode.value] || 'Edit Information'
 }
 
-// Fonctions utilitaires existantes
+const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
+  console.log(`${type}: ${message}`)
+}
+
+// Fonctions utilitaires
 const getInitials = (firstName: string, lastName: string): string => {
-  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+  return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase()
 }
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return 'Present'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  } catch {
+    return dateString
+  }
 }
 
 const getSkillWidth = (years: number): string => {
-  const maxYears = Math.max(...skills.map(s => s.experienceYears))
+  if (skills.value.length === 0) return '0%'
+  const maxYears = Math.max(...skills.value.map(s => s.experienceYears))
   return maxYears > 0 ? `${(years / maxYears) * 100}%` : '0%'
 }
 
 onMounted(() => {
-  console.log('Profile page mounted')
+  loadCandidateProfile()
 })
 </script>
 
 <style scoped>
-/* Styles personnalisés pour les animations */
 .profile-enter-active {
   transition: all 0.3s ease-out;
 }
@@ -1076,7 +1222,6 @@ onMounted(() => {
   transform: translateY(-10px);
 }
 
-/* Animation pour le modal */
 .modal-enter-active {
   transition: all 0.3s ease-out;
 }
@@ -1093,5 +1238,22 @@ onMounted(() => {
 .modal-leave-to {
   opacity: 0;
   transform: scale(1.05) translateY(10px);
+}
+
+
+.loading-skeleton {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>
