@@ -20,7 +20,7 @@
 
         <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
           <span class="block bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-cyan-600">
-            expatJobs connecte
+            ExpatJobs connecte
           </span>
           <span class="block mt-2">les talents aux opportunités mondiales</span>
         </h1>
