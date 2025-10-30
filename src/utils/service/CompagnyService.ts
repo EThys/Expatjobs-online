@@ -37,7 +37,7 @@ export const useCompanyService = () => {
     sort: string = 'name,asc'
   ): Promise<ICompanyResponse> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken().get(
         `${ApiRoutes.getAllCompagny}`,
         {
           params: {
