@@ -55,7 +55,7 @@ export const useJobService = () => {
     sort: string = 'createdAt,desc'
   ): Promise<IJobResponse> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken().get(
         `${ApiRoutes.getAlljobOffers}`,
         {
           params: {
@@ -74,7 +74,7 @@ export const useJobService = () => {
 
   const getJobById = async (id: number): Promise<IJob> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken().get(
         `${ApiRoutes.showjobOffers}/${id}`
       );
       return response.data;
@@ -153,16 +153,18 @@ export const useJobService = () => {
   // ==================== SKILLS ====================
 
   const getSkillsByJob = async (jobId: number): Promise<ISkillResponse> => {
-    try {
-      const response = await useAxiosRequestWithToken(token).get(
-        `${ApiRoutes.showjobSkills}/${jobId}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error(`❌ Erreur lors de la récupération des compétences pour l'offre ${jobId}:`, error);
-      throw error;
-    }
-  };
+  try {
+    const response = await useAxiosRequestWithToken().get(
+      `${ApiRoutes.getJobSkillsByJobOffer}?jobOfferId=${jobId}`
+
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`❌ Erreur lors de la récupération des compétences pour l'offre ${jobId}:`, error);
+    throw error;
+  }
+};
+
 
   const createSkill = async (skillData: ISkillCreate): Promise<ISkill> => {
     try {
