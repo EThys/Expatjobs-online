@@ -8,6 +8,7 @@ export const ApiRoutes = {
   //route for jobSkills
 
   getAlljobSkills: 'job-skills',
+   getJobSkillsByJobOffer: 'job-skills/by-job-offer',
   updatejobSkills:'job-skills',
   addjobSkills:'job-skills',
   showjobSkills:'job-skills',
@@ -19,7 +20,7 @@ export const ApiRoutes = {
   searchJobOffers: 'job-offers',
   updatejobOffers:'job-offers',
   addjobOffers:'job-offers',
-  showjobOffers:'job-offers/{id}',
+  showjobOffers:'job-offers',
   deletejobOffers:'job-offers/{id}',
 
   //route for compagy
