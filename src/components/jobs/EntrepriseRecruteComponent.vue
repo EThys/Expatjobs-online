@@ -1,21 +1,20 @@
 <template>
-  <section class="companies-showcase py-10 md:py-10 px-4 sm:px-6 lg:px-8">
+  <section class="companies-showcase py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 relative">
     <!-- Fond animé avec effets de lumière -->
     <div class="absolute inset-0 overflow-hidden -z-10">
-      <div class="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-300/10 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
-      <div class="absolute -bottom-40 -right-40 w-[700px] h-[700px] bg-cyan-300/10 rounded-full mix-blend-multiply filter blur-3xl animate-float-reverse"></div>
+      <div class="absolute -top-40 -left-40 w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] bg-emerald-300/10 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+      <div class="absolute -bottom-40 -right-40 w-[500px] h-[500px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px] bg-cyan-300/10 rounded-full mix-blend-multiply filter blur-3xl animate-float-reverse"></div>
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9InVybCgjZ3JhZGllbnQpIj48L3JlY3Q+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudCIgeDE9IjAiIHkxPSIwIiB4Mj0iMTAwIiB5Mj0iMTAwIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmZmZmYiLz48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmZmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmZmZmYiLz48L2xpbmVhckdyYWRpZW50Pjwvc3ZnPg==')] opacity-10"></div>
     </div>
 
-    <div class="max-w-7xl mx-auto">
-      <div class="text-center mb-12 md:mb-16">
-
-        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-          Découvrez les <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-cyan-600">meilleures entreprises</span>
+    <div class="max-w-7xl mx-auto container-responsive">
+      <div class="text-center mb-8 sm:mb-12 md:mb-16 animate-on-scroll" data-delay="0">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 px-4">
+          {{ t('companies.title') }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-cyan-600">{{ t('companies.highlight') }}</span>
         </h2>
 
-        <p class="max-w-3xl mx-auto text-lg text-gray-600">
-          Explorez les opportunités chez les employeurs les plus innovants du marché international
+        <p class="max-w-3xl mx-auto text-sm sm:text-base md:text-lg text-gray-600 px-4">
+          {{ t('companies.description') }}
         </p>
       </div>
 
@@ -23,7 +22,7 @@
       <div v-if="loading" class="text-center py-12">
         <div class="inline-flex items-center justify-center px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full">
           <ArrowPathIcon class="w-6 h-6 mr-3 text-emerald-600 animate-spin" />
-          <span class="text-sm font-medium text-gray-700">Chargement des entreprises...</span>
+          <span class="text-sm font-medium text-gray-700">{{ t('companies.loading') }}</span>
         </div>
       </div>
 
@@ -31,10 +30,10 @@
       <div v-else-if="error" class="text-center py-12">
         <div class="inline-flex items-center justify-center px-6 py-3 bg-red-50 border border-red-200 rounded-full">
           <ExclamationTriangleIcon class="w-6 h-6 mr-3 text-red-600" />
-          <span class="text-sm font-medium text-red-700">{{ error }}</span>
+          <span class="text-sm font-medium text-red-700">{{ error || t('companies.error') }}</span>
         </div>
         <button @click="loadCompanies" class="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition-colors">
-          Réessayer
+          {{ t('companies.retry') }}
         </button>
       </div>
 
@@ -155,6 +154,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 import {
   BuildingOfficeIcon,
   MapPinIcon,
@@ -231,14 +233,9 @@ const visibleSlides = computed(() => {
   return 1
 })
 
-// Computed optimisés pour éviter les recalculs inutiles
-const totalSlides = computed(() =>
-  companies.value.length > 0 ? Math.ceil(companies.value.length / visibleSlides.value) : 0
-)
-
+// Computed simplifiés
 const isLoading = computed(() => loading.value)
 const hasError = computed(() => !!error.value)
-const hasCompanies = computed(() => companies.value.length > 0)
 
 const getCompanyLogo = (company: ICompany): string => {
   if (company.webSiteUrl) {
@@ -298,13 +295,15 @@ const toggleFavorite = (id: number) => {
 }
 
 const nextSlide = () => {
-  if (!hasCompanies.value) return
-  currentSlide.value = (currentSlide.value + 1) % totalSlides.value
+  if (companies.value.length === 0) return
+  const totalSlides = Math.ceil(companies.value.length / visibleSlides.value)
+  currentSlide.value = (currentSlide.value + 1) % totalSlides
 }
 
 const prevSlide = () => {
-  if (!hasCompanies.value) return
-  currentSlide.value = (currentSlide.value - 1 + totalSlides.value) % totalSlides.value
+  if (companies.value.length === 0) return
+  const totalSlides = Math.ceil(companies.value.length / visibleSlides.value)
+  currentSlide.value = (currentSlide.value - 1 + totalSlides) % totalSlides
 }
 
 const goToSlide = (index: number) => {
