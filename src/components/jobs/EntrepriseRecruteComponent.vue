@@ -187,7 +187,7 @@ const companies = ref<CompanyWithUI[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const currentSlide = ref(0)
-const resizeTimeout = ref<NodeJS.Timeout | null>(null)
+const resizeTimeout = ref<number | null>(null)
 
 const companyService = useCompanyService()
 
