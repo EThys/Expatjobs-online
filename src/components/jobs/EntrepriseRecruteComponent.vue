@@ -154,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
   BuildingOfficeIcon,
   MapPinIcon,
@@ -176,12 +176,53 @@ interface CompanyWithUI extends ICompany {
   jobsCount: number
 }
 
+interface CacheData {
+  data: CompanyWithUI[]
+  timestamp: number
+}
+
 const companies = ref<CompanyWithUI[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const currentSlide = ref(0)
+const resizeTimeout = ref<NodeJS.Timeout | null>(null)
 
 const companyService = useCompanyService()
+
+// Cache utilities
+const CACHE_KEY = 'companies_cache'
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
+const getCachedData = (): CompanyWithUI[] | null => {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY)
+    if (!cached) return null
+
+    const parsed: CacheData = JSON.parse(cached)
+    const now = Date.now()
+
+    if (now - parsed.timestamp > CACHE_DURATION) {
+      localStorage.removeItem(CACHE_KEY)
+      return null
+    }
+
+    return parsed.data
+  } catch {
+    return null
+  }
+}
+
+const setCachedData = (data: CompanyWithUI[]) => {
+  try {
+    const cacheData: CacheData = {
+      data,
+      timestamp: Date.now()
+    }
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData))
+  } catch {
+    // Ignore localStorage errors
+  }
+}
 
 const visibleSlides = computed(() => {
   if (typeof window === 'undefined') return 3
@@ -189,6 +230,15 @@ const visibleSlides = computed(() => {
   if (window.innerWidth >= 768) return 2
   return 1
 })
+
+// Computed optimisés pour éviter les recalculs inutiles
+const totalSlides = computed(() =>
+  companies.value.length > 0 ? Math.ceil(companies.value.length / visibleSlides.value) : 0
+)
+
+const isLoading = computed(() => loading.value)
+const hasError = computed(() => !!error.value)
+const hasCompanies = computed(() => companies.value.length > 0)
 
 const getCompanyLogo = (company: ICompany): string => {
   if (company.webSiteUrl) {
@@ -241,35 +291,44 @@ const getRandomJobsCount = (companyId: number): number => {
   return (companyId % 10) + 5
 }
 
+// Optimisation: fonctions stables pour éviter les re-renders inutiles
 const toggleFavorite = (id: number) => {
   const company = companies.value.find(c => c.id === id)
   if (company) company.isFavorite = !company.isFavorite
 }
 
 const nextSlide = () => {
-  if (companies.value.length === 0) return
-  currentSlide.value = (currentSlide.value + 1) % Math.ceil(companies.value.length / visibleSlides.value)
+  if (!hasCompanies.value) return
+  currentSlide.value = (currentSlide.value + 1) % totalSlides.value
 }
 
 const prevSlide = () => {
-  if (companies.value.length === 0) return
-  currentSlide.value = (currentSlide.value - 1 + Math.ceil(companies.value.length / visibleSlides.value)) % Math.ceil(companies.value.length / visibleSlides.value)
+  if (!hasCompanies.value) return
+  currentSlide.value = (currentSlide.value - 1 + totalSlides.value) % totalSlides.value
 }
 
 const goToSlide = (index: number) => {
   currentSlide.value = index
 }
 
-// Chargement des données
+// Chargement des données avec cache
 const loadCompanies = async () => {
   loading.value = true
   error.value = null
-  
+
+  // Vérifier le cache d'abord
+  const cachedData = getCachedData()
+  if (cachedData) {
+    companies.value = cachedData
+    loading.value = false
+    return
+  }
+
   try {
     const response = await companyService.getAllCompanies(0, 20, 'name,asc')
-    
+
     // Transformation des données de l'API vers le format UI
-    companies.value = response.content.map(company => ({
+    const transformedData = response.content.map(company => ({
       ...company,
       isFavorite: Math.random() > 0.7, // Exemple: 30% des entreprises sont favorites
       highlights: [
@@ -279,7 +338,12 @@ const loadCompanies = async () => {
       ].sort(() => Math.random() - 0.5).slice(0, 2), // 2 highlights aléatoires
       jobsCount: getRandomJobsCount(company.id)
     } as CompanyWithUI))
-    
+
+    companies.value = transformedData
+
+    // Mettre en cache les données
+    setCachedData(transformedData)
+
   } catch (err) {
     console.error('Erreur lors du chargement des entreprises:', err)
     error.value = 'Impossible de charger les entreprises. Veuillez réessayer.'
@@ -288,13 +352,30 @@ const loadCompanies = async () => {
   }
 }
 
+// Gestionnaire d'événement resize avec debounce
+const handleResize = () => {
+  if (resizeTimeout.value) {
+    clearTimeout(resizeTimeout.value)
+  }
+  resizeTimeout.value = setTimeout(() => {
+    currentSlide.value = 0
+  }, 150)
+}
+
 onMounted(() => {
   loadCompanies()
-  
+
   if (typeof window !== 'undefined') {
-    window.addEventListener('resize', () => {
-      currentSlide.value = 0
-    })
+    window.addEventListener('resize', handleResize)
+  }
+})
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', handleResize)
+  }
+  if (resizeTimeout.value) {
+    clearTimeout(resizeTimeout.value)
   }
 })
 </script>
