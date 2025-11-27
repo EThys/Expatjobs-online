@@ -9,10 +9,9 @@ import Footer from '../../components/footer/FooterComponent.vue'
 import { useJobService } from '@/utils/service/jobService'
 //@ts-ignore
 import { useCompanyService } from '@/utils/service/CompagnyService'
-//@ts-ignore
-import  { IJobCreate, ISkillCreate, JobType, ExperienceLevel, JobStatus } from '@/utils/interface/IJobOffers'
-//@ts-ignore
-import  { ICompany } from '@/utils/interface/ICompagny'
+import type { IJobCreate, ISkillCreate } from '@/utils/interface/IJobOffers'
+import { JobType, ExperienceLevel, JobStatus } from '@/utils/interface/IJobOffers'
+import type { ICompany } from '@/utils/interface/ICompagny'
 import {getUser} from '@/stores/authStorage'
 
 const toast = useToast();
