@@ -11,12 +11,6 @@
     <div class="max-w-7xl mx-auto relative z-10">
       <!-- En-tête avec badge -->
       <div class="text-center mb-16">
-        <div class="inline-flex items-center justify-center px-5 py-3 mb-6 bg-white rounded-full shadow-sm border border-gray-100">
-          <svg class="w-6 h-6 mr-3 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 18a9 9 0 019-9" />
-          </svg>
-          <span class="text-sm font-medium text-gray-700">Plateforme internationale de recrutement</span>
-        </div>
 
         <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
           <span class="block bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-cyan-600">
@@ -148,51 +142,202 @@
         </div>
       </div>
 
-      <!-- Processus en 3 étapes -->
-      <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 rounded-3xl p-8 md:p-12 ">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">Notre processus simplifié</h2>
-          <p class="max-w-2xl mx-auto text-lg text-gray-600">En 3 étapes seulement, connectez-vous aux meilleures opportunités internationales</p>
+      <!-- Processus Révolutionnaire - Design Ultra-Moderne -->
+      <div class="process-section relative py-24 px-6 md:px-12 lg:px-20 animate-on-scroll overflow-hidden" data-delay="1300">
+        <!-- Fond dynamique avec particules -->
+        <div class="absolute inset-0 overflow-hidden">
+          <div class="absolute top-20 left-20 w-40 h-40 bg-emerald-200/20 rounded-full blur-3xl animate-float opacity-60"></div>
+          <div class="absolute bottom-20 right-20 w-48 h-48 bg-green-200/15 rounded-full blur-3xl animate-float-reverse opacity-50"></div>
+          <div class="absolute top-1/2 left-1/4 w-32 h-32 bg-emerald-300/10 rounded-full blur-2xl animate-pulse opacity-40"></div>
+
         </div>
 
-        <div class="relative">
-          <!-- Ligne de connexion -->
-          <div class="absolute top-16 left-0 right-0 h-2 bg-gradient-to-r from-emerald-200 to-cyan-200 rounded-full"></div>
+        <!-- Header révolutionnaire -->
+        <div class="text-center mb-20 relative z-10">
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            <!-- Étape 1 -->
-            <div class="bg-white p-8 rounded-2xl shadow-sm relative z-10">
-              <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg">
-                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.332 5.477 3 6.253v13.494C4.332 19.523 5.918 20 7.5 20s3.332-.477 4.5-1.253m0-13C13.168 5.477 14.754 5 16.5 5S19.668 5.477 21 6.253v13.494C19.668 19.523 18.082 20 16.5 20s-1.668-.477-3-1.253z" />
-                </svg>
+
+          <h2 class="text-5xl md:text-6xl lg:text-7xl font-light text-gray-900 mb-8 animate-on-scroll" data-delay="1600">
+            Seulement <span class="font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 bg-clip-text text-transparent">3 étapes</span>
+          </h2>
+
+          <p class="max-w-4xl mx-auto text-xl text-gray-600 leading-relaxed mb-12 animate-on-scroll" data-delay="1700">
+            Notre technologie d'IA révolutionnaire vous connecte instantanément aux opportunités parfaites dans le monde entier
+          </p>
+
+        </div>
+
+        <!-- Timeline verticale interactive -->
+        <div class="relative max-w-6xl mx-auto">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-8 relative">
+            <!-- Étape 1 - Création Ultra-Moderne -->
+            <div class="lg:text-right animate-on-scroll" data-delay="1900">
+              <div class="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-emerald-100/50 hover:shadow-emerald-500/10 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden">
+                <!-- Fond animé -->
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-emerald-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                <!-- Numéro et icône -->
+                <div class="relative z-10 flex lg:justify-end mb-6">
+                  <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-emerald-500/50 transition-all duration-300 group-hover:scale-110">
+                    <span class="text-3xl font-bold text-white">1</span>
+                  </div>
+                </div>
+
+                <!-- Contenu -->
+                <div class="relative z-10">
+                  <h3 class="text-2xl font-bold text-gray-900 mb-4 group-hover:text-emerald-700 transition-colors duration-300">
+                    Création Express
+                  </h3>
+                  <p class="text-gray-600 leading-relaxed mb-6">
+                    Profil intelligent en 2 minutes avec suggestions automatiques basées sur votre CV et expérience.
+                  </p>
+
+                  <!-- Fonctionnalités -->
+                  <div class="space-y-3">
+                    <div class="flex items-center space-x-3 text-sm text-emerald-700">
+                      <div class="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                      <span>Upload CV intelligent</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-sm text-emerald-700">
+                      <div class="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                      <span>Suggestions automatiques</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-sm text-emerald-700">
+                      <div class="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                      <span>Vérification instantanée</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-3 text-center pt-6">1. Création de profil</h3>
-              <p class="text-gray-600 text-center">Complétez votre profil avec vos compétences et préférences en 2 minutes</p>
             </div>
 
-            <!-- Étape 2 -->
-            <div class="bg-white p-8 rounded-2xl shadow-sm relative z-10">
-              <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 flex h-16 w-16 items-center justify-center rounded-full bg-cyan-600 text-white shadow-lg">
-                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+            <!-- Étape 2 - Matching IA -->
+            <div class="animate-on-scroll" data-delay="2000">
+              <div class="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-emerald-100/50 hover:shadow-green-500/10 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden">
+                <!-- Fond animé -->
+                <div class="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                <!-- Numéro et icône -->
+                <div class="relative z-10 flex justify-center mb-6">
+                  <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-green-500/50 transition-all duration-300 group-hover:scale-110">
+                    <span class="text-3xl font-bold text-white">2</span>
+                  </div>
+                </div>
+
+                <!-- Contenu -->
+                <div class="relative z-10 text-center">
+                  <h3 class="text-2xl font-bold text-gray-900 mb-4 group-hover:text-green-700 transition-colors duration-300">
+                    Matching IA Révolutionnaire
+                  </h3>
+                  <p class="text-gray-600 leading-relaxed mb-6">
+                    Notre IA analyse 50+ critères pour trouver les opportunités parfaitement adaptées à votre profil unique.
+                  </p>
+
+                  <!-- Fonctionnalités -->
+                  <div class="space-y-3">
+                    <div class="flex items-center justify-center space-x-3 text-sm text-green-700">
+                      <div class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                      <span>Analyse comportementale</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-3 text-sm text-green-700">
+                      <div class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                      <span>Matching prédictif</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-3 text-sm text-green-700">
+                      <div class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                      <span>Recommandations en temps réel</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-3 text-center pt-6">2. Matching intelligent</h3>
-              <p class="text-gray-600 text-center">Notre algorithme trouve les meilleures correspondances selon vos critères</p>
             </div>
 
-            <!-- Étape 3 -->
-            <div class="bg-white p-8 rounded-2xl shadow-sm relative z-10">
-              <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg">
-                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.795.242-.795.464m7.536-7.536a11.956 11.956 0 01-8.385 2.8M12 21a12 12 0 01-8.5-3.5A12 12 0 0112 3a12 12 0 018.5 8.5A12 12 0 0112 21z" />
-                </svg>
+            <!-- Étape 3 - Connexion Instantanée -->
+            <div class="lg:text-left animate-on-scroll" data-delay="2100">
+              <div class="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-emerald-100/50 hover:shadow-emerald-500/10 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden">
+                <!-- Fond animé -->
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-green-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                <!-- Numéro et icône -->
+                <div class="relative z-10 flex lg:justify-start mb-6">
+                  <div class="w-20 h-20 bg-gradient-to-br from-emerald-600 to-green-700 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-emerald-600/50 transition-all duration-300 group-hover:scale-110">
+                    <span class="text-3xl font-bold text-white">3</span>
+                  </div>
+                </div>
+
+                <!-- Contenu -->
+                <div class="relative z-10">
+                  <h3 class="text-2xl font-bold text-gray-900 mb-4 group-hover:text-emerald-700 transition-colors duration-300">
+                    Connexion Instantanée
+                  </h3>
+                  <p class="text-gray-600 leading-relaxed mb-6">
+                    Recevez des propositions personnalisées en temps réel et connectez-vous directement avec les recruteurs.
+                  </p>
+
+                  <!-- Fonctionnalités -->
+                  <div class="space-y-3">
+                    <div class="flex items-center space-x-3 text-sm text-emerald-700">
+                      <div class="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                      <span>Notifications intelligentes</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-sm text-emerald-700">
+                      <div class="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                      <span>Messages instantanés</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-sm text-emerald-700">
+                      <div class="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                      <span>Processus d'entretien accéléré</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Indicateur de succès -->
+                <div class="absolute top-4 right-4 w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-3 text-center pt-6">3. Connexion réussie</h3>
-              <p class="text-gray-600 text-center">Nous facilitons la mise en relation et le processus d'embauche</p>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -202,56 +347,234 @@
 </template>
 
 <script setup>
-// Pas besoin d'importer des icônes pour ce design
+import { onMounted, onUnmounted } from 'vue'
+
+// Gestion des animations au scroll
+const initScrollAnimations = () => {
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate')
+      }
+    })
+  }, observerOptions)
+
+  // Observer tous les éléments avec animate-on-scroll
+  const animatedElements = document.querySelectorAll('.animate-on-scroll')
+  animatedElements.forEach((el) => {
+    observer.observe(el)
+  })
+
+  // Cleanup
+  return () => {
+    animatedElements.forEach((el) => {
+      observer.unobserve(el)
+    })
+  }
+}
+
+onMounted(() => {
+  // Délai pour s'assurer que le DOM est chargé
+  setTimeout(() => {
+    initScrollAnimations()
+  }, 100)
+})
+
+onUnmounted(() => {
+  // Cleanup automatique par Vue
+})
 </script>
 
 <style scoped>
-/* Animations fluides */
-@keyframes blobSlow {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(30px, -50px) scale(1.05); }
+/* Animations ultra-modernes pour le processus */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+  33% { transform: translateY(-20px) rotate(1deg) scale(1.05); }
+  66% { transform: translateY(10px) rotate(-0.5deg) scale(0.95); }
 }
 
-@keyframes blobFast {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-40px, 20px) scale(1.03); }
+@keyframes float-reverse {
+  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+  33% { transform: translateY(20px) rotate(-1deg) scale(1.03); }
+  66% { transform: translateY(-10px) rotate(0.5deg) scale(0.97); }
 }
 
-@keyframes gradient {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
 }
 
-.animate-blob-slow {
-  animation: blobSlow 12s ease-in-out infinite;
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+  40%, 43% { transform: translateY(-8px); }
+  70% { transform: translateY(-4px); }
+  90% { transform: translateY(-2px); }
 }
 
-.animate-blob-fast {
-  animation: blobFast 15s ease-in-out infinite;
+@keyframes draw-path {
+  0% { stroke-dasharray: 0, 1000; }
+  100% { stroke-dasharray: 1000, 0; }
 }
 
-.animate-gradient-text {
-  background-size: 200% auto;
-  animation: gradient 4s ease infinite alternate;
+@keyframes scale-in {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-/* Effets 3D et transitions */
-.perspective-1000 {
-  perspective: 1000px;
+/* Classes d'animation */
+.animate-float {
+  animation: float 8s ease-in-out infinite;
 }
 
-.group:hover .group-hover\:opacity-100 {
+.animate-float-reverse {
+  animation: float-reverse 10s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 6s ease-in-out infinite;
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+.animate-draw-path {
+  stroke-dasharray: 0, 1000;
+  animation: draw-path 3s ease-in-out forwards;
+}
+
+.scale-in {
+  animation: scale-in 0.6s ease-out forwards;
+}
+
+/* Effets de hover avancés */
+.process-card {
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.process-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.25);
+}
+
+
+/* Glassmorphism effects */
+.glassmorphism {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Indicateurs de performance */
+.metric-card {
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.15);
+}
+
+/* Animations d'entrée échelonnées */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-on-scroll.animate {
   opacity: 1;
+  transform: translateY(0);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
-    grid-template-columns: 1fr;
+/* Responsive design */
+@media (max-width: 1024px) {
+  .process-section {
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 
-  .text-5xl.md\:text-6xl {
+}
+
+@media (max-width: 768px) {
+  .process-section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  .text-5xl.md\\:text-6xl.lg\\:text-7xl {
     font-size: 2.5rem;
+    line-height: 1.2;
+  }
+
+  .text-4xl.md\\:text-5xl.lg\\:text-6xl {
+    font-size: 2rem;
+  }
+
+  .grid.grid-cols-1.lg\\:grid-cols-3 {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .lg\\:text-right,
+  .lg\\:text-left {
+    text-align: center;
+  }
+
+  .lg\\:justify-end,
+  .lg\\:justify-start {
+    justify-content: center;
+  }
+
+  .flex.flex-wrap.items-center.justify-center.gap-8 {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .process-section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .text-xl.text-gray-600.leading-relaxed {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .max-w-4xl.mx-auto {
+    max-width: 100%;
+  }
+}
+
+/* Optimisations pour les écrans tactiles */
+@media (hover: none) and (pointer: coarse) {
+  .process-card:hover {
+    transform: none;
+  }
+
+  .metric-card:hover {
+    transform: none;
+  }
+}
+
+/* Animation des chemins SVG */
+svg path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw-svg 2s ease-in-out forwards;
+}
+
+@keyframes draw-svg {
+  to {
+    stroke-dashoffset: 0;
   }
 }
 </style>
