@@ -300,7 +300,8 @@ import { useJobService } from '@/utils/service/jobService'
 //@ts-ignore
 import { useCompanyService } from '@/utils/service/CompagnyService'
 //@ts-ignore
-import { IJob, IJobResponse, JobType, ExperienceLevel, type IJobOffers } from '@/utils/interface/IJobOffers'
+import type { IJob, IJobResponse, IJobOffers } from '@/utils/interface/IJobOffers'
+import { JobType, ExperienceLevel } from '@/utils/interface/IJobOffers'
 import { getToken } from '@/stores/authStorage';
 
 // Services
