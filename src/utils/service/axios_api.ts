@@ -4,10 +4,11 @@ import axios, { type AxiosInstance } from 'axios'
 const isDevelopment = import.meta.env.DEV
 
 // Utilitaire de debounce pour éviter les appels API répétés
-const debounceMap = new Map<string, NodeJS.Timeout>()
+const debounceMap = new Map<string, number>()
 
 export const debounceApiCall = <T extends any[], R>(
   fn: (...args: T) => Promise<R>,
+
   delay: number = 300,
   key?: string
 ) => {
@@ -43,7 +44,6 @@ export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
       'Content-type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
       Authorization: `Bearer ${token}`
-
     }
   })
 
