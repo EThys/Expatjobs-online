@@ -30,7 +30,7 @@ import { useJobService } from '@/utils/service/jobService'
 //@ts-ignore
 import { useCompanyService } from '@/utils/service/CompagnyService'
 //@ts-ignore
-import { IJob } from '@/utils/interface/IJobOffers'
+import type { IJob } from '@/utils/interface/IJobOffers'
 
 // Services et router
 const jobService = useJobService()
