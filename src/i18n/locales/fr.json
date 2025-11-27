@@ -1,0 +1,200 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "jobs": "Emplois",
+    "allJobs": "Tous les emplois",
+    "remoteWork": "Télétravail",
+    "international": "International",
+    "companies": "Entreprises",
+    "about": "À propos",
+    "contact": "Contact",
+    "login": "Connexion",
+    "register": "Inscription",
+    "logout": "Déconnexion",
+    "profile": "Profil",
+    "postJob": "Publier une offre",
+    "dashboard": "Tableau de bord",
+    "myProfile": "Mon profil",
+    "manageAccount": "Gérer mon compte",
+    "myCompany": "Mon entreprise",
+    "manageOffers": "Gérer mes offres",
+    "logout": "Se déconnecter",
+    "leaveAccount": "Quitter mon compte",
+    "account": "Compte",
+    "promoText": "50K+ offres d'emploi internationales disponibles",
+    "joinUs": "Rejoignez-nous gratuitement"
+  },
+  "hero": {
+    "searchPlaceholder": "Poste, compétences ou entreprise",
+    "locationPlaceholder": "Localisation",
+    "jobTypeAll": "Tous types",
+    "jobTypeFullTime": "CDI",
+    "jobTypePartTime": "Temps partiel",
+    "jobTypeContract": "CDD",
+    "jobTypeInternship": "Stage",
+    "jobTypeRemote": "Télétravail",
+    "searchButton": "Rechercher",
+    "slide1": {
+      "title": "Trouvez votre",
+      "highlight": "emploi idéal",
+      "subtitle": "Des milliers d'opportunités vous attendent",
+      "description": "Accédez aux meilleures offres d'emploi dans tous les secteurs avec des salaires compétitifs et des avantages attractifs.",
+      "cta": "Parcourir les offres"
+    },
+    "slide2": {
+      "title": "Vous recrutez ?",
+      "highlight": "Nous avons la solution",
+      "subtitle": "Connectez-vous avec des professionnels qualifiés",
+      "description": "Notre plateforme aide les entreprises à trouver les bons candidats rapidement et efficacement.",
+      "cta": "Publier une offre"
+    },
+    "slide3": {
+      "title": "Travail flexible",
+      "highlight": "et opportunités",
+      "subtitle": "Trouvez des postes qui correspondent à votre style de vie",
+      "description": "Découvrez des emplois en CDI, CDD, temps partiel et télétravail dans divers secteurs.",
+      "cta": "Trouver des emplois flexibles"
+    },
+    "slide4": {
+      "title": "Développement de carrière",
+      "highlight": "simplifié",
+      "subtitle": "Faites le prochain pas dans votre parcours professionnel",
+      "description": "Soyez mis en relation avec des postes qui correspondent à vos compétences et aspirations.",
+      "cta": "Faire progresser votre carrière"
+    },
+    "categories": {
+      "title": "Explorez par Catégories",
+      "subtitle": "Trouvez le poste qui correspond à vos compétences",
+      "viewMore": "Voir plus",
+      "viewLess": "Voir moins",
+      "offers": "offres",
+      "development": "Développement",
+      "business": "Business",
+      "finance": "Finance & Comptabilité",
+      "marketing": "Marketing & Communication",
+      "design": "Design & Création",
+      "health": "Santé & Social",
+      "education": "Éducation & Formation",
+      "engineering": "Ingénierie",
+      "sales": "Vente & Commerce",
+      "hr": "RH & Recrutement",
+      "legal": "Juridique",
+      "logistics": "Logistique & Transport",
+      "hospitality": "Hôtellerie & Restauration",
+      "maintenance": "Maintenance & Réparation",
+      "cleaning": "Nettoyage & Services",
+      "security": "Sécurité & Surveillance",
+      "other": "Autres"
+    },
+    "featuredJobs": {
+      "title": "Opportunités en Vedette",
+      "subtitle": "Découvrez les postes les plus recherchés actuellement",
+      "viewAll": "Voir toutes les offres",
+      "apply": "Postuler",
+      "fullTime": "Temps plein",
+      "partTime": "Temps partiel",
+      "contract": "Contrat",
+      "internship": "Stage",
+      "remote": "Télétravail"
+    }
+  },
+  "about": {
+    "title": "ExpatJobs connecte",
+    "subtitle": "les talents aux opportunités mondiales",
+    "description": "La première plateforme dédiée au recrutement international, conçue pour surmonter les barrières géographiques et culturelles.",
+    "forTalents": {
+      "title": "Pour les talents internationaux",
+      "description": "Accédez à des opportunités vérifiées dans plus de 50 pays avec un support dédié à l'expatriation.",
+      "feature1": "Offres avec détails complets",
+      "feature2": "Alertes personnalisées",
+      "feature3": "Support à l'expatriation"
+    },
+    "mission": {
+      "title": "Notre mission",
+      "description": "Révolutionner le recrutement international en connectant les talents aux meilleures opportunités, sans frontières.",
+      "feature1": "Plateforme sécurisée",
+      "feature2": "Matching intelligent",
+      "feature3": "Support multilingue"
+    },
+    "forCompanies": {
+      "title": "Pour les entreprises",
+      "description": "Trouvez les meilleurs talents internationaux et développez votre équipe avec des profils diversifiés et qualifiés.",
+      "feature1": "Accès aux talents mondiaux",
+      "feature2": "Filtres avancés",
+      "feature3": "Gestion simplifiée"
+    },
+    "process": {
+      "title": "Seulement",
+      "highlight": "3 étapes",
+      "description": "Notre technologie d'IA révolutionnaire vous connecte instantanément aux opportunités parfaites dans le monde entier",
+      "step1": {
+        "title": "Création Express",
+        "description": "Profil intelligent en 2 minutes avec suggestions automatiques basées sur votre CV et expérience.",
+        "feature1": "Upload CV intelligent",
+        "feature2": "Suggestions automatiques",
+        "feature3": "Vérification instantanée"
+      },
+      "step2": {
+        "title": "Matching IA Révolutionnaire",
+        "description": "Notre IA analyse 50+ critères pour trouver les opportunités parfaitement adaptées à votre profil unique.",
+        "feature1": "Analyse comportementale",
+        "feature2": "Matching prédictif",
+        "feature3": "Recommandations en temps réel"
+      },
+      "step3": {
+        "title": "Connexion Instantanée",
+        "description": "Recevez des propositions personnalisées en temps réel et connectez-vous directement avec les recruteurs.",
+        "feature1": "Notifications intelligentes",
+        "feature2": "Messages instantanés",
+        "feature3": "Processus d'entretien accéléré"
+      }
+    }
+  },
+  "companies": {
+    "title": "Découvrez les",
+    "highlight": "meilleures entreprises",
+    "description": "Explorez les opportunités chez les employeurs les plus innovants du marché international",
+    "loading": "Chargement des entreprises...",
+    "error": "Impossible de charger les entreprises. Veuillez réessayer.",
+    "retry": "Réessayer",
+    "verified": "Vérifié",
+    "jobsCount": "offres",
+    "viewJobs": "Voir les offres"
+  },
+  "footer": {
+    "description": "Votre passerelle vers des opportunités professionnelles internationales. Nous connectons les talents aux meilleures entreprises à travers le monde.",
+    "quickLinks": "Liens rapides",
+    "contact": "Contact",
+    "home": "Accueil",
+    "jobs": "Offres d'emploi",
+    "companies": "Entreprises",
+    "blog": "Blog",
+    "testimonials": "Témoignages",
+    "email": "Email",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "rights": "Tous droits réservés",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation"
+  },
+  "common": {
+    "readMore": "Lire plus",
+    "learnMore": "En savoir plus",
+    "getStarted": "Commencer",
+    "viewAll": "Voir tout",
+    "apply": "Postuler",
+    "save": "Enregistrer",
+    "share": "Partager",
+    "opportunities": "opportunités disponibles",
+    "flexibleWork": "Travail flexible et nomade",
+    "internationalOpportunities": "Opportunités à l'étranger",
+    "language": "Langue",
+    "notSpecified": "Non spécifié",
+    "company": "Entreprise",
+    "noDescription": "Description non disponible",
+    "salaryNegotiable": "Salaire à négocier",
+    "salaryUpTo": "Jusqu'à {max} €",
+    "salaryFrom": "À partir de {min} €"
+  }
+}
+

@@ -1,0 +1,200 @@
+{
+  "nav": {
+    "home": "Home",
+    "jobs": "Jobs",
+    "allJobs": "All Jobs",
+    "remoteWork": "Remote Work",
+    "international": "International",
+    "companies": "Companies",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "profile": "Profile",
+    "postJob": "Post a Job",
+    "dashboard": "Dashboard",
+    "myProfile": "My Profile",
+    "manageAccount": "Manage my account",
+    "myCompany": "My Company",
+    "manageOffers": "Manage my offers",
+    "logout": "Logout",
+    "leaveAccount": "Leave my account",
+    "account": "Account",
+    "promoText": "50K+ international job opportunities available",
+    "joinUs": "Join us for free"
+  },
+  "hero": {
+    "searchPlaceholder": "Position, skills or company",
+    "locationPlaceholder": "Location",
+    "jobTypeAll": "All types",
+    "jobTypeFullTime": "Full-time",
+    "jobTypePartTime": "Part-time",
+    "jobTypeContract": "Contract",
+    "jobTypeInternship": "Internship",
+    "jobTypeRemote": "Remote",
+    "searchButton": "Search",
+    "slide1": {
+      "title": "Find your",
+      "highlight": "dream job",
+      "subtitle": "Thousands of opportunities await you",
+      "description": "Access the best job offers in all sectors with competitive salaries and attractive benefits.",
+      "cta": "Browse offers"
+    },
+    "slide2": {
+      "title": "Are you hiring?",
+      "highlight": "We have the solution",
+      "subtitle": "Connect with qualified professionals",
+      "description": "Our platform helps companies find the right candidates quickly and efficiently.",
+      "cta": "Post a job"
+    },
+    "slide3": {
+      "title": "Flexible work",
+      "highlight": "and opportunities",
+      "subtitle": "Find positions that match your lifestyle",
+      "description": "Discover permanent, temporary, part-time and remote jobs in various sectors.",
+      "cta": "Find flexible jobs"
+    },
+    "slide4": {
+      "title": "Career development",
+      "highlight": "simplified",
+      "subtitle": "Take the next step in your professional journey",
+      "description": "Get matched with positions that match your skills and aspirations.",
+      "cta": "Advance your career"
+    },
+    "categories": {
+      "title": "Explore by Categories",
+      "subtitle": "Find the position that matches your skills",
+      "viewMore": "View more",
+      "viewLess": "View less",
+      "offers": "jobs",
+      "development": "Development",
+      "business": "Business",
+      "finance": "Finance & Accounting",
+      "marketing": "Marketing & Communication",
+      "design": "Design & Creative",
+      "health": "Health & Social",
+      "education": "Education & Training",
+      "engineering": "Engineering",
+      "sales": "Sales & Commerce",
+      "hr": "HR & Recruitment",
+      "legal": "Legal",
+      "logistics": "Logistics & Transport",
+      "hospitality": "Hospitality & Restaurant",
+      "maintenance": "Maintenance & Repair",
+      "cleaning": "Cleaning & Services",
+      "security": "Security & Surveillance",
+      "other": "Other"
+    },
+    "featuredJobs": {
+      "title": "Featured Opportunities",
+      "subtitle": "Discover the most sought-after positions currently",
+      "viewAll": "View all jobs",
+      "apply": "Apply",
+      "fullTime": "Full-time",
+      "partTime": "Part-time",
+      "contract": "Contract",
+      "internship": "Internship",
+      "remote": "Remote"
+    }
+  },
+  "about": {
+    "title": "ExpatJobs connects",
+    "subtitle": "talents to global opportunities",
+    "description": "The first platform dedicated to international recruitment, designed to overcome geographical and cultural barriers.",
+    "forTalents": {
+      "title": "For international talents",
+      "description": "Access verified opportunities in over 50 countries with dedicated expatriation support.",
+      "feature1": "Jobs with complete details",
+      "feature2": "Personalized alerts",
+      "feature3": "Expatriation support"
+    },
+    "mission": {
+      "title": "Our mission",
+      "description": "Revolutionize international recruitment by connecting talents to the best opportunities, without borders.",
+      "feature1": "Secure platform",
+      "feature2": "Smart matching",
+      "feature3": "Multilingual support"
+    },
+    "forCompanies": {
+      "title": "For companies",
+      "description": "Find the best international talents and grow your team with diverse and qualified profiles.",
+      "feature1": "Access to global talents",
+      "feature2": "Advanced filters",
+      "feature3": "Simplified management"
+    },
+    "process": {
+      "title": "Just",
+      "highlight": "3 steps",
+      "description": "Our revolutionary AI technology instantly connects you to perfect opportunities worldwide",
+      "step1": {
+        "title": "Express Creation",
+        "description": "Smart profile in 2 minutes with automatic suggestions based on your CV and experience.",
+        "feature1": "Smart CV upload",
+        "feature2": "Automatic suggestions",
+        "feature3": "Instant verification"
+      },
+      "step2": {
+        "title": "Revolutionary AI Matching",
+        "description": "Our AI analyzes 50+ criteria to find opportunities perfectly suited to your unique profile.",
+        "feature1": "Behavioral analysis",
+        "feature2": "Predictive matching",
+        "feature3": "Real-time recommendations"
+      },
+      "step3": {
+        "title": "Instant Connection",
+        "description": "Receive personalized proposals in real-time and connect directly with recruiters.",
+        "feature1": "Smart notifications",
+        "feature2": "Instant messages",
+        "feature3": "Accelerated interview process"
+      }
+    }
+  },
+  "companies": {
+    "title": "Discover the",
+    "highlight": "best companies",
+    "description": "Explore opportunities with the most innovative employers in the international market",
+    "loading": "Loading companies...",
+    "error": "Unable to load companies. Please try again.",
+    "retry": "Retry",
+    "verified": "Verified",
+    "jobsCount": "jobs",
+    "viewJobs": "View jobs"
+  },
+  "footer": {
+    "description": "Your gateway to international professional opportunities. We connect talents to the best companies around the world.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact",
+    "home": "Home",
+    "jobs": "Job Offers",
+    "companies": "Companies",
+    "blog": "Blog",
+    "testimonials": "Testimonials",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "rights": "All rights reserved",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use"
+  },
+  "common": {
+    "readMore": "Read more",
+    "learnMore": "Learn more",
+    "getStarted": "Get started",
+    "viewAll": "View all",
+    "apply": "Apply",
+    "save": "Save",
+    "share": "Share",
+    "opportunities": "opportunities available",
+    "flexibleWork": "Flexible and remote work",
+    "internationalOpportunities": "International opportunities",
+    "language": "Language",
+    "notSpecified": "Not specified",
+    "company": "Company",
+    "noDescription": "Description not available",
+    "salaryNegotiable": "Salary negotiable",
+    "salaryUpTo": "Up to {max} €",
+    "salaryFrom": "From {min} €"
+  }
+}
+
