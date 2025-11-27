@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import axios, { type AxiosInstance } from 'axios'
 
 // Configuration pour masquer les requêtes en production
 const isDevelopment = import.meta.env.DEV
@@ -50,7 +50,7 @@ export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
   // Intercepteur de requête - seulement en développement
   if (isDevelopment) {
     useAxios.interceptors.request.use(
-      (config: InternalAxiosRequestConfig) => {
+      (config) => {
         console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`)
         return config
       },
@@ -62,7 +62,7 @@ export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
 
     // Intercepteur de réponse - seulement en développement
     useAxios.interceptors.response.use(
-      (response: AxiosResponse) => {
+      (response) => {
         console.log(`✅ API Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`)
         return response
       },
