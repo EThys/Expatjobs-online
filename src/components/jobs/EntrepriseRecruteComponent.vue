@@ -9,10 +9,6 @@
 
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-12 md:mb-16">
-        <div class="inline-flex items-center justify-center px-6 py-3 mb-6 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-white/30">
-          <BuildingOfficeIcon class="w-6 h-6 mr-3 text-emerald-600" />
-          <span class="text-sm font-medium text-gray-700">Entreprises en vedette</span>
-        </div>
 
         <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
           Découvrez les <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-cyan-600">meilleures entreprises</span>
