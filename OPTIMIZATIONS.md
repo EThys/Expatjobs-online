@@ -54,10 +54,12 @@ if (isDevelopment) {
 ```
 
 **Avantages:**
-- ✅ Requêtes masquées en production
+- ✅ Logs masqués en production (console)
 - ✅ Debugging facilité en développement
-- ✅ Sécurité améliorée
+- ✅ Sécurité des informations sensible
 - ✅ Performance réseau optimisée
+
+⚠️ **IMPORTANT:** Les requêtes HTTP restent visibles dans l'onglet Network car c'est le comportement normal du navigateur. Pour une vraie invisibilité, voir la section "Masquer complètement les requêtes API".
 
 ### **3. Optimisation des Re-renders**
 ```typescript
@@ -163,9 +165,79 @@ npm run dev
 # Performance optimisée
 ```
 
+## 🔒 Masquer Complètement les Requêtes API
+
+### **Pourquoi les requêtes sont-elles visibles ?**
+
+Les requêtes HTTP sont **toujours visibles** dans l'onglet Network car :
+- ✅ C'est le comportement normal du navigateur
+- ✅ Nécessaire pour le fonctionnement de l'application
+- ✅ Utile pour le debugging en développement
+
+### **Solutions pour les masquer complètement :**
+
+#### **1. 🚀 Reverse Proxy (Recommandé)**
+```nginx
+# nginx.conf
+location /api/ {
+    proxy_pass https://expat-jobs-api-928b.onrender.com/api/;
+    proxy_hide_header Access-Control-Allow-Origin;
+    add_header Access-Control-Allow-Origin $http_origin;
+}
+```
+
+**Avantages:**
+- ✅ Requêtes API complètement invisibles
+- ✅ Même origine (same-origin)
+- ✅ Contrôle total des headers
+- ✅ Cache côté serveur possible
+
+#### **2. 🌐 Service Worker API Interception**
+```javascript
+// service-worker.js
+self.addEventListener('fetch', event => {
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(handleApiRequest(event.request));
+  }
+});
+
+async function handleApiRequest(request) {
+  // Intercepter et masquer la vraie URL
+  const apiUrl = 'https://expat-jobs-api-928b.onrender.com' +
+                 request.url.replace(self.location.origin, '');
+
+  const response = await fetch(apiUrl, request);
+  // Retourner une réponse modifiée sans révéler l'URL réelle
+}
+```
+
+#### **3. 🔄 API Gateway / BFF (Backend for Frontend)**
+```
+Frontend → API Gateway → External API
+                    ↓
+               Cache & Transform
+```
+
+#### **4. 📱 Progressive Web App (PWA)**
+```javascript
+// Cache Strategy
+const apiCache = 'api-cache-v1';
+
+self.addEventListener('fetch', event => {
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => response || fetchAndCache(event.request))
+    );
+  }
+});
+```
+
 ## 🚀 Améliorations Futures
 
 - [ ] Service Worker pour cache offline
+- [ ] Reverse Proxy pour masquer les API
+- [ ] API Gateway pour sécurité renforcée
 - [ ] Compression des réponses API
 - [ ] Lazy loading des composants
 - [ ] Virtual scrolling pour grandes listes
