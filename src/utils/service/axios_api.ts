@@ -3,7 +3,7 @@ import axios, { type AxiosInstance } from 'axios'
 
 export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
   const useAxios: AxiosInstance = axios.create({
-    baseURL: 'http://localhost:8080/api/',
+    baseURL: 'https://expat-jobs-api-928b.onrender.com/api/',
     headers: {
       accept: 'application/json',
       'Content-type': 'application/json',
