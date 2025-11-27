@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { 
   getAuthData, 
   clearAuthData, 
@@ -9,8 +10,12 @@ import {
 import type { IUser } from '@/utils/interface/user/IUser'
 //@ts-ignore
 import { useToast } from 'vue-toast-notification'
+import { useLanguage } from '@/composables/useLanguage'
 
 const toast = useToast();
+const { t } = useI18n()
+const { currentLocale, availableLocales, changeLocale } = useLanguage()
+const languageDropdownOpen = ref(false)
 const router = useRouter()
 const isScrolled = ref(false)
 const windowWidth = ref(window.innerWidth)
@@ -187,242 +192,274 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- Navbar -->
-  <header
-    class="fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-white/95 backdrop-blur-md border-b border-gray-100"
-    :class="{ 'shadow-sm': isScrolled }"
-  >
+  <!-- Navbar Ultra-Moderne avec Glassmorphism -->
+  <header class="fixed top-0 left-0 right-0 w-full z-50 transition-all duration-500">
+    <!-- Barre promotionnelle élégante -->
     <div
       v-if="!isMobile && !isLoggedIn"
-      class="bg-gradient-to-r from-emerald-700 to-emerald-600 text-white py-2 px-4 text-center text-sm font-medium"
+      class="bg-gradient-to-r from-emerald-600/95 via-emerald-700/95 to-green-600/95 backdrop-blur-xl text-white py-3 px-6 border-b border-emerald-400/20"
     >
-      <div class="container mx-auto flex items-center justify-center gap-2">
-        <span>Find your dream job or the perfect candidate - Sign up for free!</span>
+      <div class="max-w-7xl mx-auto flex items-center justify-center gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 bg-emerald-400/30 rounded-full flex items-center justify-center">
+            <svg class="w-3 h-3 text-emerald-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <span class="font-medium text-emerald-50">{{ t('nav.promoText', '50K+ offres d\'emploi internationales disponibles') }}</span>
+        </div>
+        <div class="h-4 w-px bg-emerald-300/50"></div>
         <router-link
           to="/register"
-          class="ml-2 underline underline-offset-2 hover:text-emerald-100 transition-colors"
+          class="font-semibold hover:text-emerald-200 transition-all duration-200 flex items-center gap-1 group"
+          @click="closeAllDropdowns"
         >
-          Join now
+          {{ t('nav.joinUs', 'Rejoignez-nous gratuitement') }}
+          <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
         </router-link>
       </div>
     </div>
 
-    <div class="container mx-auto px-4 sm:px-6">
-      <nav class="flex items-center justify-between py-3">
-        <router-link
-          to="/"
-          class="flex items-center space-x-2 z-50 group"
-          @click="closeAllDropdowns"
-        >
-          <div
-            class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center group-hover:bg-emerald-700 transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="white"
-              class="w-6 h-6"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M7.5 5.25a3 3 0 013-3h3a3 3 0 013 3v.205c.933.085 1.857.197 2.774.334 1.454.218 2.476 1.483 2.476 2.917v3.033c0 1.211-.734 2.352-1.936 2.752A24.726 24.726 0 0112 15.75c-2.73 0-5.357-.442-7.814-1.259-1.202-.4-1.936-1.541-1.936-2.752V8.706c0-1.434 1.022-2.7 2.476-2.917A48.814 48.814 0 017.5 5.455V5.25zm7.5 0v.09a49.488 49.488 0 00-6 0v-.09a1.5 1.5 0 011.5-1.5h3a1.5 1.5 0 011.5 1.5zm-3 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
-                clip-rule="evenodd"
-              />
-              <path
-                d="M3 18.4v-2.796a4.3 4.3 0 00.713.31A26.226 26.226 0 0012 17.25c2.892 0 5.68-.468 8.287-1.335.252-.084.49-.189.713-.311V18.4c0 1.452-1.047 2.728-2.523 2.923-2.12.282-4.282.427-6.477.427a49.19 49.19 0 01-6.477-.427C4.047 21.128 3 19.852 3 18.4z"
-              />
-            </svg>
-          </div>
-          <span
-            class="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent"
-            >ExpatJobs</span
-          >
-        </router-link>
-        <div v-if="!isMobile" class="hidden lg:flex items-center space-x-1">
-          <div class="flex items-center space-x-1">
+    <!-- Navbar principale avec glassmorphism -->
+    <nav class="bg-white/80 backdrop-blur-2xl border-b border-emerald-100/30 transition-all duration-300"
+         :class="{ 'bg-white/90 shadow-xl shadow-emerald-500/10': isScrolled }">
+
+      <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo et marque -->
+          <div class="flex items-center">
             <router-link
               to="/"
-              class="relative px-4 py-3 text-gray-700 hover:text-emerald-600 font-medium transition-colors group"
-              active-class="text-emerald-600"
+              class="flex items-center space-x-3 group"
               @click="closeAllDropdowns"
             >
-              Home
-              <span
-                class="absolute bottom-2 left-1/2 transform -translate-x-1/2 h-0.5 w-6 bg-emerald-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              ></span>
-              <span
-                v-if="$route.path === '/'"
-                class="absolute bottom-2 left-1/2 transform -translate-x-1/2 h-0.5 w-6 bg-emerald-600 rounded-full"
-              ></span>
-            </router-link>
-
-            <div class="relative" @mouseenter="openDropdown('jobs')" @mouseleave="closeDropdown">
-              <button
-                @click="toggleDropdown('jobs')"
-                class="flex items-center px-4 py-3 cursor-pointer text-gray-700 hover:text-emerald-600 font-medium transition-colors group"
-                :class="{ 'text-emerald-600': activeDropdown === 'jobs' }"
-              >
-                Jobs
-                <svg
-                  class="ml-1 w-4 h-4 transition-transform duration-200"
-                  :class="{ 'rotate-180': activeDropdown === 'jobs' }"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-              <div
-                v-show="activeDropdown === 'jobs'"
-                class="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-100"
-                @mouseenter="cancelDropdownClose"
-                @mouseleave="closeDropdown"
-              >
-                <router-link
-                  to="/jobs"
-                  class="flex items-center px-4 py-3 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors group"
-                  @click="closeAllDropdowns"
-                >
-                  <svg
-                    class="w-5 h-5 mr-2 text-gray-400 group-hover:text-emerald-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
-                  All Jobs
-                </router-link>
-                <router-link
-                  to="/jobs/remote"
-                  class="flex items-center px-4 py-3 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors group"
-                  @click="closeAllDropdowns"
-                >
-                  <svg
-                    class="w-5 h-5 mr-2 text-gray-400 group-hover:text-emerald-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
-                  Remote Work
-                </router-link>
-                <router-link
-                  to="/jobs/international"
-                  class="flex items-center px-4 py-3 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors group"
-                  @click="closeAllDropdowns"
-                >
-                  <svg
-                    class="w-5 h-5 mr-2 text-gray-400 group-hover:text-emerald-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  International Opportunities
-                </router-link>
+              <div class="relative">
+                <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-emerald-500/30 transition-all duration-300 group-hover:scale-110">
+                  <span class="text-white font-bold text-lg">E</span>
+                </div>
+                <div class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
               </div>
-            </div>
-
-            <router-link
-              v-if="canPostJob"
-              to="/postjob"
-              class="relative px-4 py-3 text-gray-700 hover:text-emerald-600 font-medium transition-colors group"
-              active-class="text-emerald-600"
-              @click="closeAllDropdowns"
-            >
-              Post a Job
-              <span
-                class="absolute bottom-2 left-1/2 transform -translate-x-1/2 h-0.5 w-6 bg-emerald-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              ></span>
-              <span
-                v-if="$route.path === '/postjob'"
-                class="absolute bottom-2 left-1/2 transform -translate-x-1/2 h-0.5 w-6 bg-emerald-600 rounded-full"
-              ></span>
-            </router-link>
-
-            <router-link
-              to="/contact"
-              class="relative px-4 py-3 text-gray-700 hover:text-emerald-600 font-medium transition-colors group"
-              active-class="text-emerald-600"
-              @click="closeAllDropdowns"
-            >
-              Contact
-              <span
-                class="absolute bottom-2 left-1/2 transform -translate-x-1/2 h-0.5 w-6 bg-emerald-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              ></span>
-              <span
-                v-if="$route.path === '/contact'"
-                class="absolute bottom-2 left-1/2 transform -translate-x-1/2 h-0.5 w-6 bg-emerald-600 rounded-full"
-              ></span>
+              <div class="flex flex-col">
+                <span class="text-xl font-bold bg-gradient-to-r from-emerald-700 to-green-700 bg-clip-text text-transparent group-hover:from-emerald-600 group-hover:to-green-600 transition-all duration-300">
+                  ExpatJobs
+                </span>
+                <span class="text-xs text-emerald-600 font-medium -mt-1 opacity-80">International</span>
+              </div>
             </router-link>
           </div>
-
-          <div v-if="isLoggedIn" class="flex items-center space-x-2 ml-4">
-            <div class="relative" 
-                 @mouseenter="openUserDropdown" 
-                 @mouseleave="closeUserDropdown">
-              <button
-                @click="toggleUserDropdown"
-                class="flex items-center space-x-3 px-4 py-2.5 rounded-xl border border-emerald-100 bg-white hover:bg-emerald-50 transition-all duration-300 group cursor-pointer shadow-sm hover:shadow-md"
+            <!-- Navigation principale minimaliste -->
+            <div class="hidden lg:flex items-center space-x-8">
+              <!-- Accueil -->
+              <router-link
+                to="/"
+                class="relative px-3 py-2 text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 group rounded-lg hover:bg-emerald-50/50"
+                active-class="text-emerald-600 bg-emerald-50/50"
+                @click="closeAllDropdowns"
               >
-                <div class="relative">
-                  <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-inner">
-                    {{ currentUser?.email?.charAt(0).toUpperCase() || 'U' }}
-                  </div>
-                  <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
-                    <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                <span class="flex items-center gap-2">
+                  <svg class="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                  </svg>
+                  {{ t('nav.home') }}
+                </span>
+                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300"
+                     :class="{ 'w-full': $route.path === '/' }"></div>
+              </router-link>
+
+              <!-- Menu Emplois -->
+              <div class="relative group" @mouseenter="openDropdown('jobs')" @mouseleave="closeDropdown">
+              <button
+                @click="toggleDropdown('jobs')"
+                class="flex items-center px-3 py-2 text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 group rounded-lg hover:bg-emerald-50/50"
+                :class="{ 'text-emerald-600 bg-emerald-50/50': activeDropdown === 'jobs' }"
+              >
+                <span class="flex items-center gap-2">
+                  <svg class="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                  {{ t('nav.jobs') }}
+                </span>
+                <svg class="ml-1 w-4 h-4 transition-transform duration-300" :class="{ 'rotate-180': activeDropdown === 'jobs' }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+
+                <!-- Dropdown glassmorphism -->
+                <div
+                  v-show="activeDropdown === 'jobs'"
+                  class="absolute left-0 mt-2 w-80 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-emerald-100/50 overflow-hidden z-50"
+                  @mouseenter="cancelDropdownClose"
+                  @mouseleave="closeDropdown"
+                >
+                  <div class="p-6">
+                    <div class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-4">Explorer les offres</div>
+                    <div class="space-y-2">
+                      <router-link
+                        to="/jobs"
+                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl transition-all duration-200 group"
+                        @click="closeAllDropdowns"
+                      >
+                        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-emerald-200 transition-all duration-200">
+                          <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <div class="font-semibold">{{ t('nav.allJobs') }}</div>
+                          <div class="text-sm text-gray-500">50K+ {{ t('common.opportunities', 'opportunities') }}</div>
+                        </div>
+                      </router-link>
+
+                      <router-link
+                        to="/jobs/remote"
+                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all duration-200 group"
+                        @click="closeAllDropdowns"
+                      >
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-blue-200 transition-all duration-200">
+                          <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <div class="font-semibold">{{ t('nav.remoteWork') }}</div>
+                          <div class="text-sm text-gray-500">{{ t('common.flexibleWork', 'Flexible and remote work') }}</div>
+                        </div>
+                      </router-link>
+
+                      <router-link
+                        to="/jobs/international"
+                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-xl transition-all duration-200 group"
+                        @click="closeAllDropdowns"
+                      >
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-purple-200 transition-all duration-200">
+                          <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <div class="font-semibold">{{ t('nav.international') }}</div>
+                          <div class="text-sm text-gray-500">{{ t('common.internationalOpportunities', 'International opportunities') }}</div>
+                        </div>
+                      </router-link>
+                    </div>
                   </div>
                 </div>
-                
-                <div class="flex flex-col items-start min-w-0 max-w-32">
-                  <span class="text-sm font-semibold text-gray-800 group-hover:text-emerald-900 truncate w-full">
+              </div>
+
+              <!-- Publier une offre (pour recruteurs) -->
+              <router-link
+                v-if="canPostJob"
+                to="/postjob"
+                class="relative px-3 py-2 text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 group rounded-lg hover:bg-emerald-50/50"
+                active-class="text-emerald-600 bg-emerald-50/50"
+                @click="closeAllDropdowns"
+              >
+                <span class="flex items-center gap-2">
+                  <svg class="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                  Publier
+                </span>
+                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300"
+                     :class="{ 'w-full': $route.path === '/postjob' }"></div>
+              </router-link>
+
+              <!-- Contact -->
+              <router-link
+                to="/contact"
+                class="relative px-3 py-2 text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 group rounded-lg hover:bg-emerald-50/50"
+                active-class="text-emerald-600 bg-emerald-50/50"
+                @click="closeAllDropdowns"
+              >
+                <span class="flex items-center gap-2">
+                  <svg class="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                  Contact
+                </span>
+                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300"
+                     :class="{ 'w-full': $route.path === '/contact' }"></div>
+              </router-link>
+            </div>
+
+          <!-- Sélecteur de langue pour utilisateur connecté -->
+          <div v-if="isLoggedIn" class="flex items-center ml-4 mr-4">
+            <div class="relative" @mouseenter="languageDropdownOpen = true" @mouseleave="languageDropdownOpen = false">
+              <button
+                @click="languageDropdownOpen = !languageDropdownOpen"
+                class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-emerald-600 font-medium transition-all duration-200 rounded-lg hover:bg-emerald-50/50"
+              >
+                <span class="text-lg">{{ availableLocales.find(l => l.code === currentLocale)?.flag || '🌐' }}</span>
+                <span class="hidden sm:inline text-sm font-medium">{{ availableLocales.find(l => l.code === currentLocale)?.code.toUpperCase() || 'FR' }}</span>
+                <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': languageDropdownOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              
+              <!-- Dropdown des langues -->
+              <transition
+                enter-active-class="transition-all duration-200 ease-out"
+                leave-active-class="transition-all duration-150 ease-in"
+                enter-from-class="opacity-0 scale-95 translate-y-2"
+                enter-to-class="opacity-100 scale-100 translate-y-0"
+                leave-from-class="opacity-100 scale-100 translate-y-0"
+                leave-to-class="opacity-0 scale-95 translate-y-2"
+              >
+                <div
+                  v-show="languageDropdownOpen"
+                  class="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-emerald-100/50 overflow-hidden z-50"
+                >
+                  <div class="py-2">
+                    <button
+                      v-for="locale in availableLocales"
+                      :key="locale.code"
+                      @click="changeLocale(locale.code); languageDropdownOpen = false"
+                      class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200"
+                      :class="{ 'bg-emerald-50 text-emerald-600': currentLocale === locale.code }"
+                    >
+                      <span class="text-xl">{{ locale.flag }}</span>
+                      <span class="font-medium flex-1">{{ locale.name }}</span>
+                      <svg v-if="currentLocale === locale.code" class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </transition>
+            </div>
+          </div>
+
+          <!-- Profil utilisateur connecté -->
+          <div v-if="isLoggedIn" class="flex items-center">
+            <div class="relative group" @mouseenter="openUserDropdown" @mouseleave="closeUserDropdown">
+              <button
+                @click="toggleUserDropdown"
+                class="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-emerald-50/50 transition-all duration-300 cursor-pointer"
+              >
+                <div class="relative">
+                  <div class="w-9 h-9 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-white font-semibold shadow-lg group-hover:shadow-emerald-500/25 transition-all duration-300">
+                    {{ currentUser?.email?.charAt(0).toUpperCase() || 'U' }}
+                  </div>
+                  <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
+                </div>
+
+                <div class="hidden md:flex flex-col items-start min-w-0">
+                  <span class="text-sm font-semibold text-gray-800 group-hover:text-emerald-700 transition-colors">
                     {{ currentUser?.email?.split('@')[0] || 'User' }}
                   </span>
-                  <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 capitalize">
+                  <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium capitalize">
                     {{ currentUser?.role?.toLowerCase() || 'user' }}
                   </span>
                 </div>
-                
-                <svg
-                  class="w-4 h-4 text-gray-400 transition-transform duration-300 group-hover:text-emerald-600"
-                  :class="{ 'rotate-180': userDropdownOpen }"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
+
+                <svg class="w-4 h-4 text-gray-500 group-hover:text-emerald-600 transition-colors" :class="{ 'rotate-180': userDropdownOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
               </button>
     
+              <!-- Dropdown du profil -->
               <transition
                 enter-active-class="transition-all duration-300 ease-out"
                 leave-active-class="transition-all duration-200 ease-in"
@@ -433,28 +470,391 @@ onUnmounted(() => {
               >
                 <div
                   v-show="userDropdownOpen"
-                  class="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl py-4 z-50 border border-gray-200 backdrop-blur-md bg-white/90"
+                  class="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-emerald-100/50 overflow-hidden z-50"
                   @mouseenter="cancelUserDropdownClose"
                   @mouseleave="closeUserDropdown"
                 >
-                  <div class="px-5 py-4 border-b border-gray-200 mb-2 flex items-center gap-4">
-                    <div class="w-14 h-14 bg-gradient-to-tr from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                      {{ currentUser?.email?.charAt(0).toUpperCase() || 'U' }}
+                  <!-- Header du profil -->
+                  <div class="px-6 py-5 bg-gradient-to-r from-emerald-50 to-green-50 border-b border-emerald-100/50">
+                    <div class="flex items-center gap-4">
+                      <div class="relative">
+                        <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                          {{ currentUser?.email?.charAt(0).toUpperCase() || 'U' }}
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-base font-semibold text-gray-900 truncate">
+                          {{ currentUser?.email?.split('@')[0] || 'User' }}
+                        </p>
+                        <p class="text-sm text-emerald-600 font-medium capitalize">
+                          {{ t('nav.account') }} {{ currentUser?.role?.toLowerCase() }}
+                        </p>
+                        <p class="text-xs text-gray-500 truncate mt-1">
+                          {{ currentUser?.email }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Menu d'actions -->
+                  <div class="p-3 space-y-1">
+                    <router-link
+                      to="/profile"
+                      class="flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200 group"
+                      @click="closeAllDropdowns"
+                    >
+                      <div class="w-11 h-11 bg-emerald-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-emerald-200 transition-all duration-200">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium">{{ t('nav.myProfile') }}</p>
+                        <p class="text-xs text-gray-500">{{ t('nav.manageAccount') }}</p>
+                      </div>
+                    </router-link>
+
+                    <router-link
+                      v-if="canPostJob"
+                      to="/company"
+                      class="flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 group"
+                      @click="closeAllDropdowns"
+                    >
+                      <div class="w-11 h-11 bg-blue-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-blue-200 transition-all duration-200">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium">{{ t('nav.myCompany') }}</p>
+                        <p class="text-xs text-gray-500">{{ t('nav.manageOffers') }}</p>
+                      </div>
+                    </router-link>
+                  </div>
+
+                  <!-- Séparateur -->
+                  <div class="border-t border-gray-200 mx-3"></div>
+
+                  <!-- Déconnexion -->
+                  <div class="p-3">
+                    <button
+                      @click="logout"
+                      class="flex items-center w-full px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 group"
+                    >
+                      <div class="w-11 h-11 bg-red-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-red-200 transition-all duration-200">
+                        <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium">{{ t('nav.logout') }}</p>
+                        <p class="text-xs text-red-500">{{ t('nav.leaveAccount') }}</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </transition>
+
+            </div>
+          </div>
+
+
+            <!-- Boutons connexion/inscription modernes -->
+            <div v-else class="flex items-center ml-8 space-x-4">
+              <!-- Sélecteur de langue -->
+              <div class="relative mr-2" @mouseenter="languageDropdownOpen = true" @mouseleave="languageDropdownOpen = false">
+                <button
+                  @click="languageDropdownOpen = !languageDropdownOpen"
+                  class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-emerald-600 font-medium transition-all duration-200 rounded-lg hover:bg-emerald-50/50"
+                >
+                  <span class="text-lg">{{ availableLocales.find(l => l.code === currentLocale)?.flag || '🌐' }}</span>
+                  <span class="hidden sm:inline text-sm font-medium">{{ availableLocales.find(l => l.code === currentLocale)?.code.toUpperCase() || 'FR' }}</span>
+                  <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': languageDropdownOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </button>
+                
+                <!-- Dropdown des langues -->
+                <transition
+                  enter-active-class="transition-all duration-200 ease-out"
+                  leave-active-class="transition-all duration-150 ease-in"
+                  enter-from-class="opacity-0 scale-95 translate-y-2"
+                  enter-to-class="opacity-100 scale-100 translate-y-0"
+                  leave-from-class="opacity-100 scale-100 translate-y-0"
+                  leave-to-class="opacity-0 scale-95 translate-y-2"
+                >
+                  <div
+                    v-show="languageDropdownOpen"
+                    class="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-emerald-100/50 overflow-hidden z-50"
+                  >
+                    <div class="py-2">
+                      <button
+                        v-for="locale in availableLocales"
+                        :key="locale.code"
+                        @click="changeLocale(locale.code); languageDropdownOpen = false"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200"
+                        :class="{ 'bg-emerald-50 text-emerald-600': currentLocale === locale.code }"
+                      >
+                        <span class="text-xl">{{ locale.flag }}</span>
+                        <span class="font-medium flex-1">{{ locale.name }}</span>
+                        <svg v-if="currentLocale === locale.code" class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </transition>
+              </div>
+
+              <router-link
+                to="/login"
+                class="px-5 py-2.5 text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 rounded-xl hover:bg-emerald-50/50 border border-transparent hover:border-emerald-200"
+                @click="closeAllDropdowns"
+              >
+                {{ t('nav.login') }}
+              </router-link>
+              <router-link
+                to="/register"
+                class="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-emerald-600/25 flex items-center justify-center group"
+                @click="closeAllDropdowns"
+              >
+                <span>{{ t('nav.register') }}</span>
+                <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </router-link>
+            </div>
+          </div>
+
+          <!-- Bouton mobile menu -->
+          <button
+            v-if="isMobile"
+            @click="isMobileMenuOpen = !isMobileMenuOpen"
+            class="lg:hidden text-gray-700 focus:outline-none z-50 p-2 rounded-lg hover:bg-emerald-50 transition-colors"
+            :class="{ 'text-emerald-600': isMobileMenuOpen }"
+            aria-label="Toggle menu"
+          >
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                v-if="!isMobileMenuOpen"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+              <path
+                v-else
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Sidebar Mobile Élégante -->
+      <transition
+        enter-active-class="transition-all duration-300 ease-out"
+        leave-active-class="transition-all duration-200 ease-in"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div
+          v-if="isMobile && isMobileMenuOpen"
+          class="fixed inset-0 z-40 lg:hidden"
+          @click="closeAllDropdowns"
+        >
+          <!-- Overlay -->
+          <div class="fixed inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+          <!-- Sidebar -->
+          <div class="fixed top-0 right-0 h-full w-80 max-w-[90vw] sm:max-w-[85vw] sm:w-80 bg-white/95 backdrop-blur-2xl shadow-2xl border-l border-emerald-100/50 transform transition-transform duration-300 overflow-y-auto">
+            <div class="p-4 sm:p-6">
+              <!-- Header sidebar -->
+              <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <span class="text-white font-bold text-lg">E</span>
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-lg font-bold bg-gradient-to-r from-emerald-700 to-green-700 bg-clip-text text-transparent">
+                      ExpatJobs
+                    </span>
+                    <span class="text-xs text-emerald-600 font-medium">International</span>
+                  </div>
+                </div>
+                <button
+                  @click="closeAllDropdowns"
+                  class="p-2 rounded-lg hover:bg-emerald-50 transition-colors"
+                >
+                  <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Sélecteur de langue mobile - En haut du menu -->
+              <div class="mb-6 pb-6 border-b border-gray-200">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-2">{{ t('common.language', 'Language') }}</div>
+                <div class="space-y-1">
+                  <button
+                    v-for="locale in availableLocales"
+                    :key="locale.code"
+                    @click="changeLocale(locale.code); closeAllDropdowns()"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 text-left text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-all duration-200"
+                    :class="{ 'bg-emerald-50 text-emerald-600 font-semibold': currentLocale === locale.code }"
+                  >
+                    <span class="text-xl">{{ locale.flag }}</span>
+                    <span class="font-medium flex-1 text-sm">{{ locale.name }}</span>
+                    <svg v-if="currentLocale === locale.code" class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Navigation -->
+              <nav class="space-y-2 mb-8">
+                <router-link
+                  to="/"
+                  class="flex items-center space-x-4 px-4 py-3 rounded-xl hover:bg-emerald-50 transition-all duration-200 group"
+                  active-class="bg-emerald-50 text-emerald-600"
+                  @click="closeAllDropdowns"
+                >
+                  <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                  </svg>
+                  <span class="font-medium">{{ t('nav.home') }}</span>
+                </router-link>
+
+                <!-- Menu Emplois mobile -->
+                <div class="space-y-1">
+                  <button
+                    @click="toggleDropdown('jobs-mobile')"
+                    class="flex items-center w-full text-left px-4 py-3 rounded-xl hover:bg-emerald-50 transition-colors group"
+                  >
+                    <svg class="w-5 h-5 mr-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="font-medium">{{ t('nav.jobs') }}</span>
+                    <svg class="ml-auto w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === 'jobs-mobile' }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </button>
+
+                  <transition
+                    enter-active-class="transition-all duration-200 ease-out"
+                    leave-active-class="transition-all duration-150 ease-in"
+                    enter-from-class="opacity-0 max-h-0"
+                    enter-to-class="opacity-100 max-h-96"
+                    leave-from-class="opacity-100 max-h-96"
+                    leave-to-class="opacity-0 max-h-0"
+                  >
+                    <div v-show="activeDropdown === 'jobs-mobile'" class="ml-9 space-y-1 overflow-hidden">
+                      <router-link
+                        to="/jobs"
+                        class="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-emerald-600 rounded-lg transition-colors"
+                        @click="closeAllDropdowns"
+                      >
+                        {{ t('nav.allJobs') }}
+                      </router-link>
+                      <router-link
+                        to="/jobs/remote"
+                        class="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-blue-600 rounded-lg transition-colors"
+                        @click="closeAllDropdowns"
+                      >
+                        {{ t('nav.remoteWork') }}
+                      </router-link>
+                      <router-link
+                        to="/jobs/international"
+                        class="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-purple-600 rounded-lg transition-colors"
+                        @click="closeAllDropdowns"
+                      >
+                        {{ t('nav.international') }}
+                      </router-link>
+                    </div>
+                  </transition>
+                </div>
+
+                <router-link
+                  v-if="canPostJob"
+                  to="/postjob"
+                  class="flex items-center space-x-4 px-4 py-3 rounded-xl hover:bg-emerald-50 transition-colors group"
+                  active-class="bg-emerald-50 text-emerald-600"
+                  @click="closeAllDropdowns"
+                >
+                  <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                  <span class="font-medium">{{ t('nav.postJob') }}</span>
+                </router-link>
+
+                <router-link
+                  to="/contact"
+                  class="flex items-center space-x-4 px-4 py-3 rounded-xl hover:bg-emerald-50 transition-colors group"
+                  active-class="bg-emerald-50 text-emerald-600"
+                  @click="closeAllDropdowns"
+                >
+                  <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                  <span class="font-medium">{{ t('nav.contact') }}</span>
+                </router-link>
+              </nav>
+
+              <!-- Séparateur -->
+              <div class="border-t border-gray-200 mb-6"></div>
+
+              <!-- Boutons auth -->
+              <div class="space-y-3">
+                <router-link
+                  v-if="!isLoggedIn"
+                  to="/login"
+                  class="flex items-center justify-center px-4 py-3 text-emerald-600 border border-emerald-200 rounded-xl font-medium hover:bg-emerald-50 transition-colors"
+                  @click="closeAllDropdowns"
+                >
+                  <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                  </svg>
+                  {{ t('nav.login') }}
+                </router-link>
+                <router-link
+                  v-if="!isLoggedIn"
+                  to="/register"
+                  class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25"
+                  @click="closeAllDropdowns"
+                >
+                  <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                  </svg>
+                  {{ t('nav.register') }}
+                </router-link>
+
+                <!-- Profil utilisateur mobile -->
+                <div v-if="isLoggedIn" class="border-t border-gray-200 pt-6">
+                  <div class="flex items-center space-x-3 mb-4">
+                    <div class="relative">
+                      <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-white font-semibold shadow-lg">
+                        {{ currentUser?.email?.charAt(0).toUpperCase() || 'U' }}
+                      </div>
+                      <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
                     </div>
                     <div class="flex-1 min-w-0">
                       <p class="text-sm font-semibold text-gray-900 truncate">
                         {{ currentUser?.email?.split('@')[0] || 'User' }}
                       </p>
-                      <p class="text-xs text-emerald-600 font-medium capitalize mt-0.5">
-                        {{ currentUser?.role?.toLowerCase() }} account
-                      </p>
-                      <p class="text-xs text-gray-500 truncate mt-1">
-                        {{ currentUser?.email }}
+                      <p class="text-xs text-emerald-600 font-medium capitalize">
+                        {{ currentUser?.role?.toLowerCase() }}
                       </p>
                     </div>
                   </div>
 
-                  <div class="space-y-2 px-3">
+                  <div class="space-y-2">
                     <router-link
                       to="/profile"
                       class="flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200 group"
@@ -462,110 +862,36 @@ onUnmounted(() => {
                     >
                       <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-colors">
                         <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
                       </div>
                       <div>
-                        <p class="text-sm font-medium">My Profile</p>
-                        <p class="text-xs text-gray-500">Manage your account</p>
+                        <p class="text-sm font-medium">{{ t('nav.myProfile') }}</p>
+                        <p class="text-xs text-gray-500">{{ t('nav.manageAccount') }}</p>
                       </div>
                     </router-link>
 
-                    <router-link
-                      v-if="canPostJob"
-                      to="/company"
-                      class="flex items-center px-4 py-3 rounded-2xl text-gray-800 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 hover:text-blue-700 shadow-md hover:shadow-xl transition-all duration-300 group border border-transparent"
-                      @click="closeAllDropdowns"
+                    <button
+                      @click="logout"
+                      class="flex items-center w-full px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 group"
                     >
-                      <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mr-4 group-hover:from-blue-600 group-hover:to-indigo-700 transition-all duration-300 shadow-lg group-hover:shadow-2xl transform group-hover:scale-105">
-                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center mr-3 group-hover:bg-red-200 transition-colors">
+                        <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                         </svg>
                       </div>
-                      <div class="flex-1">
-                        <p class="text-sm font-semibold group-hover:text-blue-700">Create a Business</p>
-                        <p class="text-xs text-gray-500 group-hover:text-blue-500 mt-0.5">Add your business in 2 minutes</p>
+                      <div>
+                        <p class="text-sm font-medium">{{ t('nav.logout') }}</p>
+                        <p class="text-xs text-red-500">{{ t('nav.leaveAccount') }}</p>
                       </div>
-                      <div class="opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">
-                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </router-link>
+                    </button>
                   </div>
-
-                  <div class="border-t border-gray-200 my-3"></div>
-
-                  <button
-                    @click="logout"
-                    class="flex items-center w-full px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 group"
-                  >
-                    <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center mr-3 group-hover:bg-red-200 transition-colors">
-                      <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium">Sign Out</p>
-                      <p class="text-xs text-red-500">Logout from your account</p>
-                    </div>
-                  </button>
                 </div>
-              </transition>
-
+              </div>
             </div>
           </div>
-
-        
-          <div v-else class="flex items-center space-x-2 ml-4">
-            <router-link
-              to="/login"
-              class="px-4 py-2 text-emerald-600 hover:text-emerald-700 font-medium transition-colors rounded-lg hover:bg-emerald-50"
-              @click="closeAllDropdowns"
-            >
-              Login
-            </router-link>
-            <router-link
-              to="/register"
-              class="relative overflow-hidden bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-5 py-2.5 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              @click="closeAllDropdowns"
-            >
-              <span class="relative z-10">Register</span>
-              <span
-                class="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity duration-300"
-              ></span>
-            </router-link>
-          </div>
         </div>
-
-        <button
-          v-if="isMobile"
-          @click="isMobileMenuOpen = !isMobileMenuOpen"
-          class="lg:hidden text-gray-700 focus:outline-none z-50 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          :class="{ 'text-emerald-600': isMobileMenuOpen }"
-          aria-label="Toggle menu"
-        >
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              v-if="!isMobileMenuOpen"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-            <path
-              v-else
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-      </nav>
+      </transition>
 
       <transition
         enter-active-class="transition-all duration-300 ease-out"
@@ -589,7 +915,7 @@ onUnmounted(() => {
               <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              Home
+              {{ t('nav.home') }}
             </router-link>
 
             <div class="px-4 py-3">
@@ -600,7 +926,7 @@ onUnmounted(() => {
                 <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                Jobs
+                {{ t('nav.jobs') }}
                 <svg
                   class="ml-auto w-4 h-4 transition-transform duration-200"
                   :class="{ 'rotate-180': activeDropdown === 'jobs-mobile' }"
@@ -623,7 +949,7 @@ onUnmounted(() => {
                   <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                  All Jobs
+                  {{ t('nav.allJobs') }}
                 </router-link>
                 <router-link
                   to="/jobs/remote"
@@ -633,7 +959,7 @@ onUnmounted(() => {
                   <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  Remote Work
+                  {{ t('nav.remoteWork') }}
                 </router-link>
                 <router-link
                   to="/jobs/international"
@@ -643,7 +969,7 @@ onUnmounted(() => {
                   <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  International Opportunities
+                  {{ t('nav.international') }}
                 </router-link>
               </div>
             </div>
@@ -658,7 +984,7 @@ onUnmounted(() => {
               <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Post a Job
+              {{ t('nav.postJob') }}
             </router-link>
 
             <router-link
@@ -670,7 +996,7 @@ onUnmounted(() => {
               <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              Contact
+              {{ t('nav.contact') }}
             </router-link>
 
             <div v-if="isLoggedIn" class="border-t border-gray-100 pt-4 mt-4">
@@ -711,8 +1037,8 @@ onUnmounted(() => {
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm font-medium">My Profile</p>
-                    <p class="text-xs text-gray-500">Manage your account</p>
+                    <p class="text-sm font-medium">{{ t('nav.myProfile') }}</p>
+                    <p class="text-xs text-gray-500">{{ t('nav.manageAccount') }}</p>
                   </div>
                 </router-link>
 
@@ -729,8 +1055,8 @@ onUnmounted(() => {
                     </svg>
                   </div>
                   <div class="flex-1">
-                    <p class="text-sm font-semibold group-hover:text-blue-700">Create a Business</p>
-                    <p class="text-xs text-gray-500 group-hover:text-blue-500 mt-0.5">Add your business in 2 minutes</p>
+                    <p class="text-sm font-semibold group-hover:text-blue-700">{{ t('nav.myCompany') }}</p>
+                    <p class="text-xs text-gray-500 group-hover:text-blue-500 mt-0.5">{{ t('nav.manageOffers') }}</p>
                   </div>
                 </router-link>
 
@@ -745,8 +1071,8 @@ onUnmounted(() => {
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm font-medium">Sign Out</p>
-                    <p class="text-xs text-red-500">Logout from your account</p>
+                    <p class="text-sm font-medium">{{ t('nav.logout') }}</p>
+                    <p class="text-xs text-red-500">{{ t('nav.leaveAccount') }}</p>
                   </div>
                 </button>
               </div>
@@ -761,7 +1087,7 @@ onUnmounted(() => {
                 <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                 </svg>
-                Login
+                {{ t('nav.login') }}
               </router-link>
               <router-link
                 to="/register"
@@ -771,49 +1097,384 @@ onUnmounted(() => {
                 <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                 </svg>
-                Register
+                {{ t('nav.register') }}
               </router-link>
             </div>
           </div>
         </div>
       </transition>
-    </div>
   </header>
 </template>
 
-<style>
-body {
-  font-family: 'Inter', sans-serif;
-  padding-top: 80px;
+<style scoped>
+/* Styles pour la navbar professionnelle */
+.navbar-professional {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
+/* Animations pour les dropdowns */
 .dropdown-enter-active,
 .dropdown-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .dropdown-enter-from,
 .dropdown-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-8px) scale(0.95);
 }
 
+.dropdown-enter-to,
+.dropdown-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Indicateur de statut en ligne */
+.status-indicator {
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Effets de survol pour les liens de navigation */
+.nav-link {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #10b981, #059669);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::before {
+  width: 100%;
+}
+
+/* Styles pour les cartes dans les dropdowns */
+.dropdown-card {
+  transition: all 0.2s ease;
+}
+
+.dropdown-card:hover {
+  transform: translateX(2px);
+}
+
+/* Indicateur de chargement */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .navbar-professional .nav-links {
+    display: none;
+  }
+
+  .navbar-professional .mobile-menu-btn {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+  }
+
+  nav {
+    padding: 0 !important;
+  }
+
+  nav > div {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  nav > div > div {
+    height: 3.5rem !important;
+  }
+
+  /* Logo réduit sur mobile */
+  nav a .w-10 {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  nav a .text-xl {
+    font-size: 1rem !important;
+  }
+
+  nav a .text-xs {
+    font-size: 0.625rem !important;
+  }
+
+  /* Bouton hamburger amélioré */
+  button[aria-label="Toggle menu"] {
+    padding: 0.5rem !important;
+    margin-left: 0.5rem !important;
+  }
+
+  button[aria-label="Toggle menu"] svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .navbar-professional {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .navbar-professional .auth-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* Sidebar mobile optimisée */
+  div.fixed.top-0.right-0.h-full {
+    width: 100% !important;
+    max-width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  /* Header sidebar mobile */
+  div.fixed.top-0.right-0.h-full > div {
+    padding: 1rem !important;
+  }
+
+  /* Navigation mobile */
+  nav.space-y-2 {
+    gap: 0.5rem !important;
+  }
+
+  nav.space-y-2 > * {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9375rem !important;
+  }
+
+  /* Boutons auth mobile */
+  div.space-y-3 > * {
+    padding: 0.875rem 1rem !important;
+    font-size: 0.9375rem !important;
+  }
+
+  /* Profil utilisateur mobile */
+  div.border-t.border-gray-200.pt-6 {
+    padding-top: 1rem !important;
+    margin-top: 1rem !important;
+  }
+
+  div.border-t.border-gray-200.pt-6 .w-12 {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  div.border-t.border-gray-200.pt-6 .text-sm {
+    font-size: 0.8125rem !important;
+  }
+
+  div.border-t.border-gray-200.pt-6 .text-xs {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  nav > div {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  nav > div > div {
+    height: 3.25rem;
+  }
+
+  /* Logo encore plus petit */
+  nav a .w-10 {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+  }
+
+  nav a .text-xl {
+    font-size: 0.875rem !important;
+  }
+
+  nav a .text-xs {
+    font-size: 0.5625rem !important;
+  }
+
+  nav a .space-x-3 {
+    gap: 0.5rem !important;
+  }
+
+  /* Sidebar mobile très petit */
+  div.fixed.top-0.right-0.h-full > div {
+    padding: 0.875rem !important;
+  }
+
+  /* Sélecteur de langue mobile */
+  div.mb-6.pb-6 {
+    margin-bottom: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  div.mb-6.pb-6 .text-xs {
+    font-size: 0.625rem !important;
+    padding: 0 0.5rem !important;
+  }
+
+  div.mb-6.pb-6 button {
+    padding: 0.625rem 0.75rem !important;
+    font-size: 0.8125rem !important;
+  }
+
+  div.mb-6.pb-6 .text-xl {
+    font-size: 1rem !important;
+  }
+
+  div.mb-6.pb-6 .text-sm {
+    font-size: 0.75rem !important;
+  }
+
+  /* Navigation mobile */
+  nav.space-y-2 > * {
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  nav.space-y-2 svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+
+  /* Boutons auth mobile */
+  div.space-y-3 > * {
+    padding: 0.75rem 0.875rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  div.space-y-3 svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+
+  /* Profil utilisateur mobile */
+  div.border-t.border-gray-200.pt-6 .w-12 {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    font-size: 0.8125rem !important;
+  }
+
+  div.border-t.border-gray-200.pt-6 .space-y-2 > * {
+    padding: 0.625rem 0.875rem !important;
+  }
+
+  div.border-t.border-gray-200.pt-6 .w-10 {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  div.border-t.border-gray-200.pt-6 .w-10 svg {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+}
+
+@media (max-width: 380px) {
+  nav > div {
+    padding-left: 0.375rem;
+    padding-right: 0.375rem;
+  }
+
+  nav > div > div {
+    height: 3rem;
+  }
+
+  /* Logo minimal */
+  nav a .w-10 {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+
+  nav a .text-xl {
+    font-size: 0.8125rem !important;
+  }
+
+  nav a .text-xs {
+    display: none !important;
+  }
+
+  /* Sidebar mobile ultra compact */
+  div.fixed.top-0.right-0.h-full > div {
+    padding: 0.75rem !important;
+  }
+
+  div.mb-6.pb-6 {
+    margin-bottom: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  nav.space-y-2 {
+    gap: 0.375rem !important;
+  }
+
+  nav.space-y-2 > * {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.8125rem !important;
+  }
+
+  div.space-y-3 > * {
+    padding: 0.625rem 0.75rem !important;
+    font-size: 0.8125rem !important;
+  }
+}
+
+/* Styles pour les scrollbars personnalisés */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(16, 185, 129, 0.1);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: linear-gradient(180deg, #10b981, #059669);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: linear-gradient(180deg, #059669, #047857);
 }
 </style>
