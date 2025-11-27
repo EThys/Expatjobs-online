@@ -12,16 +12,25 @@ import EntrepriseRecruteComponent from '@/components/jobs/EntrepriseRecruteCompo
 import TestimonialComponent from '@/components/testimonial/TestimonialComponent.vue'
 //@ts-ignore
 import FooterComponent from '@/components/footer/FooterComponent.vue'
-// //@ts-ignore
-// import ServiceComponent from '@/components/services/ServiceComponent.vue'
+import { useScrollAnimation } from '@/composables/useScrollAnimation'
+
+// Initialiser les animations au scroll
+useScrollAnimation({
+  threshold: 0.1,
+  rootMargin: '0px 0px -100px 0px',
+  once: true
+})
 </script>
 <template>
-  <HeroComponent />
-  <AboutComponent />
-  <EntrepriseRecruteComponent />
-  <FooterComponent />
-  <!-- <TestimonialComponent /> -->
-  <!-- <ServiceComponent />
-  <FooterComponent /> -->
+  <div class="home-page">
+    <HeroComponent />
+    <AboutComponent />
+    <EntrepriseRecruteComponent />
+    <FooterComponent />
+  </div>
 </template>
-<style></style>
+<style scoped>
+.home-page {
+  overflow-x: hidden;
+}
+</style>
