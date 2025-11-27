@@ -1,14 +1,14 @@
 <template>
-  <footer class="bg-gradient-to-br from-emerald-800 via-teal-700 to-teal-800 text-white pt-16 pb-10 relative overflow-hidden">
+  <footer class="bg-gradient-to-br from-emerald-800 via-teal-700 to-teal-800 text-white pt-12 sm:pt-14 md:pt-16 pb-8 sm:pb-10 relative overflow-hidden">
     <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
       <div class="absolute top-20 left-10 w-32 h-32 rounded-full bg-emerald-400 filter blur-3xl"></div>
       <div class="absolute bottom-10 right-20 w-40 h-40 rounded-full bg-teal-400 filter blur-3xl"></div>
     </div>
 
-    <div class="container mx-auto px-6 relative">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-        <div class="md:col-span-2">
-          <div class="flex items-center mb-6">
+    <div class="container mx-auto px-4 sm:px-6 relative">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 mb-8 sm:mb-12 stagger-children">
+        <div class="sm:col-span-2 lg:col-span-2 animate-on-scroll" data-delay="0">
+          <div class="flex items-center mb-4 sm:mb-6">
             <div class="bg-white/20 p-2.5 rounded-xl mr-4 backdrop-blur-sm transform transition duration-500 hover:rotate-12 hover:scale-110">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -30,8 +30,7 @@
             </h2>
           </div>
           <p class="text-emerald-100/90 text-lg mb-6 leading-relaxed">
-            Votre passerelle vers des opportunités professionnelles internationales. 
-            Nous connectons les talents aux meilleures entreprises à travers le monde.
+            {{ $t('footer.description') }}
           </p>
           <div class="flex space-x-5">
             <a href="#" class="text-white hover:text-emerald-200 transition-all duration-300 transform hover:-translate-y-1">
@@ -67,47 +66,47 @@
           </div>
         </div>
 
-        <div>
-          <h3 class="text-xl font-semibold mb-5 pb-2 relative inline-block">
-            <span class="relative z-10">Liens rapides</span>
+        <div class="animate-on-scroll" data-delay="100">
+          <h3 class="text-lg sm:text-xl font-semibold mb-4 sm:mb-5 pb-2 relative inline-block">
+            <span class="relative z-10">{{ $t('footer.quickLinks') }}</span>
             <span class="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-400/50 rounded-full"></span>
           </h3>
           <ul class="space-y-3">
             <li>
               <a href="#" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
-                <span class="group-hover:translate-x-1 transition-transform duration-300">Accueil</span>
+                <span class="group-hover:translate-x-1 transition-transform duration-300">{{ $t('footer.home') }}</span>
               </a>
             </li>
             <li>
               <a href="#" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
-                <span class="group-hover:translate-x-1 transition-transform duration-300">Offres d'emploi</span>
+                <span class="group-hover:translate-x-1 transition-transform duration-300">{{ $t('footer.jobs') }}</span>
               </a>
             </li>
             <li>
               <a href="#" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
-                <span class="group-hover:translate-x-1 transition-transform duration-300">Entreprises</span>
+                <span class="group-hover:translate-x-1 transition-transform duration-300">{{ $t('footer.companies') }}</span>
               </a>
             </li>
             <li>
               <a href="#" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
-                <span class="group-hover:translate-x-1 transition-transform duration-300">Blog</span>
+                <span class="group-hover:translate-x-1 transition-transform duration-300">{{ $t('footer.blog') }}</span>
               </a>
             </li>
             <li>
               <a href="#" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
-                <span class="group-hover:translate-x-1 transition-transform duration-300">Témoignages</span>
+                <span class="group-hover:translate-x-1 transition-transform duration-300">{{ $t('footer.testimonials') }}</span>
               </a>
             </li>
           </ul>
         </div>
-        <div>
-          <h3 class="text-xl font-semibold mb-5 pb-2 relative inline-block">
-            <span class="relative z-10">Contact</span>
+        <div class="animate-on-scroll" data-delay="200">
+          <h3 class="text-lg sm:text-xl font-semibold mb-4 sm:mb-5 pb-2 relative inline-block">
+            <span class="relative z-10">{{ $t('footer.contact') }}</span>
             <span class="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-400/50 rounded-full"></span>
           </h3>
           <ul class="space-y-4">
