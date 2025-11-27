@@ -1,33 +1,32 @@
 <template>
-  <section class="relative overflow-hidden bg-gradient-to-br from-gray-50 to-white py-24 px-4 sm:px-6 lg:px-8">
+  <section class="relative overflow-hidden bg-gradient-to-br from-gray-50 to-white py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
     <!-- Fond animé avec particules subtiles -->
     <div class="absolute inset-0 overflow-hidden">
-      <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-emerald-300/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob-slow"></div>
-      <div class="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-cyan-300/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob-fast"></div>
+      <div class="absolute -top-40 -left-40 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-emerald-300/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob-slow"></div>
+      <div class="absolute -bottom-40 -right-40 w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] bg-cyan-300/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob-fast"></div>
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9InVybCgjZ3JhZGllbnQpIj48L3JlY3Q+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudCIgeDE9IjAiIHkxPSIwIiB4Mj0iMTAwIiB5Mj0iMTAwIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmZmZmYiIvPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2ZmZmZmYiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZmZmZmYiIvPjwvbGluZWFyR3JhZGllbnQ+PC9zdmc+')] opacity-10"></div>
     </div>
 
     <!-- Conteneur principal -->
-    <div class="max-w-7xl mx-auto relative z-10">
+    <div class="max-w-7xl mx-auto relative z-10 container-responsive">
       <!-- En-tête avec badge -->
-      <div class="text-center mb-16">
-
-        <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+      <div class="text-center mb-8 sm:mb-12 md:mb-16 animate-on-scroll" data-delay="0">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
           <span class="block bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-cyan-600">
-            ExpatJobs connecte
+            {{ t('about.title') }}
           </span>
-          <span class="block mt-2">les talents aux opportunités mondiales</span>
+          <span class="block mt-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl">{{ t('about.subtitle') }}</span>
         </h1>
 
-        <p class="max-w-3xl mx-auto text-xl text-gray-600">
-          La première plateforme dédiée au recrutement international, conçue pour surmonter les barrières géographiques et culturelles.
+        <p class="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-gray-600 px-4">
+          {{ t('about.description') }}
         </p>
       </div>
 
       <!-- Grille de fonctionnalités avec effets 3D -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16 md:mb-20 stagger-children">
         <!-- Carte 1: Pour les talents -->
-        <div class="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-sm transition-all duration-500 hover:shadow-lg hover:-translate-y-2 transform perspective-1000">
+        <div class="group relative overflow-hidden rounded-2xl bg-white p-6 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg hover:-translate-y-2 transform perspective-1000 animate-on-scroll" data-delay="100">
           <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div class="relative z-10 transform group-hover:translate-y-[-5px] transition-transform duration-500">
             <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-emerald-100 mb-6">
@@ -35,33 +34,33 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-3">Pour les talents internationaux</h3>
-            <p class="text-gray-600 mb-6">Accédez à des opportunités vérifiées dans plus de 50 pays avec un support dédié à l'expatriation.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ t('about.forTalents.title') }}</h3>
+            <p class="text-gray-600 mb-6">{{ t('about.forTalents.description') }}</p>
             <div class="space-y-4">
               <div class="flex items-center">
                 <svg class="h-5 w-5 text-emerald-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
-                <span>Offres avec détails complets</span>
+                <span>{{ t('about.forTalents.feature1') }}</span>
               </div>
               <div class="flex items-center">
                 <svg class="h-5 w-5 text-emerald-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Alertes personnalisées</span>
+                <span>{{ t('about.forTalents.feature2') }}</span>
               </div>
               <div class="flex items-center">
                 <svg class="h-5 w-5 text-emerald-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.044M12 20v-8m0 8l2 2m-2-2l-2 2" />
                 </svg>
-                <span>Support multilingue 24/7</span>
+                <span>{{ t('about.forTalents.feature3') }}</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Carte 2: Notre mission (highlight) -->
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-cyan-600 p-8 text-white shadow-lg transform perspective-1000 hover:scale-[1.02] transition-transform duration-500">
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-cyan-600 p-6 sm:p-8 text-white shadow-lg transform perspective-1000 hover:scale-[1.02] transition-transform duration-500 animate-on-scroll" data-delay="200">
           <div class="absolute top-0 right-0 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
           <div class="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/5 blur-xl"></div>
           <div class="relative z-10">
@@ -70,26 +69,26 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h3 class="text-xl font-bold mb-3">Notre mission</h3>
-            <p class="text-emerald-100 mb-6">Révolutionner le recrutement international en connectant les talents aux opportunités sans frontières.</p>
+            <h3 class="text-xl font-bold mb-3">{{ t('about.mission.title') }}</h3>
+            <p class="text-emerald-100 mb-6">{{ t('about.mission.description') }}</p>
             <div class="space-y-4">
               <div class="flex items-center">
                 <svg class="h-5 w-5 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15l8-8V5H4v2l8 8z" />
                 </svg>
-                <span>Plateforme sécurisée et conforme</span>
+                <span>{{ t('about.mission.feature1') }}</span>
               </div>
               <div class="flex items-center">
                 <svg class="h-5 w-5 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                <span>Algorithmes de matching intelligents</span>
+                <span>{{ t('about.mission.feature2') }}</span>
               </div>
               <div class="flex items-center">
                 <svg class="h-5 w-5 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                <span>Communauté internationale engagée</span>
+                <span>{{ t('about.mission.feature3') }}</span>
               </div>
             </div>
             <div class="mt-8 pt-6 border-t border-white/20">
@@ -108,7 +107,7 @@
         </div>
 
         <!-- Carte 3: Pour les entreprises -->
-        <div class="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-sm transition-all duration-500 hover:shadow-lg hover:-translate-y-2 transform perspective-1000">
+        <div class="group relative overflow-hidden rounded-2xl bg-white p-6 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg hover:-translate-y-2 transform perspective-1000 animate-on-scroll" data-delay="300">
           <div class="absolute inset-0 bg-gradient-to-br from-cyan-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div class="relative z-10 transform group-hover:translate-y-[-5px] transition-transform duration-500">
             <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-cyan-100 mb-6">
@@ -116,26 +115,26 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-3">Pour les entreprises</h3>
-            <p class="text-gray-600 mb-6">Trouvez les meilleurs talents internationaux avec nos outils de recrutement spécialisés.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ t('about.forCompanies.title') }}</h3>
+            <p class="text-gray-600 mb-6">{{ t('about.forCompanies.description') }}</p>
             <ul class="space-y-3">
               <li class="flex items-center">
                 <svg class="h-5 w-5 text-cyan-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 18a9 9 0 019-9" />
                 </svg>
-                <span>Accès à notre base de talents qualifiés</span>
+                <span>{{ t('about.forCompanies.feature1') }}</span>
               </li>
               <li class="flex items-center">
                 <svg class="h-5 w-5 text-cyan-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <span>Outils de gestion des candidatures</span>
+                <span>{{ t('about.forCompanies.feature2') }}</span>
               </li>
               <li class="flex items-center">
                 <svg class="h-5 w-5 text-cyan-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                <span>Support administratif complet</span>
+                <span>{{ t('about.forCompanies.feature3') }}</span>
               </li>
             </ul>
           </div>
@@ -143,7 +142,7 @@
       </div>
 
       <!-- Processus Révolutionnaire - Design Ultra-Moderne -->
-      <div class="process-section relative py-24 px-6 md:px-12 lg:px-20 animate-on-scroll overflow-hidden" data-delay="1300">
+      <div class="process-section relative py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 md:px-12 lg:px-20 animate-on-scroll overflow-hidden" data-delay="400">
         <!-- Fond dynamique avec particules -->
         <div class="absolute inset-0 overflow-hidden">
           <div class="absolute top-20 left-20 w-40 h-40 bg-emerald-200/20 rounded-full blur-3xl animate-float opacity-60"></div>
@@ -156,39 +155,39 @@
         <div class="text-center mb-20 relative z-10">
 
 
-          <h2 class="text-5xl md:text-6xl lg:text-7xl font-light text-gray-900 mb-8 animate-on-scroll" data-delay="1600">
-            Seulement <span class="font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 bg-clip-text text-transparent">3 étapes</span>
+          <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light text-gray-900 mb-6 sm:mb-8 px-4 animate-on-scroll" data-delay="500">
+            {{ t('about.process.title') }} <span class="font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 bg-clip-text text-transparent">{{ t('about.process.highlight') }}</span>
           </h2>
 
-          <p class="max-w-4xl mx-auto text-xl text-gray-600 leading-relaxed mb-12 animate-on-scroll" data-delay="1700">
-            Notre technologie d'IA révolutionnaire vous connecte instantanément aux opportunités parfaites dans le monde entier
+          <p class="max-w-4xl mx-auto text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed mb-8 sm:mb-12 px-4 animate-on-scroll" data-delay="600">
+            {{ t('about.process.description') }}
           </p>
 
         </div>
 
         <!-- Timeline verticale interactive -->
-        <div class="relative max-w-6xl mx-auto">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-8 relative">
+        <div class="relative max-w-6xl mx-auto container-responsive">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12 lg:gap-8 relative stagger-children">
             <!-- Étape 1 - Création Ultra-Moderne -->
-            <div class="lg:text-right animate-on-scroll" data-delay="1900">
-              <div class="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-emerald-100/50 hover:shadow-emerald-500/10 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden">
+            <div class="text-center lg:text-right animate-on-scroll" data-delay="700">
+              <div class="bg-white/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-emerald-100/50 hover:shadow-emerald-500/10 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden">
                 <!-- Fond animé -->
                 <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-emerald-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                 <!-- Numéro et icône -->
-                <div class="relative z-10 flex lg:justify-end mb-6">
-                  <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-emerald-500/50 transition-all duration-300 group-hover:scale-110">
-                    <span class="text-3xl font-bold text-white">1</span>
+                <div class="relative z-10 flex justify-center lg:justify-end mb-6">
+                  <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-emerald-500/50 transition-all duration-300 group-hover:scale-110">
+                    <span class="text-2xl sm:text-3xl font-bold text-white">1</span>
                   </div>
                 </div>
 
                 <!-- Contenu -->
                 <div class="relative z-10">
-                  <h3 class="text-2xl font-bold text-gray-900 mb-4 group-hover:text-emerald-700 transition-colors duration-300">
-                    Création Express
+                  <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-emerald-700 transition-colors duration-300">
+                    {{ t('about.process.step1.title') }}
                   </h3>
                   <p class="text-gray-600 leading-relaxed mb-6">
-                    Profil intelligent en 2 minutes avec suggestions automatiques basées sur votre CV et expérience.
+                    {{ t('about.process.step1.description') }}
                   </p>
 
                   <!-- Fonctionnalités -->
@@ -199,7 +198,7 @@
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                       </div>
-                      <span>Upload CV intelligent</span>
+                      <span>{{ t('about.process.step1.feature1') }}</span>
                     </div>
                     <div class="flex items-center space-x-3 text-sm text-emerald-700">
                       <div class="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -207,7 +206,7 @@
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                       </div>
-                      <span>Suggestions automatiques</span>
+                      <span>{{ t('about.process.step1.feature2') }}</span>
                     </div>
                     <div class="flex items-center space-x-3 text-sm text-emerald-700">
                       <div class="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -215,7 +214,7 @@
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                       </div>
-                      <span>Vérification instantanée</span>
+                      <span>{{ t('about.process.step1.feature3') }}</span>
                     </div>
                   </div>
                 </div>
@@ -224,25 +223,25 @@
             </div>
 
             <!-- Étape 2 - Matching IA -->
-            <div class="animate-on-scroll" data-delay="2000">
-              <div class="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-emerald-100/50 hover:shadow-green-500/10 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden">
+            <div class="animate-on-scroll" data-delay="800">
+              <div class="bg-white/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-emerald-100/50 hover:shadow-green-500/10 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden">
                 <!-- Fond animé -->
                 <div class="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                 <!-- Numéro et icône -->
                 <div class="relative z-10 flex justify-center mb-6">
-                  <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-green-500/50 transition-all duration-300 group-hover:scale-110">
-                    <span class="text-3xl font-bold text-white">2</span>
+                  <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-green-500/50 transition-all duration-300 group-hover:scale-110">
+                    <span class="text-2xl sm:text-3xl font-bold text-white">2</span>
                   </div>
                 </div>
 
                 <!-- Contenu -->
                 <div class="relative z-10 text-center">
-                  <h3 class="text-2xl font-bold text-gray-900 mb-4 group-hover:text-green-700 transition-colors duration-300">
-                    Matching IA Révolutionnaire
+                  <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-green-700 transition-colors duration-300">
+                    {{ t('about.process.step2.title') }}
                   </h3>
                   <p class="text-gray-600 leading-relaxed mb-6">
-                    Notre IA analyse 50+ critères pour trouver les opportunités parfaitement adaptées à votre profil unique.
+                    {{ t('about.process.step2.description') }}
                   </p>
 
                   <!-- Fonctionnalités -->
@@ -253,7 +252,7 @@
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                       </div>
-                      <span>Analyse comportementale</span>
+                      <span>{{ t('about.process.step2.feature1') }}</span>
                     </div>
                     <div class="flex items-center justify-center space-x-3 text-sm text-green-700">
                       <div class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
@@ -261,7 +260,7 @@
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                       </div>
-                      <span>Matching prédictif</span>
+                      <span>{{ t('about.process.step2.feature2') }}</span>
                     </div>
                     <div class="flex items-center justify-center space-x-3 text-sm text-green-700">
                       <div class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
@@ -269,7 +268,7 @@
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                       </div>
-                      <span>Recommandations en temps réel</span>
+                      <span>{{ t('about.process.step2.feature3') }}</span>
                     </div>
                   </div>
                 </div>
@@ -278,25 +277,25 @@
             </div>
 
             <!-- Étape 3 - Connexion Instantanée -->
-            <div class="lg:text-left animate-on-scroll" data-delay="2100">
-              <div class="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-emerald-100/50 hover:shadow-emerald-500/10 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden">
+            <div class="text-center lg:text-left animate-on-scroll" data-delay="900">
+              <div class="bg-white/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-emerald-100/50 hover:shadow-emerald-500/10 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden">
                 <!-- Fond animé -->
                 <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-green-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                 <!-- Numéro et icône -->
-                <div class="relative z-10 flex lg:justify-start mb-6">
-                  <div class="w-20 h-20 bg-gradient-to-br from-emerald-600 to-green-700 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-emerald-600/50 transition-all duration-300 group-hover:scale-110">
-                    <span class="text-3xl font-bold text-white">3</span>
+                <div class="relative z-10 flex justify-center lg:justify-start mb-6">
+                  <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-emerald-600 to-green-700 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-emerald-600/50 transition-all duration-300 group-hover:scale-110">
+                    <span class="text-2xl sm:text-3xl font-bold text-white">3</span>
                   </div>
                 </div>
 
                 <!-- Contenu -->
                 <div class="relative z-10">
-                  <h3 class="text-2xl font-bold text-gray-900 mb-4 group-hover:text-emerald-700 transition-colors duration-300">
-                    Connexion Instantanée
+                  <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-emerald-700 transition-colors duration-300">
+                    {{ t('about.process.step3.title') }}
                   </h3>
                   <p class="text-gray-600 leading-relaxed mb-6">
-                    Recevez des propositions personnalisées en temps réel et connectez-vous directement avec les recruteurs.
+                    {{ t('about.process.step3.description') }}
                   </p>
 
                   <!-- Fonctionnalités -->
@@ -307,7 +306,7 @@
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                       </div>
-                      <span>Notifications intelligentes</span>
+                      <span>{{ t('about.process.step3.feature1') }}</span>
                     </div>
                     <div class="flex items-center space-x-3 text-sm text-emerald-700">
                       <div class="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -315,7 +314,7 @@
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                       </div>
-                      <span>Messages instantanés</span>
+                      <span>{{ t('about.process.step3.feature2') }}</span>
                     </div>
                     <div class="flex items-center space-x-3 text-sm text-emerald-700">
                       <div class="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -323,7 +322,7 @@
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                       </div>
-                      <span>Processus d'entretien accéléré</span>
+                      <span>{{ t('about.process.step3.feature3') }}</span>
                     </div>
                   </div>
                 </div>
@@ -348,6 +347,9 @@
 
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Gestion des animations au scroll
 const initScrollAnimations = () => {
