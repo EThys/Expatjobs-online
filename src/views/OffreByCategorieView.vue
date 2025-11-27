@@ -383,7 +383,7 @@ import { useJobService } from '@/utils/service/jobService'
 //@ts-ignore
 import { useCompanyService } from '@/utils/service/CompagnyService'
 //@ts-ignore
-import { IJob, IJobResponse } from '@/utils/interface/IJobOffers'
+import type { IJob, IJobResponse } from '@/utils/interface/IJobOffers'
 import type { ICompany } from '@/utils/interface/ICompagny'
 
 import {
