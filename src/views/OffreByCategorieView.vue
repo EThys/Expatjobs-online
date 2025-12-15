@@ -34,9 +34,15 @@
                   @input="handleSearch"
                 />
               </div>
-              <button class="search-button" @click="performSearch">
-                <span>Rechercher</span>
+              <button 
+                class="search-button"
+                @click="performSearch"
+                :disabled="loading"
+              >
+                <span v-if="!loading">Rechercher</span>
+                <span v-else>Recherche...</span>
                 <svg
+                  v-if="!loading"
                   xmlns="http://www.w3.org/2000/svg"
                   class="button-icon"
                   viewBox="0 0 20 20"
@@ -47,6 +53,16 @@
                     d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
                     clip-rule="evenodd"
                   />
+                </svg>
+                <svg
+                  v-else
+                  class="button-icon animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V2a10 10 0 00-10 10h2z"/>
                 </svg>
               </button>
             </div>
@@ -746,7 +762,7 @@ const fetchAllJobs = async () => {
 const applyFilters = () => {
   let results = [...allJobs.value];
   
-  // Appliquer les filtres
+  // Appliquer les filtres côté client (utilisé notamment après le chargement initial)
   if (selectedCategory.value) {
     results = results.filter(job => 
       job.categories.includes(selectedCategory.value)
@@ -812,17 +828,64 @@ const filterByCategory = (categoryId: string) => {
 };
 
 const handleSearch = () => {
-  // éviter trop d'appels
+  // éviter trop d'appels API
   clearTimeout(searchTimeout.value);
   searchTimeout.value = setTimeout(() => {
     performSearch();
   }, 500);
 };
 
-const performSearch = () => {
-  currentPage.value = 0;
-  quickPage.value = 0;
-  applyFilters();
+/**
+ * Utilise l'endpoint /api/job-offers/search pour rechercher
+ * par titre + localisation (+ secteur si une catégorie est sélectionnée),
+ * puis applique la pagination côté client comme avant.
+ */
+const performSearch = async () => {
+  try {
+    loading.value = true;
+    currentPage.value = 0;
+    quickPage.value = 0;
+
+    // Déterminer éventuellement le secteur à partir de la catégorie sélectionnée
+    let sector: string | undefined;
+    if (selectedCategory.value) {
+      const cat = jobCategories.value.find(c => c.id === selectedCategory.value);
+      sector = cat?.sectors?.[0];
+    }
+
+    const response: IJobResponse = await jobService.searchJobs({
+      title: searchQuery.value.trim() || undefined,
+      location: locationQuery.value.trim() || undefined,
+      sector,
+      page: 0,
+      size: 1000 // on garde la pagination côté client sur cette page
+    });
+
+    if (response && Array.isArray(response.content)) {
+      const enriched = await enrichJobsWithCompanyData(response.content);
+      const formatted = enriched.map(formatJobForDisplay);
+      filteredJobs.value = formatted;
+
+      totalPages.value = Math.ceil(formatted.length / itemsPerPage);
+      if (currentPage.value >= totalPages.value) {
+        currentPage.value = 0;
+        quickPage.value = 0;
+      }
+    } else {
+      filteredJobs.value = [];
+      totalPages.value = 0;
+      currentPage.value = 0;
+      quickPage.value = 0;
+    }
+  } catch (error) {
+    console.error('❌ Erreur lors de la recherche des offres par catégories:', error);
+    filteredJobs.value = [];
+    totalPages.value = 0;
+    currentPage.value = 0;
+    quickPage.value = 0;
+  } finally {
+    loading.value = false;
+  }
 };
 
 const clearAllFilters = () => {
@@ -1144,7 +1207,7 @@ const jobCategories = ref([
   gap: 0.75rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 18px 45px rgba(16, 185, 129, 0.45);
   min-height: 60px; 
   min-width: 140px;
 }

@@ -17,12 +17,25 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">Type de Contrat</label>
         <select
           v-model="localFilters.typeContrat"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white"
         >
           <option value="">Tous</option>
           <option value="CDI">CDI</option>
           <option value="CDD">CDD</option>
           <option value="Freelance">Freelance</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Niveau d'expérience</label>
+        <select
+          v-model="localFilters.experienceLevel"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white"
+        >
+          <option value="">Tous</option>
+          <option value="JUNIOR">Junior</option>
+          <option value="MID">Intermédiaire</option>
+          <option value="SENIOR">Senior</option>
         </select>
       </div>
 
@@ -54,6 +67,7 @@ const emit = defineEmits(['filter']);
 const localFilters = ref({
   localisation: "",
   typeContrat: "",
+  experienceLevel: "",
   salaireMin: "",
 });
 

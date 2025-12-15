@@ -284,22 +284,23 @@ const jobCategories = ref([
 }
 
 .job-card {
-  background-color: white;
-  border-radius: 0.75rem;
+  background: radial-gradient(circle at top left, #ecfdf5 0, #f9fafb 45%, #ffffff 100%);
+  border-radius: 1rem;
   overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.25);
   box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    0 18px 45px rgba(15, 118, 110, 0.12);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .job-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(16, 185, 129, 0.6);
   box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    0 22px 55px rgba(5, 150, 105, 0.25);
 }
 
 .card-header {
@@ -448,20 +449,22 @@ const jobCategories = ref([
 }
 
 .category-card {
-  background-color: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.96);
+  border-radius: 1rem;
+  padding: 1.4rem 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
 }
 
 .category-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.18);
 }
 
 .category-icon {

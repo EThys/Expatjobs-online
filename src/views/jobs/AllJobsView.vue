@@ -286,6 +286,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useToast } from 'vue-toast-notification';
 //@ts-ignore
 import SearchFilters from '@/components/filter/SearchFilters.vue';
@@ -306,6 +307,7 @@ import { getToken } from '@/stores/authStorage';
 
 // Services
 const toast = useToast();
+const route = useRoute();
 const jobService = useJobService();
 const companyService = useCompanyService();
 
@@ -339,6 +341,14 @@ const filters = ref({
   salaireMin: "",
   remoteOnly: false
 });
+
+// Mapping des types de contrat venant de l'URL (home) vers nos valeurs internes / API
+const mapUrlJobTypeToFilter = (typeFromUrl: string | null | undefined): string => {
+  if (!typeFromUrl) return '';
+  // On n'accepte que les valeurs de l'enum JobType
+  const validValues = Object.values(JobType) as string[];
+  return validValues.includes(typeFromUrl) ? typeFromUrl : '';
+};
 
 const enrichJobsWithCompanyData = async (jobs: IJob[]): Promise<IJob[]> => {
   try {
@@ -505,6 +515,30 @@ const resetFilters = () => {
   fetchJobs();
 };
 
+// Initialiser la page à partir des paramètres de l'URL (q, location, type)
+const initFromQuery = async (isInitial = false) => {
+  const q = (route.query.q as string) || '';
+  const location = (route.query.location as string) || '';
+  const type = (route.query.type as string) || '';
+
+  searchTerm.value = q;
+  filters.value.localisation = location;
+  filters.value.typeContrat = mapUrlJobTypeToFilter(type);
+
+  currentPage.value = 0;
+
+  const hasAnyQuery =
+    q.trim() !== '' ||
+    location.trim() !== '' ||
+    filters.value.typeContrat !== '';
+
+  if (hasAnyQuery) {
+    await fetchJobs(0);
+  } else if (isInitial) {
+    await fetchJobs();
+  }
+};
+
 // Récupérer les offres depuis l'API
 const fetchJobs = async (page: number = currentPage.value) => {
   try {
@@ -525,18 +559,20 @@ const fetchJobs = async (page: number = currentPage.value) => {
     const hasSearch = searchTerm.value.trim() !== '';
     const hasFilters = filters.value.localisation !== '' || 
                       filters.value.typeContrat !== '' || 
-                      filters.value.experienceLevel !== '';
+                      filters.value.experienceLevel !== '' ||
+                      filters.value.salaireMin !== '';
 
     if (hasSearch || hasFilters) {
       console.log('🔍 Using search with filters');
-      response = await jobService.searchJobs(
-        searchTerm.value.trim(),
-        filters.value.localisation,
-        filters.value.typeContrat,
-        filters.value.experienceLevel,
+      response = await jobService.searchJobs({
+        title: searchTerm.value.trim() || undefined,
+        location: filters.value.localisation || undefined,
+        jobType: filters.value.typeContrat || undefined,
+        experienceLevel: filters.value.experienceLevel || undefined,
+        salaryMin: filters.value.salaireMin ? Number(filters.value.salaireMin) : undefined,
         page,
-        10
-      );
+        size: 10
+      });
     } else {
       console.log('📋 Getting all jobs');
       response = await jobService.getAllJobs(page, 10);
@@ -689,9 +725,17 @@ const formattedOffres = computed(() => {
 });
 
 onMounted(() => {
-  console.log('🚀 Component mounted');
-  fetchJobs();
+  console.log('🚀 Component mounted with route query:', route.query);
+  initFromQuery(true);
 });
+
+// Si l'utilisateur revient sur la page avec de nouveaux paramètres (ex: nouvelle recherche depuis la home)
+watch(
+  () => route.query,
+  () => {
+    initFromQuery();
+  }
+);
 </script>
 
 <style scoped>

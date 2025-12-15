@@ -73,34 +73,34 @@
           </h3>
           <ul class="space-y-3">
             <li>
-              <a href="#" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
+              <router-link to="/" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
                 <span class="group-hover:translate-x-1 transition-transform duration-300">{{ $t('footer.home') }}</span>
-              </a>
+              </router-link>
             </li>
             <li>
-              <a href="#" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
+              <router-link to="/jobs" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
                 <span class="group-hover:translate-x-1 transition-transform duration-300">{{ $t('footer.jobs') }}</span>
-              </a>
+              </router-link>
             </li>
             <li>
-              <a href="#" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
+              <router-link to="/company" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
                 <span class="group-hover:translate-x-1 transition-transform duration-300">{{ $t('footer.companies') }}</span>
-              </a>
+              </router-link>
             </li>
             <li>
-              <a href="#" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
+              <router-link to="/contact" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
                 <span class="group-hover:translate-x-1 transition-transform duration-300">{{ $t('footer.blog') }}</span>
-              </a>
+              </router-link>
             </li>
             <li>
-              <a href="#" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
+              <router-link to="/my-jobs" class="flex items-center text-emerald-100/90 hover:text-white transition-all duration-300 group">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
-                <span class="group-hover:translate-x-1 transition-transform duration-300">{{ $t('footer.testimonials') }}</span>
-              </a>
+                <span class="group-hover:translate-x-1 transition-transform duration-300">Gérer mes offres</span>
+              </router-link>
             </li>
           </ul>
         </div>

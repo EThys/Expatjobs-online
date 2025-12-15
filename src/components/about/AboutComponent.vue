@@ -9,8 +9,8 @@
 
     <!-- Conteneur principal -->
     <div class="max-w-7xl mx-auto relative z-10 container-responsive">
-      <!-- En-tête avec badge -->
-      <div class="text-center mb-8 sm:mb-12 md:mb-16 animate-on-scroll" data-delay="0">
+      <!-- En-tête -->
+      <div class="text-center mb-6 sm:mb-10 md:mb-12 animate-on-scroll" data-delay="0">
         <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
           <span class="block bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-cyan-600">
             {{ t('about.title') }}
@@ -21,6 +21,30 @@
         <p class="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-gray-600 px-4">
           {{ t('about.description') }}
         </p>
+      </div>
+
+      <!-- Bande de statistiques inspirée des plateformes de jobs modernes -->
+      <div class="metrics-grid animate-on-scroll" data-delay="80">
+        <div class="metric-card">
+          <div class="metric-value">100K+</div>
+          <div class="metric-label">candidatures traitées</div>
+          <div class="metric-caption">Des profils qualifiés partout dans le monde</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">2 000+</div>
+          <div class="metric-label">offres publiées</div>
+          <div class="metric-caption">CDI, missions freelance et stages</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">80+</div>
+          <div class="metric-label">pays couverts</div>
+          <div class="metric-caption">Europe, Afrique, Moyen‑Orient & plus</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">24/7</div>
+          <div class="metric-label">plateforme disponible</div>
+          <div class="metric-caption">Trouvez ou publiez une offre à tout moment</div>
+        </div>
       </div>
 
       <!-- Grille de fonctionnalités avec effets 3D -->
@@ -152,17 +176,68 @@
         </div>
 
         <!-- Header révolutionnaire -->
-        <div class="text-center mb-20 relative z-10">
+        <div class="process-header relative z-10 mb-16 sm:mb-20">
+          <div class="process-header-left">
+            <!-- Petite illustration à gauche du badge -->
+            <div
+              class="process-illustration animate-on-scroll"
+              data-delay="460"
+            >
+              <div class="illustration-circle">
+                <div class="illustration-inner">
+                  <span class="illustration-step">3</span>
+                  <span class="illustration-label">steps</span>
+                </div>
+              </div>
+            </div>
 
+            <div
+              class="process-badge animate-on-scroll"
+              data-delay="480"
+            >
+              <span class="badge-dot"></span>
+              <span class="badge-text">
+                {{ t('about.process.badge', 'Seulement 3 étapes') }}
+              </span>
+            </div>
 
-          <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light text-gray-900 mb-6 sm:mb-8 px-4 animate-on-scroll" data-delay="500">
-            {{ t('about.process.title') }} <span class="font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 bg-clip-text text-transparent">{{ t('about.process.highlight') }}</span>
-          </h2>
+            <h2
+              class="process-title animate-on-scroll"
+              data-delay="500"
+            >
+              {{ t('about.process.title') }}
+              <span class="process-title-highlight">
+                {{ t('about.process.highlight') }}
+              </span>
+            </h2>
 
-          <p class="max-w-4xl mx-auto text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed mb-8 sm:mb-12 px-4 animate-on-scroll" data-delay="600">
-            {{ t('about.process.description') }}
-          </p>
+            <p
+              class="process-subtitle animate-on-scroll"
+              data-delay="600"
+            >
+              {{ t('about.process.description') }}
+            </p>
+          </div>
 
+          <div class="process-header-right animate-on-scroll" data-delay="650">
+            <div class="process-mini-grid">
+              <div class="process-mini-card">
+                <div class="mini-label">Étape 1</div>
+                <div class="mini-title">{{ t('about.process.step1.title') }}</div>
+                <div class="mini-desc">{{ t('about.process.step1.feature1') }}</div>
+              </div>
+              <div class="process-mini-card">
+                <div class="mini-label">Étape 2</div>
+                <div class="mini-title">{{ t('about.process.step2.title') }}</div>
+                <div class="mini-desc">{{ t('about.process.step2.feature1') }}</div>
+              </div>
+              <div class="process-mini-card">
+                <div class="mini-label">Étape 3</div>
+                <div class="mini-title">{{ t('about.process.step3.title') }}</div>
+                <div class="mini-desc">{{ t('about.process.step3.feature1') }}</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Timeline verticale interactive -->
@@ -495,6 +570,183 @@ onUnmounted(() => {
   transform: translateY(0);
 }
 
+/* Grille de métriques sous le hero */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.metric-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 18px 40px rgba(15, 118, 110, 0.04);
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #065f46;
+  margin-bottom: 0.25rem;
+}
+
+.metric-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.metric-caption {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* Header du processus en 2 colonnes */
+.process-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.process-header-left {
+  text-align: left;
+}
+
+.process-illustration {
+  margin-bottom: 1rem;
+}
+
+.illustration-circle {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 999px;
+  background: conic-gradient(from 180deg, #22c55e, #0ea5e9, #22c55e);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 12px 30px rgba(16, 185, 129, 0.35),
+    0 0 0 1px rgba(209, 250, 229, 0.9);
+}
+
+.illustration-inner {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  background: #ecfdf5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
+}
+
+.illustration-step {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #059669;
+}
+
+.illustration-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+}
+
+.process-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 1.3rem;
+  background: #ecfdf5;
+  border-radius: 999px;
+  border: 1px solid #bbf7d0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #047857;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.16);
+}
+
+.process-badge .badge-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, #22c55e 0, #16a34a 40%, #0f766e 100%);
+  margin-right: 0.55rem;
+}
+
+.process-title {
+  font-size: 2.2rem;
+  line-height: 1.25;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.9rem;
+}
+
+.process-title-highlight {
+  display: block;
+  background: linear-gradient(90deg, #059669, #10b981, #0ea5e9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.process-subtitle {
+  font-size: 1.02rem;
+  color: #4b5563;
+  max-width: 560px;
+}
+
+.process-header-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.process-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.process-mini-card {
+  background: white;
+  border-radius: 0.9rem;
+  border: 1px solid #e5e7eb;
+  padding: 0.85rem 0.9rem;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.mini-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  margin-bottom: 0.2rem;
+}
+
+.mini-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.2rem;
+}
+
+.mini-desc {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
 /* Responsive design */
 @media (max-width: 1024px) {
   .process-section {
@@ -502,6 +754,21 @@ onUnmounted(() => {
     padding-right: 2rem;
   }
 
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .process-header {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr);
+  }
+
+  .process-title {
+    font-size: 2rem;
+  }
+
+  .process-mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
@@ -553,6 +820,32 @@ onUnmounted(() => {
 
   .max-w-4xl.mx-auto {
     max-width: 100%;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .process-header {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .process-header-left {
+    text-align: left;
+  }
+
+  .process-title {
+    font-size: 1.8rem;
+  }
+
+  .process-header-right {
+    justify-content: flex-start;
+  }
+
+  .process-mini-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

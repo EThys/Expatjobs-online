@@ -14,27 +14,68 @@ import { useCompanyService } from './CompagnyService';
 export const useJobService = () => {
   const token = getToken() as string;
 
+  // ==================== HELPERS ====================
+
+  /**
+   * Mappe les valeurs utilisées dans l'UI vers les valeurs attendues par l'API.
+   * Exemple : "CDI" -> "FULL_TIME"
+   */
+  const mapUiJobTypeToApi = (jobType?: string): string | undefined => {
+    if (!jobType) return undefined;
+
+    const normalized = jobType.toUpperCase();
+    const mapping: Record<string, string> = {
+      CDI: 'FULL_TIME',
+      CDD: 'CONTRACT',
+      FREELANCE: 'FREELANCE',
+      'FULL_TIME': 'FULL_TIME',
+      'PART_TIME': 'PART_TIME',
+      'INTERNSHIP': 'INTERNSHIP',
+      'CONTRACT': 'CONTRACT',
+      'FREELANCE': 'FREELANCE'
+    };
+
+    return mapping[normalized] || jobType;
+  };
+
+  const cleanParams = (params: Record<string, unknown>): Record<string, unknown> => {
+    const cleaned: Record<string, unknown> = {};
+    Object.keys(params).forEach((key) => {
+      const value = params[key];
+      if (
+        value !== undefined &&
+        value !== null &&
+        // @ts-ignore - on veut filtrer les strings vides
+        !(typeof value === 'string' && value.trim() === '')
+      ) {
+        cleaned[key] = value;
+      }
+    });
+    return cleaned;
+  };
+
   // ==================== JOBS ====================
 
   const enrichJobWithCompany = async (job: any): Promise<any> => {
-  try {
-    const companyService = useCompanyService();
-    const company = await companyService.getCompanyById(job.companyId);
-    
-    return {
-      ...job,
-      company: {
-        id: company.id,
-        name: company.name,
-        location: company.location,
-        webSiteUrl: company.webSiteUrl
-      }
-    };
-  } catch (error) {
-    console.error('Erreur lors de l\'enrichissement de l\'offre:', error);
-    return job; // Retourner l'offre sans les données de l'entreprise en cas d'erreur
-  }
-};
+    try {
+      const companyService = useCompanyService();
+      const company = await companyService.getCompanyById(job.companyId);
+      
+      return {
+        ...job,
+        company: {
+          id: company.id,
+          name: company.name,
+          location: company.location,
+          webSiteUrl: company.webSiteUrl
+        }
+      };
+    } catch (error) {
+      console.error('Erreur lors de l\'enrichissement de l\'offre:', error);
+      // On retourne l'offre telle quelle si on ne peut pas enrichir
+      return job;
+    }
+  };
 
   const createJob = async (jobData: IJobCreate): Promise<IJob> => {
     try {
@@ -84,8 +125,29 @@ export const useJobService = () => {
     }
   };
 
+  /**
+   * Recherche avancée d'offres en utilisant l'endpoint /api/job-offers/search.
+   *
+   * Pour compatibilité avec l'existant, on accepte soit :
+   *  - les anciens paramètres positionnels (searchTerm, location, jobType, experienceLevel, page, size)
+   *  - un objet avec tous les paramètres de l'API : { title, location, sector, salaryMin, salaryMax, jobType, status, companyId, experienceLevel, page, size }
+   */
   const searchJobs = async (
-    searchTerm: string,
+    searchOrParams:
+      | string
+      | {
+          title?: string;
+          sector?: string;
+          salaryMin?: number;
+          salaryMax?: number;
+          jobType?: string;
+          status?: string;
+          location?: string;
+          companyId?: number;
+          experienceLevel?: string;
+          page?: number;
+          size?: number;
+        },
     location?: string,
     jobType?: string,
     experienceLevel?: string,
@@ -93,17 +155,53 @@ export const useJobService = () => {
     size: number = 10
   ): Promise<IJobResponse> => {
     try {
-      const params: any = {
-        search: searchTerm,
-        page,
-        size
-      };
+      let rawParams: Record<string, unknown>;
 
-      if (location) params.location = location;
-      if (jobType) params.jobType = jobType;
-      if (experienceLevel) params.experienceLevel = experienceLevel;
+      if (typeof searchOrParams === 'string') {
+        // Ancienne signature utilisée notamment dans AllJobsView
+        const searchTerm = searchOrParams.trim();
+        rawParams = {
+          title: searchTerm || undefined,
+          location,
+          jobType: mapUiJobTypeToApi(jobType),
+          experienceLevel,
+          page,
+          size
+        };
+      } else {
+        // Nouvelle signature avec objet de paramètres
+        const {
+          title,
+          sector,
+          salaryMin,
+          salaryMax,
+          jobType: jt,
+          status,
+          location: loc,
+          companyId,
+          experienceLevel: exp,
+          page: p = page,
+          size: s = size
+        } = searchOrParams;
 
-      const response = await useAxiosRequestWithToken(token).get(
+        rawParams = {
+          title,
+          sector,
+          salaryMin,
+          salaryMax,
+          jobType: mapUiJobTypeToApi(jt),
+          status,
+          location: loc,
+          companyId,
+          experienceLevel: exp,
+          page: p,
+          size: s
+        };
+      }
+
+      const params = cleanParams(rawParams);
+
+      const response = await useAxiosRequestWithToken().get(
         `${ApiRoutes.searchJobOffers}/search`,
         { params }
       );

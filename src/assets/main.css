@@ -140,6 +140,42 @@
 }
 
 /* ============================================
+   LOADER GLOBAL DE NAVIGATION (TOP BAR)
+   ============================================ */
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, #10b981, #22c55e, #06b6d4);
+  z-index: 9999;
+  transform-origin: left;
+  pointer-events: none;
+}
+
+body.route-loading::before {
+  animation: routeLoadingBar 0.8s ease-out forwards;
+}
+
+@keyframes routeLoadingBar {
+  0% {
+    width: 0;
+    opacity: 1;
+  }
+  60% {
+    width: 75%;
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 0;
+  }
+}
+
+/* ============================================
    RESPONSIVE UTILITIES
    ============================================ */
 

@@ -10,8 +10,6 @@ import AboutComponent from '@/components/about/AboutComponent.vue'
 import EntrepriseRecruteComponent from '@/components/jobs/EntrepriseRecruteComponent.vue'
 //@ts-ignore
 import TestimonialComponent from '@/components/testimonial/TestimonialComponent.vue'
-//@ts-ignore
-import FooterComponent from '@/components/footer/FooterComponent.vue'
 import { useScrollAnimation } from '@/composables/useScrollAnimation'
 
 // Initialiser les animations au scroll
@@ -26,7 +24,6 @@ useScrollAnimation({
     <HeroComponent />
     <AboutComponent />
     <EntrepriseRecruteComponent />
-    <FooterComponent />
   </div>
 </template>
 <style scoped>

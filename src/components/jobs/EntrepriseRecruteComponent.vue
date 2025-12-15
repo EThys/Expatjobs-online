@@ -8,7 +8,7 @@
     </div>
 
     <div class="max-w-7xl mx-auto container-responsive">
-      <div class="text-center mb-8 sm:mb-12 md:mb-16 animate-on-scroll" data-delay="0">
+      <div class="text-center mb-6 sm:mb-10 md:mb-12 animate-on-scroll" data-delay="0">
         <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 px-4">
           {{ t('companies.title') }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-cyan-600">{{ t('companies.highlight') }}</span>
         </h2>
@@ -16,6 +16,26 @@
         <p class="max-w-3xl mx-auto text-sm sm:text-base md:text-lg text-gray-600 px-4">
           {{ t('companies.description') }}
         </p>
+      </div>
+
+      <!-- Bande "Pourquoi travailler avec nos entreprises partenaires ?" -->
+      <div class="reasons-strip animate-on-scroll" data-delay="60">
+        <div class="reason-item">
+          <span class="reason-label">Tout est clair</span>
+          <span class="reason-text">Contrats transparents et paiements sécurisés</span>
+        </div>
+        <div class="reason-item">
+          <span class="reason-label">Beaucoup d'offres</span>
+          <span class="reason-text">Des missions et postes ajoutés en continu</span>
+        </div>
+        <div class="reason-item">
+          <span class="reason-label">Partout dans le monde</span>
+          <span class="reason-text">Entreprises présentes sur plusieurs marchés</span>
+        </div>
+        <div class="reason-item">
+          <span class="reason-label">Support dédié</span>
+          <span class="reason-text">Une équipe pour vous accompagner</span>
+        </div>
       </div>
 
       <!-- Loading State -->
@@ -119,32 +139,72 @@
       </div>
 
       <div class="cta-section mt-20">
-        <div class="cta-content">
-          <div class="cta-badge">
-            <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <span>Prêt à commencer?</span>
+        <div class="cta-inner">
+          <div class="cta-left">
+            <div class="cta-badge">
+              <span class="badge-dot"></span>
+              <span class="badge-text">Prêt à commencer ?</span>
+            </div>
+
+            <h3 class="cta-title">
+              Rejoignez
+              <span class="cta-gradient">expatJobs</span>
+              maintenant
+            </h3>
+
+            <p class="cta-subtitle">
+              Trouvez votre prochain emploi international ou recrutez les meilleurs talents, en quelques clics seulement.
+            </p>
+
+            <div class="cta-buttons">
+              <a href="#register-candidate" class="primary-btn">
+                Je cherche un job
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
+              <a href="#register-company" class="secondary-btn">
+                Je veux recruter
+              </a>
+            </div>
+
+            <div class="cta-meta">
+              <span>Inscription gratuite</span>
+              <span class="dot"></span>
+              <span>Annulation à tout moment</span>
+              <span class="dot"></span>
+              <span>Support dédié</span>
+            </div>
           </div>
 
-          <h3 class="cta-title">
-            Rejoignez <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-cyan-600">expatJobs</span> maintenant
-          </h3>
-
-          <p class="cta-subtitle">
-            Trouvez votre prochain emploi international ou recrutez les meilleurs talents
-          </p>
-
-          <div class="cta-buttons">
-            <a href="#register-candidate" class="primary-btn">
-              Créer mon profil
-              <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </a>
-            <a href="#register-company" class="secondary-btn">
-              Publier une offre
-            </a>
+          <div class="cta-right">
+            <div class="cta-card">
+              <div class="cta-card-header">
+                <span class="cta-chip">Temps réel</span>
+                <span class="cta-chip cta-chip-secondary">International</span>
+              </div>
+              <div class="cta-card-main">
+                <div class="cta-stat">
+                  <div class="cta-stat-value">2 357</div>
+                  <div class="cta-stat-label">Offres actives</div>
+                </div>
+                <div class="cta-stat">
+                  <div class="cta-stat-value">78</div>
+                  <div class="cta-stat-label">Pays connectés</div>
+                </div>
+              </div>
+              <div class="cta-card-footer">
+                <div class="cta-avatars">
+                  <span class="avatar-circle">AM</span>
+                  <span class="avatar-circle">JD</span>
+                  <span class="avatar-circle">LK</span>
+                  <span class="avatar-more">+120</span>
+                </div>
+                <p class="cta-card-text">
+                  Des candidats et des entreprises rejoignent la plateforme chaque jour.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -416,6 +476,42 @@ onUnmounted(() => {
   align-items: center;
 }
 
+/* Bande des raisons, inspirée des landing pages de jobs modernes */
+.reasons-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 2.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.reason-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.reason-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #059669;
+  margin-bottom: 0.15rem;
+}
+
+.reason-text {
+  font-size: 0.8rem;
+  color: #4b5563;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .carousel-container {
   width: 100%;
   overflow: hidden;
@@ -656,9 +752,8 @@ onUnmounted(() => {
 
 .cta-section {
   margin-top: 4rem;
-  text-align: center;
   padding: 3rem;
-  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  background: radial-gradient(circle at top left, #ecfdf5 0, #dcfce7 35%, #f0fdf4 60%, #e5f9ff 100%);
   border-radius: 2rem;
   position: relative;
   overflow: hidden;
@@ -686,28 +781,60 @@ onUnmounted(() => {
   border-radius: 50%;
 }
 
-.cta-content {
+.cta-inner {
   position: relative;
   z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.1fr);
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.cta-left {
+  text-align: left;
 }
 
 .cta-badge {
   display: inline-flex;
   align-items: center;
-  flex-direction: justify-center;
-  padding: 0.625rem 1.5rem;
-  background: white;
-  border-radius: 9999px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 0.4rem 1.2rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
   border: 1px solid #e5e7eb;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #059669;
+}
+
+.badge-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, #22c55e 0, #16a34a 40%, #0f766e 100%);
+  margin-right: 0.5rem;
+}
+
+.badge-text {
+  display: inline-block;
 }
 
 .cta-title {
-  font-size: 2rem;
+  font-size: 2.1rem;
   font-weight: 700;
   color: #111827;
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
+  line-height: 1.25;
+}
+
+.cta-gradient {
+  background: linear-gradient(90deg, #059669, #10b981, #0ea5e9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .cta-subtitle {
@@ -715,14 +842,14 @@ onUnmounted(() => {
   color: #6b7280;
   margin-bottom: 2rem;
   max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .cta-buttons {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1rem;
 }
 
@@ -762,9 +889,150 @@ onUnmounted(() => {
   transform: translateY(-2px);
 }
 
+.cta-meta {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.cta-meta .dot {
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: #a7f3d0;
+}
+
+.cta-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cta-card {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 1.5rem;
+  padding: 1.5rem 1.6rem;
+  background: rgba(15, 23, 42, 0.96);
+  color: #e5e7eb;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-card::before {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle at top, rgba(52, 211, 153, 0.25) 0, transparent 55%);
+  opacity: 0.9;
+}
+
+.cta-card-header,
+.cta-card-main,
+.cta-card-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.cta-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.1rem;
+}
+
+.cta-chip {
+  font-size: 0.7rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  background: rgba(15, 23, 42, 0.9);
+  color: #a7f3d0;
+}
+
+.cta-chip-secondary {
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #bae6fd;
+}
+
+.cta-card-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.cta-stat {
+  flex: 1;
+}
+
+.cta-stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #e5e7eb;
+}
+
+.cta-stat-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.2rem;
+}
+
+.cta-card-footer {
+  border-top: 1px solid rgba(148, 163, 184, 0.5);
+  padding-top: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.cta-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-circle,
+.avatar-more {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  border: 2px solid #0b1120;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.8);
+}
+
+.avatar-circle:nth-child(1) { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.avatar-circle:nth-child(2) { background: linear-gradient(135deg, #0ea5e9, #0369a1); margin-left: -0.75rem; }
+.avatar-circle:nth-child(3) { background: linear-gradient(135deg, #f97316, #ea580c); margin-left: -0.75rem; }
+.avatar-more {
+  background: rgba(15, 23, 42, 0.9);
+  margin-left: -0.75rem;
+}
+
+.cta-card-text {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
 @media (max-width: 1280px) {
   .company-card {
     flex: 0 0 calc(50% - 1rem);
+  }
+
+  .reasons-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: 1.5rem;
+    padding-inline: 1rem;
   }
 }
 
@@ -802,12 +1070,33 @@ onUnmounted(() => {
   }
 
   .cta-title {
-    font-size: 1.75rem;
+    font-size: 1.7rem;
   }
 
   .cta-buttons {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+  }
+
+  .reasons-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 0.75rem;
+    column-gap: 0.75rem;
+    padding-inline: 0.9rem;
+    border-radius: 1.5rem;
+  }
+
+  .cta-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-right {
+    justify-content: flex-start;
+    margin-top: 1.25rem;
+  }
+
+  .cta-card {
+    max-width: 100%;
   }
 }
 
@@ -818,6 +1107,19 @@ onUnmounted(() => {
 
   .company-card {
     margin: 0 0.5rem;
+  }
+
+  .reasons-strip {
+    grid-template-columns: 1fr;
+    border-radius: 1.25rem;
+  }
+
+  .cta-section {
+    padding: 2.25rem 1.75rem;
+  }
+
+  .cta-title {
+    font-size: 1.5rem;
   }
 }
 </style>

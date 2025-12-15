@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toast-notification';
 //@ts-ignore
 import Navbar from '../../components/navbar/NavBarComponent.vue'
-//@ts-ignore
-import Footer from '../../components/footer/FooterComponent.vue'
 //@ts-ignore
 import { useJobService } from '@/utils/service/jobService'
 //@ts-ignore
@@ -15,6 +14,7 @@ import type { ICompany } from '@/utils/interface/ICompagny'
 import {getUser} from '@/stores/authStorage'
 
 const toast = useToast();
+const router = useRouter();
 const jobService = useJobService();
 const companyService = useCompanyService();
 
@@ -155,13 +155,16 @@ const loadUserCompanies = async () => {
       console.log('ℹ️ Aucune entreprise trouvée');
     }
   } catch (error) {
-    console.error('❌ Erreur complète:', error);
+    console.error('❌ Erreur complète lors du chargement des entreprises:', error);
+    // Informer clairement l'utilisateur qu'il doit d'abord créer une entreprise
     toast.open({
-      message: 'Erreur lors du chargement de vos entreprises',
-      type: 'error',
+      message: 'Veuillez d\'abord créer une entreprise avant de publier une offre.',
+      type: 'warning',
       position: 'top-right',
       duration: 5000,
     });
+    // Rediriger vers la page de création d\'entreprise
+    router.push({ name: 'company' });
   } finally {
     isLoadingCompanies.value = false;
   }
@@ -180,14 +183,19 @@ const resetCompanyForm = () => {
 const loadAvailableSkills = async () => {
   try {
     const response = await jobService.getAllSkills(0, 100);
-    availableSkills.value = [...new Set(response.content.map(skill => skill.skillName))];
+    const names = response.content.map((skill: any) => skill.skillName);
+    const lastDistinct: string[] = [];
+    for (let i = names.length - 1; i >= 0 && lastDistinct.length < 4; i--) {
+      const name = names[i];
+      if (!lastDistinct.includes(name)) {
+        lastDistinct.push(name);
+      }
+    }
+    availableSkills.value = lastDistinct.reverse();
   } catch (error) {
     console.error('Erreur lors du chargement des compétences:', error);
-    availableSkills.value = [
-      'JavaScript', 'Vue.js', 'React', 'Node.js', 'Python', 'Java',
-      'TypeScript', 'AWS', 'Docker', 'Kubernetes', 'SQL', 'NoSQL',
-      'Git', 'CI/CD', 'Agile', 'Scrum', 'UX/UI', 'SEO', 'Analytics'
-    ];
+    // Fallback minimal si l'API échoue
+    availableSkills.value = ['JavaScript', 'Vue.js', 'Node.js', 'TypeScript'];
   }
 };
 
@@ -391,6 +399,33 @@ onMounted(() => {
               </div>
             </div>
 
+            <!-- Stepper visuel création d'offre -->
+            <div class="px-6 md:px-8 pt-5 pb-2 border-b border-gray-100 bg-white">
+              <div class="job-stepper">
+                <div class="job-step job-step-active">
+                  <div class="job-step-index">1</div>
+                  <div>
+                    <p class="job-step-title">Entreprise</p>
+                    <p class="job-step-subtitle">Sélectionnez votre société</p>
+                  </div>
+                </div>
+                <div class="job-step">
+                  <div class="job-step-index">2</div>
+                  <div>
+                    <p class="job-step-title">Poste</p>
+                    <p class="job-step-subtitle">Détails & rémunération</p>
+                  </div>
+                </div>
+                <div class="job-step">
+                  <div class="job-step-index">3</div>
+                  <div>
+                    <p class="job-step-title">Compétences & description</p>
+                    <p class="job-step-subtitle">Profil recherché</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="p-6 md:p-8">
               <form @submit.prevent="submitJob" class="space-y-8">
                 <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100">
@@ -588,7 +623,7 @@ onMounted(() => {
                     <p class="text-sm font-medium text-gray-700 mb-3">Compétences populaires :</p>
                     <div class="flex flex-wrap gap-2">
                       <button
-                        v-for="skill in availableSkills.slice(0, 12)"
+                        v-for="skill in availableSkills"
                         :key="skill"
                         type="button"
                         @click="addSkill(skill, 1)"
@@ -845,7 +880,6 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <Footer />
 </template>
 
 <style>
@@ -903,6 +937,54 @@ onMounted(() => {
 
 .animate-wave {
   animation: wave 5s ease-in-out infinite;
+}
+
+/* Stepper création d'offre */
+.job-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.job-step {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.9rem;
+  border-radius: 999px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  gap: 0.55rem;
+}
+
+.job-step-active {
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border-color: #34d399;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.20);
+}
+
+.job-step-index {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #ffffff;
+  color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.job-step-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.job-step-subtitle {
+  font-size: 0.7rem;
+  color: #6b7280;
 }
 
 @media (max-width: 768px) {

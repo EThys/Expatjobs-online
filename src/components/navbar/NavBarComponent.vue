@@ -11,6 +11,7 @@ import type { IUser } from '@/utils/interface/user/IUser'
 //@ts-ignore
 import { useToast } from 'vue-toast-notification'
 import { useLanguage } from '@/composables/useLanguage'
+import { JobType } from '@/utils/interface/IJobOffers'
 
 const toast = useToast();
 const { t } = useI18n()
@@ -27,6 +28,14 @@ const currentUser = ref<IUser | null>(null)
 
 const isMobile = computed(() => windowWidth.value < 1024)
 const isLoggedIn = computed(() => currentUser.value !== null)
+
+const jobTypeLinks = computed(() => [
+  { value: JobType.FULL_TIME, label: 'CDI (Temps plein)' },
+  { value: JobType.PART_TIME, label: 'Temps partiel' },
+  { value: JobType.CONTRACT, label: 'Contrat (CDD)' },
+  { value: JobType.INTERNSHIP, label: 'Stage' },
+  { value: JobType.FREELANCE, label: 'Freelance' },
+])
 
 const parseUser = (userData: any): IUser => {
   const validRoles = ["CANDIDATE", "RECRUITER", "ADMIN"] as const
@@ -223,7 +232,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Navbar principale avec glassmorphism -->
-    <nav class="bg-white/80 backdrop-blur-2xl border-b border-emerald-100/30 transition-all duration-300"
+    <nav class="navbar-professional bg-white/80 backdrop-blur-2xl border-b border-emerald-100/30 transition-all duration-300"
          :class="{ 'bg-white/90 shadow-xl shadow-emerald-500/10': isScrolled }">
 
       <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
@@ -289,60 +298,60 @@ onUnmounted(() => {
                 <!-- Dropdown glassmorphism -->
                 <div
                   v-show="activeDropdown === 'jobs'"
-                  class="absolute left-0 mt-2 w-80 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-emerald-100/50 overflow-hidden z-50"
+                  class="absolute left-0 mt-2 w-[22rem] bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-emerald-100/50 overflow-hidden z-50"
                   @mouseenter="cancelDropdownClose"
                   @mouseleave="closeDropdown"
                 >
-                  <div class="p-6">
-                    <div class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-4">Explorer les offres</div>
-                    <div class="space-y-2">
-                      <router-link
-                        to="/jobs"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl transition-all duration-200 group"
-                        @click="closeAllDropdowns"
-                      >
-                        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-emerald-200 transition-all duration-200">
-                          <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                          </svg>
-                        </div>
-                        <div>
-                          <div class="font-semibold">{{ t('nav.allJobs') }}</div>
-                          <div class="text-sm text-gray-500">50K+ {{ t('common.opportunities', 'opportunities') }}</div>
-                        </div>
-                      </router-link>
+                  <div class="p-6 space-y-4">
+                    <div class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Explorer les offres</div>
 
-                      <router-link
-                        to="/jobs/remote"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all duration-200 group"
-                        @click="closeAllDropdowns"
-                      >
-                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-blue-200 transition-all duration-200">
-                          <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                          </svg>
-                        </div>
-                        <div>
-                          <div class="font-semibold">{{ t('nav.remoteWork') }}</div>
-                          <div class="text-sm text-gray-500">{{ t('common.flexibleWork', 'Flexible and remote work') }}</div>
-                        </div>
-                      </router-link>
+                    <!-- Tous les emplois -->
+                    <router-link
+                      to="/jobs"
+                      class="flex items-center px-4 py-3 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl transition-all duration-200 group"
+                      @click="closeAllDropdowns"
+                    >
+                      <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-emerald-200 transition-all duration-200">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <div class="font-semibold">{{ t('nav.allJobs') }}</div>
+                        <div class="text-sm text-gray-500">50K+ {{ t('common.opportunities', 'opportunities') }}</div>
+                      </div>
+                    </router-link>
 
-                      <router-link
-                        to="/jobs/international"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-xl transition-all duration-200 group"
-                        @click="closeAllDropdowns"
-                      >
-                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-purple-200 transition-all duration-200">
-                          <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          </svg>
-                        </div>
-                        <div>
-                          <div class="font-semibold">{{ t('nav.international') }}</div>
-                          <div class="text-sm text-gray-500">{{ t('common.internationalOpportunities', 'International opportunities') }}</div>
-                        </div>
-                      </router-link>
+                    <!-- Séparateur -->
+                    <div class="border-t border-gray-100 pt-3 mt-1">
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Par type de contrat
+                        </span>
+                      </div>
+
+                      <!-- Liens par JobType -->
+                      <div class="space-y-1">
+                        <router-link
+                          v-for="type in jobTypeLinks"
+                          :key="type.value"
+                          :to="{ name: 'jobsByType', query: { type: type.value } }"
+                          class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-lg transition-all duration-200 group"
+                          @click="closeAllDropdowns"
+                        >
+                          <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center mr-3 group-hover:bg-emerald-100 transition-all duration-200">
+                            <span class="text-[10px] font-semibold text-emerald-700">
+                              {{ type.label.split(' ')[0] }}
+                            </span>
+                          </div>
+                          <div class="flex-1 flex items-center justify-between">
+                            <span class="font-medium">{{ type.label }}</span>
+                            <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        </router-link>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -364,6 +373,24 @@ onUnmounted(() => {
                 </span>
                 <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300"
                      :class="{ 'w-full': $route.path === '/postjob' }"></div>
+              </router-link>
+
+              <!-- Gérer mes offres (pour recruteurs) -->
+              <router-link
+                v-if="canPostJob"
+                to="/my-jobs"
+                class="relative px-3 py-2 text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 group rounded-lg hover:bg-emerald-50/50"
+                active-class="text-emerald-600 bg-emerald-50/50"
+                @click="closeAllDropdowns"
+              >
+                <span class="flex items-center gap-2">
+                  <svg class="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6m9-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Gérer mes offres
+                </span>
+                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300"
+                     :class="{ 'w-full': $route.path === '/my-jobs' }"></div>
               </router-link>
 
               <!-- Contact -->
@@ -529,6 +556,23 @@ onUnmounted(() => {
                       <div>
                         <p class="font-medium">{{ t('nav.myCompany') }}</p>
                         <p class="text-xs text-gray-500">{{ t('nav.manageOffers') }}</p>
+                      </div>
+                    </router-link>
+
+                    <router-link
+                      v-if="canPostJob"
+                      to="/my-jobs"
+                      class="flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200 group"
+                      @click="closeAllDropdowns"
+                    >
+                      <div class="w-11 h-11 bg-emerald-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-emerald-200 transition-all duration-200">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6m9-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium">Mes offres</p>
+                        <p class="text-xs text-gray-500">Modifier ou supprimer vos publications</p>
                       </div>
                     </router-link>
                   </div>
@@ -763,36 +807,49 @@ onUnmounted(() => {
                       >
                         {{ t('nav.allJobs') }}
                       </router-link>
-                      <router-link
-                        to="/jobs/remote"
-                        class="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-blue-600 rounded-lg transition-colors"
-                        @click="closeAllDropdowns"
-                      >
-                        {{ t('nav.remoteWork') }}
-                      </router-link>
-                      <router-link
-                        to="/jobs/international"
-                        class="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-purple-600 rounded-lg transition-colors"
-                        @click="closeAllDropdowns"
-                      >
-                        {{ t('nav.international') }}
-                      </router-link>
+                      <div class="pt-1">
+                        <div class="text-[11px] uppercase tracking-wide text-gray-400 px-3 mb-1">
+                          Par type de contrat
+                        </div>
+                        <router-link
+                          v-for="type in jobTypeLinks"
+                          :key="type.value"
+                          :to="{ name: 'jobsByType', query: { type: type.value } }"
+                          class="flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-emerald-600 rounded-lg transition-colors"
+                          @click="closeAllDropdowns"
+                        >
+                          {{ type.label }}
+                        </router-link>
+                      </div>
                     </div>
                   </transition>
                 </div>
 
-                <router-link
-                  v-if="canPostJob"
-                  to="/postjob"
-                  class="flex items-center space-x-4 px-4 py-3 rounded-xl hover:bg-emerald-50 transition-colors group"
-                  active-class="bg-emerald-50 text-emerald-600"
-                  @click="closeAllDropdowns"
-                >
-                  <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                  </svg>
-                  <span class="font-medium">{{ t('nav.postJob') }}</span>
-                </router-link>
+            <router-link
+              v-if="canPostJob"
+              to="/postjob"
+              class="flex items-center space-x-4 px-4 py-3 rounded-xl hover:bg-emerald-50 transition-colors group"
+              active-class="bg-emerald-50 text-emerald-600"
+              @click="closeAllDropdowns"
+            >
+              <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              <span class="font-medium">{{ t('nav.postJob') }}</span>
+            </router-link>
+
+            <router-link
+              v-if="canPostJob"
+              to="/my-jobs"
+              class="flex items-center space-x-4 px-4 py-3 rounded-xl hover:bg-emerald-50 transition-colors group"
+              active-class="bg-emerald-50 text-emerald-600"
+              @click="closeAllDropdowns"
+            >
+              <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6m9-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span class="font-medium">Gérer mes offres</span>
+            </router-link>
 
                 <router-link
                   to="/contact"
@@ -1060,6 +1117,23 @@ onUnmounted(() => {
                   </div>
                 </router-link>
 
+                <router-link
+                  v-if="canPostJob"
+                  to="/my-jobs"
+                  class="flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200 group"
+                  @click="closeAllDropdowns"
+                >
+                  <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-colors">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6m9-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium">Mes offres</p>
+                    <p class="text-xs text-gray-500">Modifier ou supprimer vos publications</p>
+                  </div>
+                </router-link>
+
                 <button
                   @click="logout"
                   class="flex items-center w-full px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 group"
@@ -1109,8 +1183,16 @@ onUnmounted(() => {
 <style scoped>
 /* Styles pour la navbar professionnelle */
 .navbar-professional {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: linear-gradient(
+      90deg,
+      rgba(248, 250, 252, 0.96),
+      rgba(240, 253, 250, 0.96),
+      rgba(248, 250, 252, 0.96)
+    );
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 18px 45px rgba(15, 118, 110, 0.12);
 }
 
 /* Animations pour les dropdowns */

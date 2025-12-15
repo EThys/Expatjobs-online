@@ -8,11 +8,12 @@ import type { ICandidateSkill} from '@/utils/interface/candidate/ICandidateSkill
 import type { ICandidateData} from '@/utils/interface/candidate/ICandidateData'
 
 export const useCandidateService = () => {
-  const token = getToken() as string;
+  const storedToken = getToken();
+  const token = (storedToken as any)?.token || (typeof storedToken === 'string' ? storedToken : '');
 
   // ==================== CANDIDATE PROFILES ====================
 
-  const createCandidateProfile = async (profileData: Partial<ICandidateProfile>): Promise<ICandidateProfile> => {
+  const createCandidateProfile = async (profileData: Partial<ICandidateProfile> & { userId?: number }): Promise<ICandidateProfile> => {
     try {
       const response = await useAxiosRequestWithToken(token).post(
         `${ApiRoutes.addCandidateProfile}`,
@@ -27,7 +28,7 @@ export const useCandidateService = () => {
 
   const getAllCandidateProfiles = async (
     page: number = 0,
-    size: number = 10,
+    size: number = 20,
     sort: string = 'createdAt,desc'
   ): Promise<any> => {
     try {
@@ -60,59 +61,107 @@ export const useCandidateService = () => {
     }
   };
 
-  const getCandidateProfileByUserId = async (userId: number): Promise<ICandidateProfile> => {
+  const getCandidateProfileByUserId = async (userId: number): Promise<ICandidateProfile | null> => {
     try {
+      // L'API n'a pas d'endpoint direct par userId, on récupère la liste et on filtre
       const response = await useAxiosRequestWithToken(token).get(
-        `${ApiRoutes.getCandidateProfileById}/by-candidate/${userId}`
+        `${ApiRoutes.getAllCandidateProfiles}`,
+        { params: { page: 0, size: 200 } }
       );
-      return response.data;
+
+      const list = Array.isArray(response.data)
+        ? response.data
+        : response.data?.content || [];
+
+      const found = list.find((p: ICandidateProfile) => p?.candidate?.id === userId);
+      if (!found) {
+        console.warn(`⚠️ Aucun profil trouvé pour l'utilisateur ${userId}`);
+        return null;
+      }
+      return found;
     } catch (error) {
       console.error(`❌ Erreur lors de la récupération du profil utilisateur ${userId}:`, error);
       throw error;
     }
   };
 
-  const searchCandidateProfiles = async (
-    searchTerm?: string,
-    location?: string,
-    skills?: string[],
-    minExperience?: number,
-    maxSalary?: number,
+  const getOrCreateCandidateProfile = async (userId: number): Promise<ICandidateProfile> => {
+    const existing = await getCandidateProfileByUserId(userId);
+    if (existing) return existing;
+
+    // L'API impose firstName/lastName non vides : on crée un profil minimal
+    const created = await createCandidateProfile({
+      userId,
+      firstName: 'FirstName',
+      lastName: 'LastName',
+      location: '',
+      salaryExpectationMin: 10,
+      salaryExpectationMax: 10,
+      resumeUrl: ''
+    });
+    return created;
+  };
+
+  const getCandidateProfilesBySalaryMin = async (
+    salaryExpectation: number,
     page: number = 0,
-    size: number = 10
+    size: number = 20
   ): Promise<any> => {
     try {
-      const params: any = {
-        page,
-        size
-      };
-
-      if (searchTerm) params.search = searchTerm;
-      if (location) params.location = location;
-      if (skills) params.skills = skills.join(',');
-      if (minExperience) params.minExperience = minExperience;
-      if (maxSalary) params.maxSalary = maxSalary;
-
       const response = await useAxiosRequestWithToken(token).get(
-        `${ApiRoutes.getCandidateProfileById}/search`,
-        { params }
+        `${ApiRoutes.getCandidateProfilesSalaryMinGte}/${salaryExpectation}`,
+        { params: { page, size } }
       );
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur lors de la recherche des profils candidats:', error);
+      console.error('❌ Erreur lors du filtrage par salaire minimum:', error);
       throw error;
     }
   };
 
-  const updateCandidateProfile = async (id: number, profileData: Partial<ICandidateProfile>): Promise<ICandidateProfile> => {
+  const getCandidateProfilesBySalaryMax = async (
+    salaryExpectation: number,
+    page: number = 0,
+    size: number = 20
+  ): Promise<any> => {
     try {
-      const response = await useAxiosRequestWithToken(token).put(
-        `${ApiRoutes.updateCandidateProfile}/${id}`,
-        profileData
+      const response = await useAxiosRequestWithToken(token).get(
+        `${ApiRoutes.getCandidateProfilesSalaryMaxLte}/${salaryExpectation}`,
+        { params: { page, size } }
       );
       return response.data;
     } catch (error) {
-      console.error(`❌ Erreur lors de la mise à jour du profil candidat ${id}:`, error);
+      console.error('❌ Erreur lors du filtrage par salaire maximum:', error);
+      throw error;
+    }
+  };
+
+  const getCandidateProfilesByLocation = async (
+    location: string,
+    page: number = 0,
+    size: number = 20
+  ): Promise<any> => {
+    try {
+      const response = await useAxiosRequestWithToken(token).get(
+        `${ApiRoutes.getCandidateProfilesByLocation}/${encodeURIComponent(location)}`,
+        { params: { page, size } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors du filtrage par localisation:', error);
+      throw error;
+    }
+  };
+
+  const updateCandidateProfile = async (userId: number, profileData: Partial<ICandidateProfile>): Promise<ICandidateProfile> => {
+    try {
+      const response = await useAxiosRequestWithToken(token).put(
+        `${ApiRoutes.updateCandidateProfile}`,
+        { userId, ...profileData }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`❌ Erreur lors de la mise à jour du profil candidat ${userId}:`, error);
       throw error;
     }
   };
@@ -293,23 +342,25 @@ export const useCandidateService = () => {
 
   // ==================== COMPLETE CANDIDATE DATA ====================
 
-  const getCompleteCandidateData = async (profileId: number): Promise<ICandidateData> => {
+  const getCompleteCandidateData = async (userId: number): Promise<ICandidateData> => {
     try {
-      const [profile, experiences, educations, skills] = await Promise.all([
-        getCandidateProfileById(profileId),
-        getExperiencesByProfile(profileId),
-        getEducationsByProfile(profileId),
-        getSkillsByProfile(profileId)
+      const profileDetails = await getOrCreateCandidateProfile(userId);
+      const resolvedProfileId = profileDetails.candidateProfileId;
+
+      const [experiences, educations, skills] = await Promise.all([
+        getExperiencesByProfile(resolvedProfileId),
+        getEducationsByProfile(resolvedProfileId),
+        getSkillsByProfile(resolvedProfileId)
       ]);
 
       return {
-        profile,
+        profile: profileDetails,
         experiences,
         educations,
         skills
       };
     } catch (error) {
-      console.error(`❌ Erreur lors de la récupération des données complètes du candidat ${profileId}:`, error);
+      console.error(`❌ Erreur lors de la récupération des données complètes du candidat ${userId}:`, error);
       throw error;
     }
   };
@@ -361,7 +412,10 @@ export const useCandidateService = () => {
     getAllCandidateProfiles,
     getCandidateProfileById,
     getCandidateProfileByUserId,
-    searchCandidateProfiles,
+    getOrCreateCandidateProfile,
+    getCandidateProfilesBySalaryMin,
+    getCandidateProfilesBySalaryMax,
+    getCandidateProfilesByLocation,
     updateCandidateProfile,
     deleteCandidateProfile,
 

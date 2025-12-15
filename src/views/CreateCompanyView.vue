@@ -5,8 +5,6 @@ import { useRouter } from 'vue-router';
 //@ts-ignore
 import Navbar from '../components/navbar/NavBarComponent.vue'
 //@ts-ignore
-import Footer from '../components/footer/FooterComponent.vue'
-//@ts-ignore
 import { useCompanyService } from '@/utils/service/CompagnyService'
 import { getUser } from '@/stores/authStorage'
 import type { ICompagny } from '@/utils/interface/user/ICompagny';
@@ -136,23 +134,34 @@ const createdCompany = await createCompanyHandler(companyData)
 
     
     toast.open({
-      message: 'Entreprise créée avec succès ! 🎉',
+      message: 'Entreprise créée avec succès ! 🎉 Vous pouvez maintenant publier une offre.',
       type: 'success',
       position: 'top-right',
       duration: 5000,
     });
     
     setTimeout(() => {
-      router.push(`/company/${createdCompany.id}`);
+      router.push({ name: 'postjob' });
     }, 1500);
     
   } catch (error: any) {
     console.error('Erreur lors de la création de l\'entreprise:', error);
+
+    const rawMessage = error.response?.data?.message || error.message || '';
+    const isDuplicateUserCompany =
+      rawMessage.includes('companies_user_id_key') ||
+      rawMessage.toLowerCase().includes('duplicate key') ||
+      error.response?.status === 409;
+
+    const friendlyMessage = isDuplicateUserCompany
+      ? 'Vous avez déjà une entreprise associée à ce compte. Utilisez-la pour publier vos offres.'
+      : (rawMessage || 'Erreur lors de la création de l\'entreprise');
+
     toast.open({
-      message: error.response?.data?.message || 'Erreur lors de la création de l\'entreprise',
-      type: 'error',
+      message: friendlyMessage,
+      type: isDuplicateUserCompany ? 'warning' : 'error',
       position: 'top-right',
-      duration: 5000,
+      duration: 6000,
     });
   } finally {
     isSubmitting.value = false;
@@ -279,6 +288,26 @@ onMounted(() => {
             <div class="ml-3">
               <h3 class="text-lg font-semibold text-white">Informations de l'entreprise</h3>
               <p class="text-emerald-100 text-sm">Tous les champs marqués d'un * sont obligatoires</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stepper visuel -->
+        <div class="px-6 md:px-8 pt-5 pb-2 border-b border-gray-100 bg-white">
+          <div class="company-stepper">
+            <div class="company-step company-step-active">
+              <div class="company-step-index">1</div>
+              <div>
+                <p class="company-step-title">Informations de base</p>
+                <p class="company-step-subtitle">Nom, localisation, secteur</p>
+              </div>
+            </div>
+            <div class="company-step">
+              <div class="company-step-index">2</div>
+              <div>
+                <p class="company-step-title">Détails & description</p>
+                <p class="company-step-subtitle">Taille, histoire, logo</p>
+              </div>
             </div>
           </div>
         </div>
@@ -463,8 +492,6 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  
-  <Footer />
 </template>
 
 <style>
@@ -522,6 +549,54 @@ onMounted(() => {
 
 .animate-wave {
   animation: wave 5s ease-in-out infinite;
+}
+
+/* Stepper entreprise */
+.company-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.company-step {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.9rem;
+  border-radius: 999px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  gap: 0.55rem;
+}
+
+.company-step-active {
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border-color: #34d399;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.20);
+}
+
+.company-step-index {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #ffffff;
+  color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.company-step-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.company-step-subtitle {
+  font-size: 0.7rem;
+  color: #6b7280;
 }
 
 @media (max-width: 768px) {

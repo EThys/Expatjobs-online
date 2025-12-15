@@ -42,6 +42,9 @@ export const ApiRoutes = {
   getAllCandidateProfiles: "candidate-profile",
   getAllCandidateExperiences: "candidate-experience", 
   getAllCandidateSkills: "candidate-skill",
+  getCandidateProfilesSalaryMinGte: "candidate-profile/salary-expectation-min-ge",
+  getCandidateProfilesSalaryMaxLte: "candidate-profile/salary-expectation-max-le",
+  getCandidateProfilesByLocation: "candidate-profile/location-containing",
   
   getCandidateProfileById: "candidate-profile",
   getCandidateEducationById: "candidate-education",

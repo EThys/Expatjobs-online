@@ -12,7 +12,10 @@ import NotFoundView from '../views/Errors/NotFoundView.vue'
 import AllJobs from '@/views/jobs/AllJobsView.vue'
 import ProfileCandidateView from '@/views/ProfileCandidateView.vue'
 import CreateCompanyView from '@/views/CreateCompanyView.vue'
+import CompanyManagementView from '@/views/CompanyManagementView.vue'
 import OffreByCategorieView from '@/views/OffreByCategorieView.vue'
+import JobsByTypeView from '@/views/jobs/JobsByTypeView.vue'
+import MyJobsView from '@/views/jobs/MyJobsView.vue'
 
 // Définition des métadonnées de route étendues
 declare module 'vue-router' {
@@ -31,6 +34,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'home',
     component: HomeView,
     meta: { title: 'Accueil' },
+  },
+  {
+    path: '/my-jobs',
+    name: 'myJobs',
+    component: MyJobsView,
+    meta: { title: 'Mes offres' },
   },
   {
     path: '/detail/jobs/:id',
@@ -59,14 +68,26 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/company',
     name: 'company',
+    component: CompanyManagementView,
+    meta: { title: 'Mes entreprises' },
+  },
+  {
+    path: '/company/create',
+    name: 'companyCreate',
     component: CreateCompanyView,
-    meta: { title: 'company' },
+    meta: { title: 'Créer une entreprise' },
   },
   {
     path: '/jobs',
     name: 'jobs',
     component: AllJobs,
     meta: { title: 'jobs' },
+  },
+  {
+    path: '/jobs/types',
+    name: 'jobsByType',
+    component: JobsByTypeView,
+    meta: { title: 'jobs-by-type' },
   },
     {
     path: '/profile',
@@ -132,6 +153,11 @@ const router = createRouter({
 
 // Garde de navigation globale
 router.beforeEach(async (to, from, next) => {
+  // Activer le loader global de navigation
+  if (typeof document !== 'undefined') {
+    document.body.classList.add('route-loading')
+  }
+
   const user = {
     user: {
       Role: 'user',
@@ -189,6 +215,18 @@ router.beforeEach(async (to, from, next) => {
   // }
 
   next()
+})
+
+router.afterEach(() => {
+  if (typeof document !== 'undefined') {
+    document.body.classList.remove('route-loading')
+  }
+})
+
+router.onError(() => {
+  if (typeof document !== 'undefined') {
+    document.body.classList.remove('route-loading')
+  }
 })
 
 export default router

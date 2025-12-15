@@ -79,11 +79,23 @@ export const useCompanyService = () => {
     }
   };
 
+  const deleteCompany = async (id: number): Promise<void> => {
+    try {
+      await useAxiosRequestWithToken(token).delete(
+        `${ApiRoutes.getAllCompagny}/${id}`
+      );
+    } catch (error) {
+      console.error(`❌ Erreur lors de la suppression de l'entreprise ${id}:`, error);
+      throw error;
+    }
+  };
+
   return {
     createCompany,
     getCompaniesByUser,
     getAllCompanies,
     getCompanyById,
-    updateCompany
+    updateCompany,
+    deleteCompany
   };
 };

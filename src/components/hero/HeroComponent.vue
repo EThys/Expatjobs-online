@@ -41,6 +41,7 @@ import { useJobService } from '@/utils/service/jobService'
 //@ts-ignore
 import { useCompanyService } from '@/utils/service/CompagnyService'
 import type { IJob, IJobResponse } from '@/utils/interface/IJobOffers'
+import { JobType } from '@/utils/interface/IJobOffers'
 import type { ICompany } from '@/utils/interface/ICompagny'
 
 // Services
@@ -210,15 +211,16 @@ let interval: number
 
 const searchQuery = ref('')
 const locationQuery = ref('')
-const jobType = ref('')
+const jobType = ref<JobType | ''>('')
 
+// Options de type de contrat basées sur l'enum JobType
 const jobTypes = computed(() => [
   { value: '', label: t('hero.jobTypeAll') },
-  { value: 'full-time', label: t('hero.jobTypeFullTime') },
-  { value: 'part-time', label: t('hero.jobTypePartTime') },
-  { value: 'contract', label: t('hero.jobTypeContract') },
-  { value: 'internship', label: t('hero.jobTypeInternship') },
-  { value: 'remote', label: t('hero.jobTypeRemote') },
+  { value: JobType.FULL_TIME, label: t('hero.jobTypeFullTime') },
+  { value: JobType.PART_TIME, label: t('hero.jobTypePartTime') },
+  { value: JobType.CONTRACT, label: t('hero.jobTypeContract') },
+  { value: JobType.INTERNSHIP, label: t('hero.jobTypeInternship') },
+  { value: JobType.FREELANCE, label: t('hero.jobTypeFreelance') },
 ])
 
 // Fonction pour déterminer les catégories d'un job basée uniquement sur le secteur
@@ -549,14 +551,15 @@ const resetTimer = () => {
 }
 
 const handleSearch = () => {
-  // Rediriger vers la page de recherche avec les paramètres
-  const queryParams = new URLSearchParams({
-    q: searchQuery.value,
-    location: locationQuery.value,
-    type: jobType.value
-  }).toString()
-  
-  window.location.href = `/jobs?${queryParams}`;
+  // Rediriger vers la page des jobs avec les paramètres de recherche
+  router.push({
+    name: 'jobs',
+    query: {
+      q: searchQuery.value || undefined,
+      location: locationQuery.value || undefined,
+      type: jobType.value || undefined
+    }
+  });
 }
 
 onMounted(() => {
@@ -723,7 +726,7 @@ onUnmounted(() => {
     </div>
     <div class="transition-spacer"></div>
   </div>
-  
+
   <section class="featured-jobs">
     <div class="container">
       <div class="categories-section">
@@ -763,20 +766,20 @@ onUnmounted(() => {
             class="categories-grid"
             :class="{ 'expanded': showAllCategories }"
           >
-            <button 
-              v-for="category in displayedCategories" 
-              :key="category.id" 
-              @click="navigateToCategory(category.id)"
-              class="category-card"
-            >
-              <div class="category-icon" :style="{ backgroundColor: category.color }">
-                <component :is="category.icon" />
-              </div>
-              <div class="category-info">
-                <h4>{{ category.name }}</h4>
-                <p>{{ getFormattedJobsCount(category.id) }} {{ t('hero.categories.offers') }}</p>
-              </div>
-            </button>
+             <button 
+               v-for="category in displayedCategories" 
+               :key="category.id" 
+               @click="navigateToCategory(category.id)"
+               class="category-card"
+             >
+               <div class="category-icon" :style="{ backgroundColor: category.color }">
+                 <component :is="category.icon" />
+               </div>
+               <div class="category-info">
+                 <h4>{{ category.name }}</h4>
+                 <p>{{ getFormattedJobsCount(category.id) }} {{ t('hero.categories.offers') }}</p>
+               </div>
+             </button>
           </div>
         </div>
       </div>
@@ -785,11 +788,17 @@ onUnmounted(() => {
 
       <!-- Section Opportunités en vedette -->
       <div class="jobs-section">
-        <div class="section-header text-left">
-          <h2 class="section-title">{{ t('hero.featuredJobs.title') }}</h2>
-          <p class="section-subtitle">{{ t('hero.featuredJobs.subtitle') }}</p>
-          <a href="/jobs" class="view-all">
-            {{ t('hero.featuredJobs.viewAll') }}
+        <div class="section-header text-left featured-header">
+          <div class="featured-header-text">
+            <div class="featured-badge">
+              <span class="badge-dot"></span>
+              <span class="badge-text">{{ t('hero.featuredJobs.badge', 'Opportunités en vedette') }}</span>
+            </div>
+            <h2 class="section-title">{{ t('hero.featuredJobs.title') }}</h2>
+            <p class="section-subtitle">{{ t('hero.featuredJobs.subtitle') }}</p>
+          </div>
+          <a href="/jobs" class="view-all featured-view-all">
+            <span>{{ t('hero.featuredJobs.viewAll') }}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="icon"
@@ -1441,6 +1450,101 @@ onUnmounted(() => {
   padding-left: 0;
 }
 
+/* Badge & meta pour la section catégories */
+.categories-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1.1rem;
+  background: #ecfdf5;
+  border-radius: 999px;
+  border: 1px solid #bbf7d0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #047857;
+  margin-bottom: 0.8rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.18);
+}
+
+.categories-badge .badge-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, #22c55e 0, #16a34a 40%, #0f766e 100%);
+  margin-right: 0.45rem;
+}
+
+.categories-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.categories-meta .dot {
+  width: 0.2rem;
+  height: 0.2rem;
+  border-radius: 999px;
+  background: #a7f3d0;
+}
+
+/* Featured jobs header */
+.featured-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.featured-header-text {
+  flex: 1;
+}
+
+.featured-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 1rem;
+  background: #eff6ff;
+  border-radius: 999px;
+  border: 1px solid #bfdbfe;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #1d4ed8;
+  margin-bottom: 0.85rem;
+}
+
+.featured-badge .badge-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, #60a5fa 0, #2563eb 40%, #1d4ed8 100%);
+  margin-right: 0.45rem;
+}
+
+.featured-view-all {
+  padding: 0.6rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-size: 0.9rem;
+}
+
+.featured-view-all:hover {
+  border-color: #16a34a;
+  background: #ecfdf5;
+}
+
+.featured-view-all span {
+  display: inline-flex;
+  align-items: center;
+}
+
 .view-all {
   display: inline-flex;
   align-items: center;
@@ -1702,11 +1806,14 @@ onUnmounted(() => {
   color: white;
 }
 
+.category-info {
+  /* retour au style simple */
+}
+
 .category-info h4 {
   font-size: 1rem;
   font-weight: 600;
   color: #111827;
-  margin-bottom: 0.25rem;
 }
 
 .category-info p {
@@ -2803,7 +2910,7 @@ onUnmounted(() => {
   }
   
   .categories-section {
-    margin-bottom: 3rem;
+    margin-bottom: 4.25rem;
   }
   
   .section-title {
