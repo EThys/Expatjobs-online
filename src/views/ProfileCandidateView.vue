@@ -1275,7 +1275,11 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import type { ICandidateProfile, ICandidateEducation, ICandidateExperience, ICandidateSkill, ICandidateData } from '@/utils/interface/candidate/ICandidateData'
+import type { ICandidateData } from '@/utils/interface/candidate/ICandidateData'
+import type { ICandidateProfile } from '@/utils/interface/candidate/ICandidateProfile'
+import type { ICandidateEducation } from '@/utils/interface/candidate/ICandidateEducation'
+import type { ICandidateExperience } from '@/utils/interface/candidate/ICandidateExperience'
+import type { ICandidateSkill } from '@/utils/interface/candidate/ICandidateSkill'
 import { useCandidateService } from '@/utils/service/CandidateService'
 import Navbar from '../components/navbar/NavBarComponent.vue'
 import Footer from '../components/footer/FooterComponent.vue'
