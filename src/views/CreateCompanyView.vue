@@ -9,6 +9,8 @@ import { useCompanyService } from '@/utils/service/CompagnyService'
 import { getUser } from '@/stores/authStorage'
 import type { ICompagny } from '@/utils/interface/user/ICompagny';
 import type { ICompanyCreate } from '@/utils/interface/ICompagny';
+// @ts-ignore
+import Footer from '../components/footer/FooterComponent.vue';
 
 const toast = useToast();
 const router = useRouter();
@@ -492,6 +494,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
+  <Footer />
 </template>
 
 <style>
