@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 page-fade-in">
     <Navbar />
 
-    <section class="relative overflow-hidden bg-gradient-to-br mt-5 sm:mt-15 from-emerald-800 via-emerald-700 to-teal-600 py-16 px-4 sm:px-6 lg:px-8">
+    <section class="relative overflow-hidden bg-gradient-to-br mt-4 sm:mt-8 from-emerald-800 via-emerald-700 to-teal-600 py-16 px-4 sm:px-6 lg:px-8">
       <div class="absolute inset-0 bg-black/10"></div>
       <div class="absolute top-0 left-0 w-72 h-72 bg-emerald-400/20 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
       <div class="absolute bottom-0 right-0 w-96 h-96 bg-teal-400/20 rounded-full translate-x-1/3 translate-y-1/3"></div>
@@ -181,9 +181,10 @@
         </section>
       </div>
     </main>
-
     <Footer />
+   
   </div>
+  
 </template>
 
 <script setup lang="ts">
@@ -447,6 +448,22 @@ onMounted(async () => {
   }
   100% {
     left: 100%;
+  }
+}
+
+/* Effet d'apparition simple de la page */
+.page-fade-in {
+  animation: pageFadeIn 0.35s ease-out;
+}
+
+@keyframes pageFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
