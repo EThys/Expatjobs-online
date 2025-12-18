@@ -105,21 +105,22 @@ const fetchJobDetails = async () => {
     const skillsResponse = await jobService.getSkillsByJob(jobId.value)
     const skills = skillsResponse.content?.map((skill: any) => skill.skillName) || []
 
-    let companyData = null
+    let companyData: any = null
     try {
       companyData = await companyService.getCompanyById(jobData.companyId)
     } catch (companyError) {
       console.warn('Impossible de récupérer les données de l\'entreprise:', companyError)
       companyData = {
         id: jobData.companyId,
-        name: `Entreprise #${jobData.companyId}`,
+        name: jobData.companyName || `Entreprise #${jobData.companyId}`,
         location: jobData.location || 'Non spécifié',
-        webSiteUrl: null
+        webSiteUrl: null,
+        logoUrl: null
       }
     }
     job.value = {
       id: jobData.id,
-      title: jobData.title || 'Titre non spécifié',
+      title: jobData.title,
       company: companyData.name,
       companyId: companyData.id,
       location: jobData.location || 'Non spécifié',
@@ -127,21 +128,16 @@ const fetchJobDetails = async () => {
       type: jobData.jobType?.toLowerCase() || 'full-time',
       typeLabel: formatJobType(jobData.jobType),
       postedDate: formatDate(jobData.createdAt),
-      description: jobData.description || 'Aucune description disponible.',
-      requirements: generateRequirements(jobData),
-      benefits: generateBenefits(jobData),
+      description: jobData.description,
+      requirements: null,
+      benefits: null,
       skills: skills,
-      logo: 'https://via.placeholder.com/80', 
-      website: companyData.webSiteUrl || '#',
+      logo: companyData.logoUrl || null, 
+      website: companyData.webSiteUrl || null,
       experienceLevel: jobData.experienceLevel,
       sector: jobData.sector,
-      recruiter: {
-        name: 'Service Recrutement',
-        position: 'Recruteur',
-        email: 'recrutement@entreprise.com', 
-        phone: '+33 1 23 45 67 89'
-      },
-      applicationCount: 'Plusieurs candidatures' 
+      recruiter: null,
+      applicationCount: null 
     }
 
     console.log('✅ Job details loaded:', job.value)
@@ -296,14 +292,21 @@ onMounted(() => {
       <!-- Contenu de l'offre -->
       <div v-else-if="job" class="flex flex-col lg:flex-row gap-8">
         <div class="lg:w-2/3">
-          <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
             <div class="flex items-start justify-between">
               <div class="flex items-start space-x-4">
-                <img
-                  :src="job.logo"
-                  :alt="job.company"
-                  class="w-16 h-16 object-contain rounded-lg"
-                />
+                <div v-if="job.logo" class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                  <img
+                    :src="job.logo"
+                    :alt="job.company"
+                    class="w-full h-full object-contain"
+                  />
+                </div>
+                <div v-else class="w-16 h-16 rounded-lg bg-green-100 flex items-center justify-center">
+                  <span class="text-green-700 font-semibold text-xl">
+                    {{ job.company ? job.company[0] : '?' }}
+                  </span>
+                </div>
                 <div>
                   <h1 class="text-2xl font-bold text-gray-900">{{ job.title }}</h1>
                   <div class="flex items-center mt-1">
@@ -398,7 +401,7 @@ onMounted(() => {
         </div>
 
         <div class="lg:w-1/3">
-          <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div v-if="job.recruiter" class="bg-white rounded-xl shadow-sm p-6 mb-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Votre recruteur</h3>
             <div class="flex items-start space-x-4">
               <div class="flex-shrink-0">
@@ -444,7 +447,7 @@ onMounted(() => {
                 <span class="text-sm text-gray-500">Salaire</span>
                 <span class="text-sm font-medium text-gray-900">{{ job.salary }}</span>
               </div>
-              <div class="flex items-center justify-between">
+              <div v-if="job.applicationCount" class="flex items-center justify-between">
                 <span class="text-sm text-gray-500">Candidatures</span>
                 <span class="text-sm font-medium text-gray-900">{{ job.applicationCount }}</span>
               </div>
