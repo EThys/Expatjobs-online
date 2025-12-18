@@ -9,121 +9,187 @@
 
     <!-- Conteneur principal -->
     <div class="max-w-7xl mx-auto relative z-10 container-responsive">
-      <!-- En-tête -->
-      <div class="text-center mb-6 sm:mb-10 md:mb-12 animate-on-scroll" data-delay="0">
-        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
-          <span class="block bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-cyan-600">
-            {{ t('about.title') }}
-          </span>
-          <span class="block mt-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl">{{ t('about.subtitle') }}</span>
-        </h1>
+      <!-- En-tête avec fond -->
+      <div class="relative text-center mb-6 sm:mb-10 md:mb-12 animate-on-scroll overflow-hidden rounded-3xl" data-delay="0">
+        <!-- Fond avec image et couleur -->
+        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 via-cyan-500 to-teal-600 opacity-95">
+          <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center mix-blend-overlay opacity-40"></div>
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-600/80 via-cyan-600/80 to-teal-700/80"></div>
+        </div>
+        
+        <!-- Contenu texte -->
+        <div class="relative z-10 py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8">
+          <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 px-4 drop-shadow-lg">
+            <span class="block">
+              {{ t('about.title') }}
+            </span>
+            <span class="block mt-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold">{{ t('about.subtitle') }}</span>
+          </h1>
 
-        <p class="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-gray-600 px-4">
-          {{ t('about.description') }}
-        </p>
+          <p class="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-white/95 px-4 drop-shadow-md">
+            {{ t('about.description') }}
+          </p>
+        </div>
       </div>
 
       <!-- Bande de statistiques inspirée des plateformes de jobs modernes -->
-      <div class="metrics-grid animate-on-scroll" data-delay="80">
-        <div class="metric-card">
-          <div class="metric-value">100K+</div>
-          <div class="metric-label">candidatures traitées</div>
-          <div class="metric-caption">Des profils qualifiés partout dans le monde</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value">2 000+</div>
-          <div class="metric-label">offres publiées</div>
-          <div class="metric-caption">CDI, missions freelance et stages</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value">80+</div>
-          <div class="metric-label">pays couverts</div>
-          <div class="metric-caption">Europe, Afrique, Moyen‑Orient & plus</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value">24/7</div>
-          <div class="metric-label">plateforme disponible</div>
-          <div class="metric-caption">Trouvez ou publiez une offre à tout moment</div>
+      <div class="metrics-grid-wrapper mb-12 sm:mb-16 md:mb-20">
+        <div class="metrics-grid">
+          <div class="metric-card group">
+            <div class="metric-icon-wrapper">
+              <svg class="metric-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <div class="metric-value">100K+</div>
+            <div class="metric-label">candidatures traitées</div>
+            <div class="metric-caption">Des profils qualifiés partout dans le monde</div>
+          </div>
+          <div class="metric-card group">
+            <div class="metric-icon-wrapper">
+              <svg class="metric-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div class="metric-value">2 000+</div>
+            <div class="metric-label">offres publiées</div>
+            <div class="metric-caption">CDI, missions freelance et stages</div>
+          </div>
+          <div class="metric-card group">
+            <div class="metric-icon-wrapper">
+              <svg class="metric-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="metric-value">80+</div>
+            <div class="metric-label">pays couverts</div>
+            <div class="metric-caption">Europe, Afrique, Moyen‑Orient & plus</div>
+          </div>
+          <div class="metric-card group">
+            <div class="metric-icon-wrapper">
+              <svg class="metric-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="metric-value">24/7</div>
+            <div class="metric-label">plateforme disponible</div>
+            <div class="metric-caption">Trouvez ou publiez une offre à tout moment</div>
+          </div>
         </div>
       </div>
 
       <!-- Grille de fonctionnalités avec effets 3D -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16 md:mb-20 stagger-children">
+      <div class="features-grid-section mt-16 sm:mt-20 md:mt-24">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16 md:mb-20 stagger-children">
         <!-- Carte 1: Pour les talents -->
-        <div class="group relative overflow-hidden rounded-2xl bg-white p-6 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg hover:-translate-y-2 transform perspective-1000 animate-on-scroll" data-delay="100">
-          <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <div class="relative z-10 transform group-hover:translate-y-[-5px] transition-transform duration-500">
-            <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-emerald-100 mb-6">
-              <svg class="h-7 w-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        <div class="group relative overflow-hidden rounded-3xl bg-white p-8 sm:p-10 shadow-xl border border-emerald-100/50 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/20 hover:-translate-y-3 hover:scale-[1.02] transform animate-on-scroll" data-delay="100">
+          <!-- Fond animé avec dégradé -->
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 via-emerald-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <!-- Effet de lumière -->
+          <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-400/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+          
+          <div class="relative z-10">
+            <!-- Icône améliorée -->
+            <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 mb-6 shadow-lg group-hover:shadow-emerald-500/50 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+              <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ t('about.forTalents.title') }}</h3>
-            <p class="text-gray-600 mb-6">{{ t('about.forTalents.description') }}</p>
+            
+            <h3 class="text-2xl font-bold text-gray-900 mb-4 group-hover:text-emerald-700 transition-colors duration-300">{{ t('about.forTalents.title') }}</h3>
+            <p class="text-gray-600 mb-8 text-base leading-relaxed">{{ t('about.forTalents.description') }}</p>
+            
+            <!-- Liste de fonctionnalités améliorée -->
             <div class="space-y-4">
-              <div class="flex items-center">
-                <svg class="h-5 w-5 text-emerald-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>{{ t('about.forTalents.feature1') }}</span>
+              <div class="flex items-start group/item">
+                <div class="flex-shrink-0 w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center mt-0.5 mr-3 group-hover/item:bg-emerald-500 transition-colors duration-200">
+                  <svg class="h-4 w-4 text-emerald-600 group-hover/item:text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span class="text-gray-700 font-medium">{{ t('about.forTalents.feature1') }}</span>
               </div>
-              <div class="flex items-center">
-                <svg class="h-5 w-5 text-emerald-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{{ t('about.forTalents.feature2') }}</span>
+              <div class="flex items-start group/item">
+                <div class="flex-shrink-0 w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center mt-0.5 mr-3 group-hover/item:bg-emerald-500 transition-colors duration-200">
+                  <svg class="h-4 w-4 text-emerald-600 group-hover/item:text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span class="text-gray-700 font-medium">{{ t('about.forTalents.feature2') }}</span>
               </div>
-              <div class="flex items-center">
-                <svg class="h-5 w-5 text-emerald-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.044M12 20v-8m0 8l2 2m-2-2l-2 2" />
-                </svg>
-                <span>{{ t('about.forTalents.feature3') }}</span>
+              <div class="flex items-start group/item">
+                <div class="flex-shrink-0 w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center mt-0.5 mr-3 group-hover/item:bg-emerald-500 transition-colors duration-200">
+                  <svg class="h-4 w-4 text-emerald-600 group-hover/item:text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.044M12 20v-8m0 8l2 2m-2-2l-2 2" />
+                  </svg>
+                </div>
+                <span class="text-gray-700 font-medium">{{ t('about.forTalents.feature3') }}</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Carte 2: Notre mission (highlight) -->
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-cyan-600 p-6 sm:p-8 text-white shadow-lg transform perspective-1000 hover:scale-[1.02] transition-transform duration-500 animate-on-scroll" data-delay="200">
-          <div class="absolute top-0 right-0 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
-          <div class="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/5 blur-xl"></div>
+        <div class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-emerald-500 to-cyan-600 p-8 sm:p-10 text-white shadow-2xl border-2 border-emerald-400/30 transform hover:scale-[1.03] hover:shadow-emerald-500/30 transition-all duration-500 animate-on-scroll" data-delay="200">
+          <!-- Effets de lumière animés -->
+          <div class="absolute top-0 right-0 h-40 w-40 rounded-full bg-white/20 blur-3xl animate-pulse"></div>
+          <div class="absolute bottom-0 left-0 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-24 w-24 rounded-full bg-white/5 blur-xl"></div>
+          
+          <!-- Pattern décoratif -->
+          <div class="absolute inset-0 opacity-10">
+            <div class="absolute inset-0" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;"></div>
+          </div>
+          
           <div class="relative z-10">
-            <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 mb-6">
-              <svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <!-- Icône améliorée -->
+            <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-sm mb-6 shadow-xl border border-white/30 group-hover:bg-white/30 group-hover:scale-110 transition-all duration-500">
+              <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h3 class="text-xl font-bold mb-3">{{ t('about.mission.title') }}</h3>
-            <p class="text-emerald-100 mb-6">{{ t('about.mission.description') }}</p>
-            <div class="space-y-4">
-              <div class="flex items-center">
-                <svg class="h-5 w-5 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15l8-8V5H4v2l8 8z" />
-                </svg>
-                <span>{{ t('about.mission.feature1') }}</span>
+            
+            <h3 class="text-2xl font-bold mb-4 text-white drop-shadow-lg">{{ t('about.mission.title') }}</h3>
+            <p class="text-white/95 mb-8 text-base leading-relaxed drop-shadow-md">{{ t('about.mission.description') }}</p>
+            
+            <!-- Liste de fonctionnalités améliorée -->
+            <div class="space-y-4 mb-8">
+              <div class="flex items-start group/item">
+                <div class="flex-shrink-0 w-6 h-6 rounded-lg bg-white/25 flex items-center justify-center mt-0.5 mr-3 group-hover/item:bg-white group-hover/item:scale-110 transition-all duration-200">
+                  <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15l8-8V5H4v2l8 8z" />
+                  </svg>
+                </div>
+                <span class="text-white font-medium">{{ t('about.mission.feature1') }}</span>
               </div>
-              <div class="flex items-center">
-                <svg class="h-5 w-5 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <span>{{ t('about.mission.feature2') }}</span>
+              <div class="flex items-start group/item">
+                <div class="flex-shrink-0 w-6 h-6 rounded-lg bg-white/25 flex items-center justify-center mt-0.5 mr-3 group-hover/item:bg-white group-hover/item:scale-110 transition-all duration-200">
+                  <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <span class="text-white font-medium">{{ t('about.mission.feature2') }}</span>
               </div>
-              <div class="flex items-center">
-                <svg class="h-5 w-5 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                <span>{{ t('about.mission.feature3') }}</span>
+              <div class="flex items-start group/item">
+                <div class="flex-shrink-0 w-6 h-6 rounded-lg bg-white/25 flex items-center justify-center mt-0.5 mr-3 group-hover/item:bg-white group-hover/item:scale-110 transition-all duration-200">
+                  <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <span class="text-white font-medium">{{ t('about.mission.feature3') }}</span>
               </div>
             </div>
-            <div class="mt-8 pt-6 border-t border-white/20">
+            
+            <!-- Statistiques améliorées -->
+            <div class="pt-8 border-t border-white/30">
               <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-3xl font-bold text-white">10K+</p>
-                  <p class="text-sm text-emerald-100">Opportunités créées</p>
+                <div class="text-center sm:text-left">
+                  <p class="text-4xl font-extrabold text-white mb-1 drop-shadow-lg">10K+</p>
+                  <p class="text-sm text-white/90 font-medium">Opportunités créées</p>
                 </div>
-                <div>
-                  <p class="text-3xl font-bold text-white">50+</p>
-                  <p class="text-sm text-emerald-100">Pays couverts</p>
+                <div class="text-center sm:text-right">
+                  <p class="text-4xl font-extrabold text-white mb-1 drop-shadow-lg">50+</p>
+                  <p class="text-sm text-white/90 font-medium">Pays couverts</p>
                 </div>
               </div>
             </div>
@@ -131,37 +197,52 @@
         </div>
 
         <!-- Carte 3: Pour les entreprises -->
-        <div class="group relative overflow-hidden rounded-2xl bg-white p-6 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg hover:-translate-y-2 transform perspective-1000 animate-on-scroll" data-delay="300">
-          <div class="absolute inset-0 bg-gradient-to-br from-cyan-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <div class="relative z-10 transform group-hover:translate-y-[-5px] transition-transform duration-500">
-            <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-cyan-100 mb-6">
-              <svg class="h-7 w-7 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        <div class="group relative overflow-hidden rounded-3xl bg-white p-8 sm:p-10 shadow-xl border border-cyan-100/50 transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-500/20 hover:-translate-y-3 hover:scale-[1.02] transform animate-on-scroll" data-delay="300">
+          <!-- Fond animé avec dégradé -->
+          <div class="absolute inset-0 bg-gradient-to-br from-cyan-50 via-cyan-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <!-- Effet de lumière -->
+          <div class="absolute top-0 left-0 w-32 h-32 bg-cyan-400/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+          
+          <div class="relative z-10">
+            <!-- Icône améliorée -->
+            <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-cyan-600 mb-6 shadow-lg group-hover:shadow-cyan-500/50 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3">
+              <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ t('about.forCompanies.title') }}</h3>
-            <p class="text-gray-600 mb-6">{{ t('about.forCompanies.description') }}</p>
-            <ul class="space-y-3">
-              <li class="flex items-center">
-                <svg class="h-5 w-5 text-cyan-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 18a9 9 0 019-9" />
-                </svg>
-                <span>{{ t('about.forCompanies.feature1') }}</span>
+            
+            <h3 class="text-2xl font-bold text-gray-900 mb-4 group-hover:text-cyan-700 transition-colors duration-300">{{ t('about.forCompanies.title') }}</h3>
+            <p class="text-gray-600 mb-8 text-base leading-relaxed">{{ t('about.forCompanies.description') }}</p>
+            
+            <!-- Liste de fonctionnalités améliorée -->
+            <ul class="space-y-4">
+              <li class="flex items-start group/item">
+                <div class="flex-shrink-0 w-6 h-6 rounded-lg bg-cyan-100 flex items-center justify-center mt-0.5 mr-3 group-hover/item:bg-cyan-500 transition-colors duration-200">
+                  <svg class="h-4 w-4 text-cyan-600 group-hover/item:text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 18a9 9 0 019-9" />
+                  </svg>
+                </div>
+                <span class="text-gray-700 font-medium">{{ t('about.forCompanies.feature1') }}</span>
               </li>
-              <li class="flex items-center">
-                <svg class="h-5 w-5 text-cyan-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                <span>{{ t('about.forCompanies.feature2') }}</span>
+              <li class="flex items-start group/item">
+                <div class="flex-shrink-0 w-6 h-6 rounded-lg bg-cyan-100 flex items-center justify-center mt-0.5 mr-3 group-hover/item:bg-cyan-500 transition-colors duration-200">
+                  <svg class="h-4 w-4 text-cyan-600 group-hover/item:text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+                <span class="text-gray-700 font-medium">{{ t('about.forCompanies.feature2') }}</span>
               </li>
-              <li class="flex items-center">
-                <svg class="h-5 w-5 text-cyan-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <span>{{ t('about.forCompanies.feature3') }}</span>
+              <li class="flex items-start group/item">
+                <div class="flex-shrink-0 w-6 h-6 rounded-lg bg-cyan-100 flex items-center justify-center mt-0.5 mr-3 group-hover/item:bg-cyan-500 transition-colors duration-200">
+                  <svg class="h-4 w-4 text-cyan-600 group-hover/item:text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <span class="text-gray-700 font-medium">{{ t('about.forCompanies.feature3') }}</span>
               </li>
             </ul>
           </div>
+        </div>
         </div>
       </div>
 
@@ -548,15 +629,7 @@ onUnmounted(() => {
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-/* Indicateurs de performance */
-.metric-card {
-  transition: all 0.3s ease;
-}
-
-.metric-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.15);
-}
+/* Indicateurs de performance - Styles dans .metrics-grid améliorée ci-dessous */
 
 /* Animations d'entrée échelonnées */
 .animate-on-scroll {
@@ -570,41 +643,104 @@ onUnmounted(() => {
   transform: translateY(0);
 }
 
-/* Grille de métriques sous le hero */
+/* Grille de métriques améliorée */
+.metrics-grid-wrapper {
+  position: relative;
+  z-index: 10;
+  margin-top: 3rem;
+}
+
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 2.5rem;
+  gap: 1.5rem;
 }
 
 .metric-card {
   background: white;
-  border-radius: 1rem;
-  padding: 1.1rem 1.25rem;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 18px 40px rgba(15, 118, 110, 0.04);
+  border-radius: 1.25rem;
+  padding: 2rem 1.5rem;
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #06b6d4);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.metric-card:hover::before {
+  transform: scaleX(1);
+}
+
+.metric-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.1), 0 10px 10px -5px rgba(16, 185, 129, 0.04);
+  border-color: #10b981;
+}
+
+.metric-icon-wrapper {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  transition: all 0.4s ease;
+}
+
+.metric-card:hover .metric-icon-wrapper {
+  background: linear-gradient(135deg, #10b981, #059669);
+  transform: scale(1.1) rotate(5deg);
+}
+
+.metric-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #10b981;
+  transition: color 0.4s ease;
+}
+
+.metric-card:hover .metric-icon {
+  color: white;
 }
 
 .metric-value {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 800;
-  color: #065f46;
-  margin-bottom: 0.25rem;
+  background: linear-gradient(135deg, #065f46, #059669);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
 }
 
 .metric-label {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #6b7280;
-  margin-bottom: 0.25rem;
+  color: #374151;
+  margin-bottom: 0.375rem;
 }
 
 .metric-caption {
-  font-size: 0.8rem;
-  color: #9ca3af;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.5;
 }
 
 /* Header du processus en 2 colonnes */
@@ -756,6 +892,15 @@ onUnmounted(() => {
 
   .metrics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  
+  .metric-card {
+    padding: 1.75rem 1.25rem;
+  }
+  
+  .metric-value {
+    font-size: 1.75rem;
   }
 
   .process-header {
@@ -825,6 +970,33 @@ onUnmounted(() => {
   .metrics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
+  }
+  
+  .metric-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .metric-icon-wrapper {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .metric-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  .metric-value {
+    font-size: 1.5rem;
+  }
+  
+  .metric-label {
+    font-size: 0.8125rem;
+  }
+  
+  .metric-caption {
+    font-size: 0.75rem;
   }
 
   .process-header {
