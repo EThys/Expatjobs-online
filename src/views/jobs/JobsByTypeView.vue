@@ -146,24 +146,23 @@
                     </svg>
                   </button>
 
-                  <button
-                    v-for="page in visiblePages"
-                    :key="page"
-                    v-if="typeof page === 'number'"
-                    @click="changePage(page - 1)"
-                    :class="[
-                      'px-4 py-2 rounded-xl font-medium transition-all duration-300 min-w-10 flex items-center justify-center',
-                      currentPage === page - 1
-                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 transform scale-105'
-                        : 'border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                    ]"
-                  >
-                    {{ page }}
-                  </button>
-
-                  <span v-else class="px-2 text-gray-400">
-                    ...
-                  </span>
+                  <template v-for="(page, index) in visiblePages" :key="index">
+                    <button
+                      v-if="typeof page === 'number'"
+                      @click="changePage((page as number) - 1)"
+                      :class="[
+                        'px-4 py-2 rounded-xl font-medium transition-all duration-300 min-w-10 flex items-center justify-center',
+                        currentPage === ((page as number) - 1)
+                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 transform scale-105'
+                          : 'border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                      ]"
+                    >
+                      {{ page }}
+                    </button>
+                    <span v-else class="px-2 text-gray-400">
+                      ...
+                    </span>
+                  </template>
 
                   <button
                     @click="changePage(currentPage + 1)"
