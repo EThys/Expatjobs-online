@@ -9,6 +9,9 @@ import { useCompanyService } from '@/utils/service/CompagnyService';
 import type { IJob } from '@/utils/interface/IJobOffers';
 import { JobType, ExperienceLevel, JobStatus } from '@/utils/interface/IJobOffers';
 import { getUser } from '@/stores/authStorage';
+// @ts-ignore
+import Footer from '../../components/footer/FooterComponent.vue';
+
 
 const toast = useToast();
 const router = useRouter();
@@ -562,6 +565,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
+  <Footer />
 </template>
 
 
