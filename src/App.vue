@@ -1,16 +1,6 @@
 <template>
-  <div class="app-layout">
-    <main class="app-main">
-      <router-view />
-    </main>
-    <FooterComponent />
-  </div>
+  <router-view />
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import FooterComponent from '@/components/footer/FooterComponent.vue'
-</script>
 
 <style>
 body {
