@@ -27,7 +27,6 @@ export const useJobService = () => {
     const mapping: Record<string, string> = {
       CDI: 'FULL_TIME',
       CDD: 'CONTRACT',
-      FREELANCE: 'FREELANCE',
       'FULL_TIME': 'FULL_TIME',
       'PART_TIME': 'PART_TIME',
       'INTERNSHIP': 'INTERNSHIP',
