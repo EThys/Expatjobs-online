@@ -1,36 +1,542 @@
 <template>
   <Navbar/>
-  <div class="min-h-screen bg-gray-50/30 pt-20 pb-12">
-    <div v-if="!profile.candidateProfileId" class="mx-auto mb-4 max-w-4xl px-4">
-      <div class="rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3">
-        Aucun profil candidat n'est encore créé. Cliquez sur "Edit Profile" pour créer et commencer à ajouter vos expériences, formations et compétences.
-      </div>
-    </div>
-    <!-- Loader retiré -->
-    <div v-if="loadError" class="fixed inset-0 bg-white/90 flex items-center justify-center z-50">
-      <div class="max-w-md w-full mx-4 bg-white border border-red-200 text-red-800 rounded-xl shadow-lg p-6 space-y-4">
-        <div class="flex items-start space-x-3">
-          <div class="w-10 h-10 flex items-center justify-center bg-red-100 text-red-600 rounded-full">
+  
+  <!-- Écran d'accueil pour les nouveaux utilisateurs -->
+  <div v-if="!profile.candidateProfileId && !showCreationWizard" class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center px-4">
+    <div class="max-w-lg w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div class="p-8 text-center">
+        <div class="w-24 h-24 mx-auto bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-6">
+          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+        </div>
+        
+        <h1 class="text-3xl font-bold text-gray-900 mb-3">Bienvenue sur votre espace candidat !</h1>
+        <p class="text-gray-600 mb-8">
+          Créez votre profil professionnel en quelques étapes simples pour accéder aux meilleures opportunités d'emploi.
+        </p>
+        
+        <button 
+          @click="startProfileCreation"
+          class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+        >
+          <div class="flex items-center justify-center space-x-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
+            <span>Commencer la création du profil</span>
           </div>
-          <div class="flex-1">
-            <h3 class="text-lg font-semibold">Impossible de charger le profil</h3>
-            <p class="text-sm text-red-700">{{ loadError }}</p>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assistant de création de profil -->
+  <div v-if="showCreationWizard" class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <!-- En-tête avec progression -->
+      <div class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-bold">Assistant de création de profil</h2>
+            <p class="text-emerald-100 mt-1">{{ currentStep.title }}</p>
+          </div>
+          <div class="text-right">
+            <div class="text-sm text-emerald-200">Étape {{ currentStepIndex + 1 }} sur {{ creationSteps.length }}</div>
+            <div class="text-lg font-bold">{{ Math.round((currentStepIndex + 1) / creationSteps.length * 100) }}%</div>
           </div>
         </div>
-        <div class="flex items-center justify-end space-x-3">
-          <button 
-            @click="loadCandidateProfile"
-            class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+        
+        <!-- Barre de progression -->
+        <div class="w-full bg-white/30 rounded-full h-2">
+          <div 
+            class="bg-white h-2 rounded-full transition-all duration-500"
+            :style="{ width: `${((currentStepIndex + 1) / creationSteps.length) * 100}%` }"
+          ></div>
+        </div>
+        
+        <!-- Étapes -->
+        <div class="flex justify-between mt-4">
+          <div 
+            v-for="(step, index) in creationSteps" 
+            :key="step.title"
+            class="text-center flex-1"
           >
-            Réessayer
-          </button>
+            <div class="relative">
+              <div 
+                class="w-8 h-8 rounded-full mx-auto mb-2 flex items-center justify-center text-sm font-semibold transition-all duration-300"
+                :class="index < currentStepIndex ? 'bg-emerald-700 text-white' : 
+                        index === currentStepIndex ? 'bg-white text-emerald-600' : 
+                        'bg-white/30 text-emerald-100'"
+              >
+                <span v-if="index < currentStepIndex">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </span>
+                <span v-else>{{ index + 1 }}</span>
+              </div>
+              <div class="text-xs font-medium truncate px-1">{{ step.title }}</div>
+              <div v-if="index === currentStepIndex" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rotate-45"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenu de l'étape -->
+      <div class="p-6 md:p-8">
+        <!-- Étape 1: Informations de base -->
+        <div v-if="currentStepIndex === 0" class="space-y-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-6">Étape 1 : Informations personnelles</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Prénom *</label>
+              <input 
+                v-model="step1Form.firstName" 
+                type="text" 
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                placeholder="Votre prénom"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
+              <input 
+                v-model="step1Form.lastName" 
+                type="text" 
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                placeholder="Votre nom"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Titre professionnel *</label>
+            <input 
+              v-model="step1Form.title" 
+              type="text" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              placeholder="Ex: Développeur Full-Stack Senior"
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Localisation *</label>
+            <input 
+              v-model="step1Form.location" 
+              type="text" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              placeholder="Ex: Paris, France"
+            />
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Salaire minimum (k€) *</label>
+              <input 
+                v-model="step1Form.salaryExpectationMin" 
+                type="number" 
+                min="10"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                placeholder="40"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Salaire maximum (k€) *</label>
+              <input 
+                v-model="step1Form.salaryExpectationMax" 
+                type="number" 
+                min="10"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                placeholder="65"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Biographie</label>
+            <textarea 
+              v-model="step1Form.bio" 
+              rows="4" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all resize-none"
+              placeholder="Décrivez votre parcours, vos compétences et vos objectifs professionnels..."
+            ></textarea>
+          </div>
+          
+          <div class="flex justify-between pt-6 border-t border-gray-200">
+            <button 
+              @click="cancelCreation"
+              class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all duration-200"
+            >
+              Annuler
+            </button>
+            <button 
+              @click="saveStep1"
+              :disabled="!step1Form.firstName || !step1Form.lastName || !step1Form.location || !step1Form.title"
+              class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            >
+              <span>Sauvegarder et continuer</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Étape 2: Expériences professionnelles -->
+        <div v-if="currentStepIndex === 1" class="space-y-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Étape 2 : Expériences professionnelles</h3>
+            <button 
+              @click="addExperience" 
+              class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center space-x-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              <span>Ajouter une expérience</span>
+            </button>
+          </div>
+          
+          <div v-if="step2Form.experiences.length === 0" class="text-center py-8 border-2 border-dashed border-gray-300 rounded-xl">
+            <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <p class="text-gray-600 mb-4">Ajoutez votre première expérience professionnelle</p>
+          </div>
+          
+          <div v-for="(exp, index) in step2Form.experiences" :key="index" class="border border-gray-200 rounded-xl p-6 space-y-4">
+            <div class="flex justify-between items-start">
+              <h4 class="text-lg font-semibold text-gray-900">Expérience {{ index + 1 }}</h4>
+              <button 
+                @click="removeExperience(index)" 
+                class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition-all"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Poste *</label>
+                <input 
+                  v-model="exp.jobTitle" 
+                  type="text" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  placeholder="Ex: Développeur Full-Stack"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Entreprise *</label>
+                <input 
+                  v-model="exp.companyName" 
+                  type="text" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  placeholder="Ex: TechCorp"
+                />
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Date de début *</label>
+                <input 
+                  v-model="exp.startDate" 
+                  type="date" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Date de fin</label>
+                <input 
+                  v-model="exp.endDate" 
+                  type="date" 
+                  :disabled="exp.currentExperienceStatus === 'current'"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:opacity-50"
+                />
+                <div class="flex items-center mt-2">
+                  <input 
+                    v-model="exp.currentExperienceStatus" 
+                    type="checkbox" 
+                    value="current" 
+                    :id="`current-${index}`"
+                    class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                  />
+                  <label :for="`current-${index}`" class="ml-2 text-sm text-gray-700">Poste actuel</label>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <textarea 
+                v-model="exp.description" 
+                rows="3" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
+                placeholder="Décrivez vos responsabilités et réalisations..."
+              ></textarea>
+            </div>
+          </div>
+          
+          <div class="flex justify-between pt-6 border-t border-gray-200">
+            <button 
+              @click="previousStep"
+              class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              <span>Retour</span>
+            </button>
+            <div class="flex space-x-3">
+              <button 
+                @click="skipStep2"
+                class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all duration-200"
+              >
+                Passer cette étape
+              </button>
+              <button 
+                @click="saveStep2"
+                :disabled="isSavingStep2 || !validateExperiences()"
+                class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                <svg v-if="isSavingStep2" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-else>Sauvegarder et continuer</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Étape 3: Formations -->
+        <div v-if="currentStepIndex === 2" class="space-y-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Étape 3 : Formations et diplômes</h3>
+            <button 
+              @click="addEducation" 
+              class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center space-x-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              <span>Ajouter une formation</span>
+            </button>
+          </div>
+          
+          <div v-if="step3Form.educations.length === 0" class="text-center py-8 border-2 border-dashed border-gray-300 rounded-xl">
+            <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+            </svg>
+            <p class="text-gray-600 mb-4">Ajoutez vos formations et diplômes</p>
+          </div>
+          
+          <div v-for="(edu, index) in step3Form.educations" :key="index" class="border border-gray-200 rounded-xl p-6 space-y-4">
+            <div class="flex justify-between items-start">
+              <h4 class="text-lg font-semibold text-gray-900">Formation {{ index + 1 }}</h4>
+              <button 
+                @click="removeEducation(index)" 
+                class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition-all"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Établissement *</label>
+                <input 
+                  v-model="edu.institutionName" 
+                  type="text" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  placeholder="Ex: Université Paris-Saclay"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Diplôme *</label>
+                <select 
+                  v-model="edu.degree" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                >
+                  <option value="Bachelor">Bachelor</option>
+                  <option value="Master">Master</option>
+                  <option value="PhD">PhD</option>
+                  <option value="Associate">Associate</option>
+                  <option value="Diploma">Diploma</option>
+                  <option value="Certificate">Certificate</option>
+                </select>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Domaine d'études *</label>
+              <input 
+                v-model="edu.fieldStudy" 
+                type="text" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="Ex: Informatique"
+              />
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Date de début *</label>
+                <input 
+                  v-model="edu.startDate" 
+                  type="date" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Date de fin *</label>
+                <input 
+                  v-model="edu.endDate" 
+                  type="date" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <textarea 
+                v-model="edu.description" 
+                rows="3" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
+                placeholder="Informations supplémentaires sur cette formation..."
+              ></textarea>
+            </div>
+          </div>
+          
+          <div class="flex justify-between pt-6 border-t border-gray-200">
+            <button 
+              @click="previousStep"
+              class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              <span>Retour</span>
+            </button>
+            <div class="flex space-x-3">
+              <button 
+                @click="skipStep3"
+                class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all duration-200"
+              >
+                Passer cette étape
+              </button>
+              <button 
+                @click="saveStep3"
+                :disabled="isSavingStep3 || !validateEducations()"
+                class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                <svg v-if="isSavingStep3" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-else>Sauvegarder et continuer</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Étape 4: Compétences -->
+        <div v-if="currentStepIndex === 3" class="space-y-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Étape 4 : Compétences et expertises</h3>
+            <button 
+              @click="addSkill" 
+              class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center space-x-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              <span>Ajouter une compétence</span>
+            </button>
+          </div>
+          
+          <div v-if="step4Form.skills.length === 0" class="text-center py-8 border-2 border-dashed border-gray-300 rounded-xl">
+            <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            <p class="text-gray-600 mb-4">Ajoutez vos compétences techniques et professionnelles</p>
+          </div>
+          
+          <div v-for="(skill, index) in step4Form.skills" :key="index" class="flex items-center space-x-4 p-4 border border-gray-200 rounded-xl">
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Compétence *</label>
+                <input 
+                  v-model="skill.skillName" 
+                  type="text" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  placeholder="Ex: JavaScript"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Années d'expérience *</label>
+                <input 
+                  v-model="skill.experienceYears" 
+                  type="number" 
+                  min="0"
+                  max="50"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  placeholder="3"
+                />
+              </div>
+            </div>
+            <button 
+              @click="removeSkill(index)" 
+              class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition-all mt-6"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="flex justify-between pt-6 border-t border-gray-200">
+            <button 
+              @click="previousStep"
+              class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              <span>Retour</span>
+            </button>
+            <div class="flex space-x-3">
+              <button 
+                @click="skipStep4"
+                class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all duration-200"
+              >
+                Passer cette étape
+              </button>
+              <button 
+                @click="saveStep4"
+                :disabled="isSavingStep4 || !validateSkills()"
+                class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                <svg v-if="isSavingStep4" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-else>Terminer la création</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  </div>
 
+  <!-- Profil complet (une fois créé) -->
+  <div v-if="profile.candidateProfileId && !showCreationWizard" class="min-h-screen bg-gray-50/30 pt-20 pb-12">
     <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-12">
       <div class="container mx-auto px-4 sm:px-6">
         <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between">
@@ -42,7 +548,7 @@
                 </div>
               </div>
               <button 
-                @click="openProfileWizard('basics')"
+                @click="openEditSection('basics')"
                 class="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center shadow-lg hover:bg-emerald-600 hover:scale-110 transition-all duration-200 cursor-pointer"
               >
                 <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -51,11 +557,13 @@
               </button>
             </div>
             
-
             <div class="flex-1">
-              <h1 class="text-2xl lg:text-4xl font-bold mb-2">
-                {{ profile.firstName }} {{ profile.lastName }}
-              </h1>
+              <div class="flex items-center gap-2 mb-2">
+                <h1 class="text-2xl lg:text-4xl font-bold">
+                  {{ profile.firstName }} {{ profile.lastName }}
+                </h1>
+                <span class="bg-white/20 text-xs px-2 py-1 rounded-full">Profil complet</span>
+              </div>
               <p class="text-emerald-100 text-lg lg:text-xl mb-3">
                 {{ profile.title || 'Professional Candidate' }}
               </p>
@@ -85,26 +593,13 @@
           
           <div class="flex items-center space-x-3 mt-6 lg:mt-0">
             <button 
-              v-if="profile.resumeUrl"
-              @click="downloadCV"
-              class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105 flex items-center space-x-2"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              </svg>
-              <span>Download CV</span>
-            </button>
-            <button class="bg-white text-emerald-700 hover:bg-emerald-50 px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg">
-              Contact
-            </button>
-            <button 
-              @click="openProfileWizard()"
-              class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105 flex items-center space-x-2"
+              @click="openEditSection('all')"
+              class="bg-white text-emerald-700 hover:bg-emerald-50 px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg flex items-center space-x-2"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
               </svg>
-              <span>Build profile</span>
+              <span>Modifier le profil</span>
             </button>
           </div>
         </div>
@@ -113,11 +608,13 @@
 
     <div class="container mx-auto px-4 sm:px-6 -mt-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Colonne gauche -->
         <div class="lg:col-span-1 space-y-6">
+          <!-- Attentes salariales -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
-                @click="openProfileWizard('salary')"
+                @click="openEditSection('salary')"
                 class="w-8 h-8 bg-gray-100 hover:bg-emerald-100 rounded-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all duration-200 hover:scale-110"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,22 +626,23 @@
               <svg class="w-5 h-5 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
               </svg>
-              Salary Expectations
+              Attentes salariales
             </h3>
             <div class="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-100">
               <div class="text-center">
                 <div class="text-2xl font-bold text-emerald-700 mb-1">
-                  ${{ profile.salaryExpectationMin || 0 }}k - ${{ profile.salaryExpectationMax || 0 }}k
+                  {{ profile.salaryExpectationMin || 0 }}k€ - {{ profile.salaryExpectationMax || 0 }}k€
                 </div>
-                <div class="text-sm text-emerald-600">Annual salary range</div>
+                <div class="text-sm text-emerald-600">Fourchette annuelle</div>
               </div>
             </div>
           </div>
 
+          <!-- Compétences -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
-                @click="openProfileWizard('skills')"
+                @click="openEditSection('skills')"
                 class="w-8 h-8 bg-gray-100 hover:bg-emerald-100 rounded-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all duration-200 hover:scale-110"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,10 +655,10 @@
                 <svg class="w-5 h-5 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
-                Skills & Expertise
+                Compétences
               </h3>
               <span class="bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-1 rounded-full">
-                {{ skills.length }} skills
+                {{ skills.length }}
               </span>
             </div>
             <div class="space-y-3">
@@ -168,7 +666,7 @@
                 <div class="flex-1">
                   <div class="flex items-center justify-between mb-1">
                     <span class="font-medium text-gray-800">{{ skill.skillName }}</span>
-                    <span class="text-sm text-emerald-600 font-medium">{{ skill.experienceYears }}y</span>
+                    <span class="text-sm text-emerald-600 font-medium">{{ skill.experienceYears }} ans</span>
                   </div>
                   <div class="w-full bg-gray-200 rounded-full h-2">
                     <div 
@@ -178,7 +676,7 @@
                   </div>
                 </div>
                 <button 
-                  @click="openProfileWizard('skills')"
+                  @click="openEditSection('skills')"
                   class="w-6 h-6 bg-white hover:bg-emerald-50 rounded flex items-center justify-center text-gray-500 hover:text-emerald-600 transition-all duration-200 hover:scale-110 opacity-0 group-hover:opacity-100 ml-2"
                 >
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,78 +688,25 @@
                 <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
-                <p>No skills added yet</p>
+                <p>Aucune compétence ajoutée</p>
                 <button 
-                  @click="openProfileWizard('skills')"
+                  @click="openEditSection('skills')"
                   class="text-emerald-600 hover:text-emerald-700 font-medium mt-2"
                 >
-                  Add your first skill
+                  Ajouter votre première compétence
                 </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
-            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <button 
-                @click="openProfileWizard('contact')"
-                class="w-8 h-8 bg-gray-100 hover:bg-emerald-100 rounded-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all duration-200 hover:scale-110"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-              </button>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <svg class="w-5 h-5 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-              </svg>
-              Contact Information
-            </h3>
-            <div class="space-y-3">
-              <div class="flex items-center space-x-3 p-3 rounded-lg bg-gray-50/50 hover:bg-emerald-50 transition-colors">
-                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-sm text-gray-500">Email</div>
-                  <div class="font-medium text-gray-900">{{ profile.candidate?.email || 'Not specified' }}</div>
-                </div>
-              </div>
-              <div class="flex items-center space-x-3 p-3 rounded-lg bg-gray-50/50 hover:bg-emerald-50 transition-colors">
-                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-sm text-gray-500">Phone</div>
-                  <div class="font-medium text-gray-900">{{ profile.candidate?.phone || 'Not specified' }}</div>
-                </div>
-              </div>
-              <div class="flex items-center space-x-3 p-3 rounded-lg bg-gray-50/50 hover:bg-emerald-50 transition-colors">
-                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-sm text-gray-500">Location</div>
-                  <div class="font-medium text-gray-900">{{ profile.location || 'Not specified' }}</div>
-                </div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Colonne droite -->
         <div class="lg:col-span-2 space-y-6">
+          <!-- À propos -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
-                @click="openProfileWizard('about')"
+                @click="openEditSection('about')"
                 class="w-8 h-8 bg-gray-100 hover:bg-emerald-100 rounded-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all duration-200 hover:scale-110"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,17 +718,18 @@
               <svg class="w-5 h-5 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
-              About Me
+              À propos
             </h2>
-            <p class="text-gray-700 leading-relaxed">
-              {{ profile.bio || 'Passionate and dedicated professional with extensive experience in the field. Always eager to take on new challenges and contribute to innovative projects.' }}
+            <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+              {{ profile.bio || 'Aucune biographie ajoutée.' }}
             </p>
           </div>
 
+          <!-- Expériences -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
-                @click="openProfileWizard('experience')"
+                @click="openEditSection('experience')"
                 class="w-8 h-8 bg-gray-100 hover:bg-emerald-100 rounded-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all duration-200 hover:scale-110"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -296,17 +742,17 @@
                 <svg class="w-5 h-5 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
-                Work Experience
+                Expériences professionnelles
               </h2>
               <span class="bg-emerald-100 text-emerald-700 text-sm font-medium px-3 py-1 rounded-full">
-                {{ experiences.length }} positions
+                {{ experiences.length }} expérience(s)
               </span>
             </div>
             <div class="space-y-6">
               <div v-for="exp in experiences" :key="exp.id" class="relative pl-8 pb-6 border-l-2 border-emerald-200 last:pb-0 group hover:border-emerald-300 transition-colors">
                 <div class="absolute -left-2.5 top-0 w-5 h-5 bg-emerald-500 rounded-full border-4 border-white shadow-lg group-hover:scale-110 transition-transform"></div>
                 <button 
-                  @click="openProfileWizard('experience')"
+                  @click="openEditSection('experience')"
                   class="absolute -right-2 top-0 w-8 h-8 bg-white hover:bg-emerald-50 rounded-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all duration-200 hover:scale-110 shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100"
                 >
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,7 +764,7 @@
                     <h3 class="text-lg font-semibold text-gray-900">{{ exp.jobTitle }}</h3>
                     <div class="flex items-center space-x-2 mt-1 sm:mt-0">
                       <span class="bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-1 rounded-full">
-                        {{ formatDate(exp.startDate) }} - {{ exp.currentExperienceStatus === 'current' ? 'Present' : formatDate(exp.endDate) }}
+                        {{ formatDate(exp.startDate) }} - {{ exp.currentExperienceStatus === 'current' ? 'Présent' : formatDate(exp.endDate) }}
                       </span>
                     </div>
                   </div>
@@ -335,21 +781,22 @@
                 <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
-                <p class="text-lg mb-2">No work experience added</p>
+                <p class="text-lg mb-2">Aucune expérience professionnelle</p>
                 <button 
-                  @click="openProfileWizard('experience')"
+                  @click="openEditSection('experience')"
                   class="text-emerald-600 hover:text-emerald-700 font-medium"
                 >
-                  Add your first work experience
+                  Ajouter votre première expérience
                 </button>
               </div>
             </div>
           </div>
 
+          <!-- Formations -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
-                @click="openProfileWizard('education')"
+                @click="openEditSection('education')"
                 class="w-8 h-8 bg-gray-100 hover:bg-emerald-100 rounded-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all duration-200 hover:scale-110"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,19 +808,19 @@
               <h2 class="text-xl font-bold text-gray-900 flex items-center">
                 <svg class="w-5 h-5 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/>
                 </svg>
-                Education
+                Formations
               </h2>
               <span class="bg-emerald-100 text-emerald-700 text-sm font-medium px-3 py-1 rounded-full">
-                {{ educations.length }} degrees
+                {{ educations.length }} formation(s)
               </span>
             </div>
             <div class="space-y-6">
               <div v-for="edu in educations" :key="edu.id" class="relative pl-8 pb-6 border-l-2 border-emerald-200 last:pb-0 group hover:border-emerald-300 transition-colors">
                 <div class="absolute -left-2.5 top-0 w-5 h-5 bg-emerald-500 rounded-full border-4 border-white shadow-lg group-hover:scale-110 transition-transform"></div>
                 <button 
-                  @click="openProfileWizard('education')"
+                  @click="openEditSection('education')"
                   class="absolute -right-2 top-0 w-8 h-8 bg-white hover:bg-emerald-50 rounded-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all duration-200 hover:scale-110 shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100"
                 >
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -382,7 +829,7 @@
                 </button>
                 <div class="bg-gradient-to-r from-white to-emerald-50/30 p-5 rounded-xl border border-gray-100 hover:border-emerald-200 transition-all duration-300 group-hover:shadow-sm">
                   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                    <h3 class="text-lg font-semibold text-gray-900">{{ edu.degree }} in {{ edu.fieldStudy }}</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">{{ edu.degree }} en {{ edu.fieldStudy }}</h3>
                     <div class="flex items-center space-x-2 mt-1 sm:mt-0">
                       <span class="bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-1 rounded-full">
                         {{ formatDate(edu.startDate) }} - {{ formatDate(edu.endDate) }}
@@ -402,12 +849,12 @@
                 <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
                 </svg>
-                <p class="text-lg mb-2">No education added</p>
+                <p class="text-lg mb-2">Aucune formation ajoutée</p>
                 <button 
-                  @click="openProfileWizard('education')"
+                  @click="openEditSection('education')"
                   class="text-emerald-600 hover:text-emerald-700 font-medium"
                 >
-                  Add your first education
+                  Ajouter votre première formation
                 </button>
               </div>
             </div>
@@ -416,284 +863,405 @@
       </div>
     </div>
 
-    <div v-if="showWizard" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[95vh] overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white">
+    <!-- Modals d'édition par section -->
+    <!-- Modal: Informations de base -->
+    <div v-if="showEditModal === 'basics'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm uppercase tracking-wider opacity-80">Profile builder</p>
-              <h3 class="text-2xl font-bold flex items-center gap-2">
-                {{ currentStep.title }}
-                <span class="text-xs px-3 py-1 bg-white/20 rounded-full">{{ currentStepIndex + 1 }} / {{ steps.length }}</span>
-              </h3>
-              <p class="text-sm opacity-90 mt-1">{{ currentStep.description }}</p>
+              <h3 class="text-2xl font-bold">Modifier les informations de base</h3>
             </div>
             <button 
-              @click="closeWizard"
-              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105"
+              @click="showEditModal = null"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </button>
           </div>
-          <div class="flex items-center gap-3 mt-4">
-            <div 
-              v-for="(step, index) in steps" 
-              :key="step.key"
-              class="flex-1 flex items-center"
-            >
-              <div 
-                class="w-full h-2 rounded-full"
-                :class="index <= currentStepIndex ? 'bg-white' : 'bg-white/30'"
-              ></div>
-            </div>
-          </div>
         </div>
 
-        <div class="p-6">
-          <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 max-h-[70vh]">
-            <div class="lg:col-span-1 bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-2 overflow-y-auto">
-              <div 
-                v-for="(step, index) in steps" 
-                :key="step.key"
-                @click="goToStep(index)"
-                class="flex items-start space-x-3 p-3 rounded-xl cursor-pointer transition-all duration-200"
-                :class="index === currentStepIndex ? 'bg-white shadow-sm border border-emerald-100' : 'hover:bg-white'"
-              >
-                <div class="mt-0.5">
-                  <div 
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
-                    :class="index <= currentStepIndex ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-700'"
-                  >
-                    {{ index + 1 }}
-                  </div>
-                </div>
-                <div class="flex-1">
-                  <div class="font-semibold text-gray-900">{{ step.title }}</div>
-                  <div class="text-xs text-gray-600">{{ step.description }}</div>
-                </div>
-                <div v-if="index < currentStepIndex" class="text-emerald-600">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                  </svg>
-                </div>
+        <div class="p-6 overflow-y-auto max-h-[70vh]">
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Prénom *</label>
+                <input v-model="editForm.firstName" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
+                <input v-model="editForm.lastName" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
               </div>
             </div>
-
-            <div class="lg:col-span-3 space-y-6 overflow-y-auto max-h-[70vh] pr-1">
-              <!-- Step: basics -->
-              <div v-if="currentStep.key === 'basics'" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                    <input v-model="editForm.firstName" type="text" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Enter first name" />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                    <input v-model="editForm.lastName" type="text" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Enter last name" />
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Professional Title</label>
-                  <input v-model="editForm.title" type="text" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="e.g. Senior Software Developer" />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <input v-model="editForm.location" type="text" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="e.g. Kinshasa, DR Congo" />
-                </div>
-              </div>
-
-              <div v-if="currentStep.key === 'about'" class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
-                  <textarea v-model="editForm.bio" rows="6" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none" placeholder="Describe your background, skills, and career goals"></textarea>
-                </div>
-              </div>
-
-              <div v-if="currentStep.key === 'salary'" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Minimum Salary ($k)</label>
-                    <input v-model="editForm.salaryExpectationMin" type="number" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="50" />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Maximum Salary ($k)</label>
-                    <input v-model="editForm.salaryExpectationMax" type="number" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="80" />
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="currentStep.key === 'contact'" class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                  <input v-model="editForm.email" type="email" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="your.email@example.com" />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                  <input v-model="editForm.phone" type="tel" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="+1234567890" />
-                </div>
-              </div>
-
-              <div v-if="currentStep.key === 'skills'" class="space-y-4">
-                <div class="flex items-center justify-between">
-                  <h4 class="text-lg font-semibold text-gray-900">Skills</h4>
-                  <button @click="addNewSkill" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    <span>Add Skill</span>
-                  </button>
-                </div>
-                <div v-for="(skill, index) in editForm.skills" :key="index" class="flex items-center space-x-4 p-4 border border-gray-200 rounded-xl">
-                  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Skill Name</label>
-                      <input v-model="skill.skillName" type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="e.g. JavaScript" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Experience (years)</label>
-                      <input v-model="skill.experienceYears" type="number" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="5" min="0" max="50" />
-                    </div>
-                  </div>
-                  <button @click="removeSkill(index)" class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 mt-6">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <div v-if="currentStep.key === 'experience'" class="space-y-4">
-                <div class="flex items-center justify-between">
-                  <h4 class="text-lg font-semibold text-gray-900">Work Experience</h4>
-                  <button @click="addNewExperience" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    <span>Add Experience</span>
-                  </button>
-                </div>
-                <div v-for="(exp, index) in editForm.experiences" :key="index" class="p-4 border border-gray-200 rounded-xl space-y-4">
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
-                      <input v-model="exp.jobTitle" type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="e.g. Senior Developer" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
-                      <input v-model="exp.companyName" type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="e.g. Tech Company Inc." />
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-                      <input v-model="exp.startDate" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-                      <input v-model="exp.endDate" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
-                      <div class="flex items-center mt-2">
-                        <input v-model="exp.currentExperienceStatus" type="checkbox" value="current" :id="`current-${index}`" class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
-                        <label :for="`current-${index}`" class="ml-2 text-sm text-gray-700">Currently working here</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                    <input v-model="exp.location" type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="e.g. Remote, New York, etc." />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                    <textarea v-model="exp.description" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none" placeholder="Describe your responsibilities and achievements..."></textarea>
-                  </div>
-                  <div class="flex justify-end">
-                    <button @click="removeExperience(index)" class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                      </svg>
-                      <span>Remove</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="currentStep.key === 'education'" class="space-y-4">
-                <div class="flex items-center justify-between">
-                  <h4 class="text-lg font-semibold text-gray-900">Education</h4>
-                  <button @click="addNewEducation" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    <span>Add Education</span>
-                  </button>
-                </div>
-                <div v-for="(edu, index) in editForm.educations" :key="index" class="p-4 border border-gray-200 rounded-xl space-y-4">
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Institution</label>
-                      <input v-model="edu.institutionName" type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="e.g. University of Technology" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Degree</label>
-                      <select v-model="edu.degree" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                        <option value="Bachelor">Bachelor</option>
-                        <option value="Master">Master</option>
-                        <option value="PhD">PhD</option>
-                        <option value="Associate">Associate</option>
-                        <option value="Diploma">Diploma</option>
-                        <option value="Certificate">Certificate</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Field of Study</label>
-                    <input v-model="edu.fieldStudy" type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="e.g. Computer Science" />
-                  </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-                      <input v-model="edu.startDate" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-                      <input v-model="edu.endDate" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                    <textarea v-model="edu.description" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none" placeholder="Additional information about your education..."></textarea>
-                  </div>
-                  <div class="flex justify-end">
-                    <button @click="removeEducation(index)" class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                      </svg>
-                      <span>Remove</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Titre professionnel *</label>
+              <input v-model="editForm.title" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
             </div>
-          </div>
-        </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Localisation *</label>
+              <input v-model="editForm.location" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+            </div>
 
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-          <div class="text-sm text-gray-500">Progress sauvegardé à chaque étape</div>
-          <div class="flex items-center gap-3">
-            <button @click="closeWizard" class="px-4 py-2 text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 rounded-xl font-medium transition-all duration-200">Quitter</button>
-            <div class="flex items-center gap-2">
-              <button v-if="currentStepIndex > 0" @click="previousStep" class="px-4 py-2 text-emerald-700 bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 rounded-xl font-semibold transition-all duration-200">Précédent</button>
-              <button 
-                @click="nextStep"
-                :disabled="isLoading"
-                class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <svg v-if="isLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+              <button @click="showEditModal = null" class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all">
+                Annuler
+              </button>
+              <button @click="saveBasics" :disabled="isSaving" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 flex items-center space-x-2">
+                <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>{{ currentStepIndex === steps.length - 1 ? 'Terminer' : 'Étape suivante' }}</span>
+                <span>Sauvegarder</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: À propos -->
+    <div v-if="showEditModal === 'about'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold">Modifier la biographie</h3>
+            </div>
+            <button 
+              @click="showEditModal = null"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6 overflow-y-auto max-h-[70vh]">
+          <div class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Biographie</label>
+              <textarea v-model="editForm.bio" rows="8" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+              <button @click="showEditModal = null" class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all">
+                Annuler
+              </button>
+              <button @click="saveAbout" :disabled="isSaving" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 flex items-center space-x-2">
+                <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Sauvegarder</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Salaire -->
+    <div v-if="showEditModal === 'salary'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold">Modifier les attentes salariales</h3>
+            </div>
+            <button 
+              @click="showEditModal = null"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6 overflow-y-auto max-h-[70vh]">
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Salaire minimum (k€)</label>
+                <input v-model="editForm.salaryExpectationMin" type="number" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Salaire maximum (k€)</label>
+                <input v-model="editForm.salaryExpectationMax" type="number" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+              <button @click="showEditModal = null" class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all">
+                Annuler
+              </button>
+              <button @click="saveSalary" :disabled="isSaving" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 flex items-center space-x-2">
+                <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Sauvegarder</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Compétences -->
+    <div v-if="showEditModal === 'skills'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold">Gérer les compétences</h3>
+            </div>
+            <button 
+              @click="showEditModal = null"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6 overflow-y-auto max-h-[70vh]">
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h4 class="text-lg font-semibold text-gray-900">Vos compétences</h4>
+              <button @click="addEditSkill" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <span>Ajouter</span>
+              </button>
+            </div>
+            
+            <div v-for="(skill, index) in editForm.skills" :key="index" class="flex items-center space-x-4 p-4 border border-gray-200 rounded-xl">
+              <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Compétence</label>
+                  <input v-model="skill.skillName" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Années d'expérience</label>
+                  <input v-model="skill.experienceYears" type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+              </div>
+              <button @click="removeEditSkill(index)" class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition-all mt-6">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+              <button @click="showEditModal = null" class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all">
+                Annuler
+              </button>
+              <button @click="saveSkills" :disabled="isSaving" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 flex items-center space-x-2">
+                <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Sauvegarder</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Expériences -->
+    <div v-if="showEditModal === 'experience'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold">Gérer les expériences</h3>
+            </div>
+            <button 
+              @click="showEditModal = null"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6 overflow-y-auto max-h-[70vh]">
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h4 class="text-lg font-semibold text-gray-900">Vos expériences</h4>
+              <button @click="addEditExperience" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <span>Ajouter</span>
+              </button>
+            </div>
+            
+            <div v-for="(exp, index) in editForm.experiences" :key="index" class="p-4 border border-gray-200 rounded-xl space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Poste</label>
+                  <input v-model="exp.jobTitle" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Entreprise</label>
+                  <input v-model="exp.companyName" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
+                  <input v-model="exp.startDate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Date de fin</label>
+                  <input v-model="exp.endDate" type="date" :disabled="exp.currentExperienceStatus === 'current'" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:opacity-50" />
+                  <div class="flex items-center mt-2">
+                    <input v-model="exp.currentExperienceStatus" type="checkbox" value="current" :id="`edit-current-${index}`" class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                    <label :for="`edit-current-${index}`" class="ml-2 text-sm text-gray-700">Poste actuel</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea v-model="exp.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"></textarea>
+              </div>
+              
+              <div class="flex justify-end">
+                <button @click="removeEditExperience(index)" class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  <span>Supprimer</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+              <button @click="showEditModal = null" class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all">
+                Annuler
+              </button>
+              <button @click="saveExperiences" :disabled="isSaving" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 flex items-center space-x-2">
+                <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Sauvegarder</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Formations -->
+    <div v-if="showEditModal === 'education'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold">Gérer les formations</h3>
+            </div>
+            <button 
+              @click="showEditModal = null"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6 overflow-y-auto max-h-[70vh]">
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h4 class="text-lg font-semibold text-gray-900">Vos formations</h4>
+              <button @click="addEditEducation" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <span>Ajouter</span>
+              </button>
+            </div>
+            
+            <div v-for="(edu, index) in editForm.educations" :key="index" class="p-4 border border-gray-200 rounded-xl space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Établissement</label>
+                  <input v-model="edu.institutionName" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Diplôme</label>
+                  <select v-model="edu.degree" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <option value="Bachelor">Bachelor</option>
+                    <option value="Master">Master</option>
+                    <option value="PhD">PhD</option>
+                    <option value="Associate">Associate</option>
+                    <option value="Diploma">Diploma</option>
+                    <option value="Certificate">Certificate</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Domaine d'études</label>
+                <input v-model="edu.fieldStudy" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
+                  <input v-model="edu.startDate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Date de fin</label>
+                  <input v-model="edu.endDate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea v-model="edu.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"></textarea>
+              </div>
+              
+              <div class="flex justify-end">
+                <button @click="removeEditEducation(index)" class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  <span>Supprimer</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+              <button @click="showEditModal = null" class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all">
+                Annuler
+              </button>
+              <button @click="saveEducations" :disabled="isSaving" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 flex items-center space-x-2">
+                <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Sauvegarder</span>
               </button>
             </div>
           </div>
@@ -701,39 +1269,27 @@
       </div>
     </div>
   </div>
+
   <Footer/>
 </template>
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import type { ICandidateProfile} from '@/utils/interface/candidate/ICandidateProfile'
-import type { ICandidateEducation} from '@/utils/interface/candidate/ICandidateEducation'
-import type { ICandidateExperience} from '@/utils/interface/candidate/ICandidateExperience'
-import type { ICandidateSkill} from '@/utils/interface/candidate/ICandidateSkill'
-import type { ICandidateData} from '@/utils/interface/candidate/ICandidateData'
-// Import du service
+import type { ICandidateProfile, ICandidateEducation, ICandidateExperience, ICandidateSkill, ICandidateData } from '@/utils/interface/candidate/ICandidateData'
 import { useCandidateService } from '@/utils/service/CandidateService'
-
-//@ts-ignore
 import Navbar from '../components/navbar/NavBarComponent.vue'
-//@ts-ignore
 import Footer from '../components/footer/FooterComponent.vue'
 import { getUser } from '@/stores/user';
 
 const candidateService = useCandidateService();
-
 const user = getUser();
 const userId = user?.id ?? 0;
 
+// Données du profil
 const candidateData = ref<ICandidateData>({
   profile: {
     candidateProfileId: 0,
-    candidate: {
-      id: 0,
-      email: "",
-      phone: "",
-      role: "CANDIDATE"
-    },
+    candidate: { id: 0, email: "", phone: "", role: "CANDIDATE" },
     firstName: "",
     lastName: "",
     location: "",
@@ -753,22 +1309,50 @@ const experiences = ref(candidateData.value.experiences)
 const educations = ref(candidateData.value.educations)
 const skills = ref(candidateData.value.skills)
 
-const showWizard = ref(false)
+// État de l'interface
+const showCreationWizard = ref(false)
+const showEditModal = ref<string | null>(null)
 const currentStepIndex = ref(0)
 const isLoading = ref(false)
-const loadError = ref('')
-const isCreatingProfile = ref(false)
-const profileReady = computed(() => !!profile.value?.candidateProfileId)
-const steps = [
-  { key: 'basics', title: 'Informations de base', description: 'Nom, titre professionnel et localisation' },
-  { key: 'about', title: 'À propos', description: 'Présentez votre parcours' },
-  { key: 'salary', title: 'Salaire', description: 'Fourchette salariale souhaitée' },
-  { key: 'contact', title: 'Contact', description: 'Coordonnées principales' },
-  { key: 'skills', title: 'Compétences', description: 'Ajoutez vos expertises' },
-  { key: 'experience', title: 'Expériences', description: 'Renseignez vos postes clés' },
-  { key: 'education', title: 'Formations', description: 'Diplômes et écoles' }
+const isSaving = ref(false)
+const isSavingStep2 = ref(false)
+const isSavingStep3 = ref(false)
+const isSavingStep4 = ref(false)
+
+// Étapes de création
+const creationSteps = [
+  { title: 'Informations personnelles', description: 'Nom, titre et localisation' },
+  { title: 'Expériences', description: 'Parcours professionnel' },
+  { title: 'Formations', description: 'Diplômes et études' },
+  { title: 'Compétences', description: 'Expertises techniques' }
 ]
-const currentStep = computed(() => steps[currentStepIndex.value])
+
+const currentStep = computed(() => creationSteps[currentStepIndex.value])
+
+// Formulaires pour la création
+const step1Form = reactive({
+  firstName: '',
+  lastName: '',
+  title: '',
+  location: '',
+  salaryExpectationMin: 40,
+  salaryExpectationMax: 60,
+  bio: ''
+})
+
+const step2Form = reactive({
+  experiences: [] as any[]
+})
+
+const step3Form = reactive({
+  educations: [] as any[]
+})
+
+const step4Form = reactive({
+  skills: [] as any[]
+})
+
+// Formulaire pour l'édition
 const editForm = reactive({
   firstName: '',
   lastName: '',
@@ -777,69 +1361,264 @@ const editForm = reactive({
   bio: '',
   salaryExpectationMin: 10,
   salaryExpectationMax: 10,
-  email: '',
-  phone: '',
   skills: [] as any[],
   experiences: [] as any[],
   educations: [] as any[]
 })
 
-// Charger les données du profil
+// Charger le profil
 const loadCandidateProfile = async () => {
-  loadError.value = ''
-  let timeoutId: number | undefined
+  if (!user) return
+  
   try {
-    if (!user) {
-      showNotification('info', 'Veuillez vous connecter pour consulter votre profil')
-      return
-    }
     isLoading.value = true
-    timeoutId = window.setTimeout(() => {
-      loadError.value = 'Impossible de joindre le serveur. Vérifiez que le backend tourne sur http://localhost:8080.'
-      isLoading.value = false
-    }, 12000)
     const data = await candidateService.getCompleteCandidateData(userId)
-    if (timeoutId) window.clearTimeout(timeoutId)
-    
     candidateData.value = data
     profile.value = data.profile
     experiences.value = Array.isArray(data.experiences) ? data.experiences : []
     educations.value = Array.isArray(data.educations) ? data.educations : []
     skills.value = Array.isArray(data.skills) ? data.skills : []
-    
   } catch (error) {
-    console.error('Error loading candidate profile:', error)
-    showNotification('error', 'Failed to load profile data')
+    console.error('Erreur lors du chargement du profil:', error)
   } finally {
-    if (timeoutId) window.clearTimeout(timeoutId)
     isLoading.value = false
   }
 }
 
-const openProfileWizard = async (initialStep?: string) => {
-  if (!profileReady.value && !isCreatingProfile.value) {
-    try {
-      isCreatingProfile.value = true
-      const created = await candidateService.createCandidateProfile({
-        userId,
-        firstName: profile.value.firstName || 'FirstName',
-        lastName: profile.value.lastName || 'LastName',
-        location: profile.value.location || '',
-        salaryExpectationMin: profile.value.salaryExpectationMin || 10,
-        salaryExpectationMax: profile.value.salaryExpectationMax || 10,
-        resumeUrl: profile.value.resumeUrl || ''
-      })
-      profile.value = created
-    } catch (err) {
-      console.error('Erreur lors de la création du profil:', err)
-      showNotification('error', 'Impossible de créer le profil')
-      isCreatingProfile.value = false
-      return
-    }
-    isCreatingProfile.value = false
-  }
+// Démarrer la création
+const startProfileCreation = () => {
+  showCreationWizard.value = true
+  currentStepIndex.value = 0
+  
+  // Réinitialiser les formulaires
+  Object.assign(step1Form, {
+    firstName: '',
+    lastName: '',
+    title: '',
+    location: '',
+    salaryExpectationMin: 40,
+    salaryExpectationMax: 60,
+    bio: ''
+  })
+  step2Form.experiences = []
+  step3Form.educations = []
+  step4Form.skills = []
+}
 
-  // Pré-remplir le formulaire avec les données existantes
+const cancelCreation = () => {
+  showCreationWizard.value = false
+}
+
+// Navigation création
+const previousStep = () => {
+  if (currentStepIndex.value > 0) {
+    currentStepIndex.value--
+  }
+}
+
+// Étape 1: Sauvegarder le profil
+const saveStep1 = async () => {
+  try {
+    isSaving.value = true
+    
+    // Créer le profil de base
+    const profileData = await candidateService.createCandidateProfile({
+      userId,
+      firstName: step1Form.firstName,
+      lastName: step1Form.lastName,
+      location: step1Form.location,
+      salaryExpectationMin: step1Form.salaryExpectationMin,
+      salaryExpectationMax: step1Form.salaryExpectationMax,
+      resumeUrl: ''
+    })
+    
+    // Mettre à jour avec titre et bio
+    await candidateService.updateCandidateProfile(userId, {
+      firstName: step1Form.firstName,
+      lastName: step1Form.lastName,
+      location: step1Form.location,
+      salaryExpectationMin: step1Form.salaryExpectationMin,
+      salaryExpectationMax: step1Form.salaryExpectationMax,
+      resumeUrl: '',
+      title: step1Form.title,
+      bio: step1Form.bio
+    })
+    
+    profile.value = { ...profileData, title: step1Form.title, bio: step1Form.bio }
+    
+    // Passer à l'étape suivante
+    currentStepIndex.value = 1
+    
+  } catch (error) {
+    console.error('Erreur lors de la création du profil:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+// Étape 2: Gestion des expériences
+const addExperience = () => {
+  step2Form.experiences.push({
+    jobTitle: '',
+    companyName: '',
+    description: '',
+    startDate: '',
+    endDate: '',
+    currentExperienceStatus: 'previous',
+    location: ''
+  })
+}
+
+const removeExperience = (index: number) => {
+  step2Form.experiences.splice(index, 1)
+}
+
+const validateExperiences = (): boolean => {
+  if (step2Form.experiences.length === 0) return true // Optionnel
+  return step2Form.experiences.every(exp => 
+    exp.jobTitle && exp.companyName && exp.startDate
+  )
+}
+
+const skipStep2 = () => {
+  currentStepIndex.value = 2
+}
+
+const saveStep2 = async () => {
+  try {
+    isSavingStep2.value = true
+    
+    // Ajouter chaque expérience
+    for (const exp of step2Form.experiences) {
+      await candidateService.createCandidateExperience({
+        profileId: profile.value.candidateProfileId,
+        companyName: exp.companyName,
+        jobTitle: exp.jobTitle,
+        description: exp.description,
+        startDate: exp.startDate,
+        endDate: exp.endDate,
+        currentExperienceStatus: exp.currentExperienceStatus,
+        location: exp.location || ''
+      })
+    }
+    
+    // Passer à l'étape suivante
+    currentStepIndex.value = 2
+    await loadCandidateProfile()
+    
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout des expériences:', error)
+  } finally {
+    isSavingStep2.value = false
+  }
+}
+
+// Étape 3: Gestion des formations
+const addEducation = () => {
+  step3Form.educations.push({
+    institutionName: '',
+    degree: 'Bachelor',
+    fieldStudy: '',
+    startDate: '',
+    endDate: '',
+    description: ''
+  })
+}
+
+const removeEducation = (index: number) => {
+  step3Form.educations.splice(index, 1)
+}
+
+const validateEducations = (): boolean => {
+  if (step3Form.educations.length === 0) return true // Optionnel
+  return step3Form.educations.every(edu => 
+    edu.institutionName && edu.degree && edu.fieldStudy && edu.startDate && edu.endDate
+  )
+}
+
+const skipStep3 = () => {
+  currentStepIndex.value = 3
+}
+
+const saveStep3 = async () => {
+  try {
+    isSavingStep3.value = true
+    
+    // Ajouter chaque formation
+    for (const edu of step3Form.educations) {
+      await candidateService.createCandidateEducation({
+        profileId: profile.value.candidateProfileId,
+        institutionName: edu.institutionName,
+        degree: edu.degree,
+        fieldStudy: edu.fieldStudy,
+        startDate: edu.startDate,
+        endDate: edu.endDate,
+        description: edu.description || ''
+      })
+    }
+    
+    // Passer à l'étape suivante
+    currentStepIndex.value = 3
+    await loadCandidateProfile()
+    
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout des formations:', error)
+  } finally {
+    isSavingStep3.value = false
+  }
+}
+
+// Étape 4: Gestion des compétences
+const addSkill = () => {
+  step4Form.skills.push({
+    skillName: '',
+    experienceYears: 1
+  })
+}
+
+const removeSkill = (index: number) => {
+  step4Form.skills.splice(index, 1)
+}
+
+const validateSkills = (): boolean => {
+  if (step4Form.skills.length === 0) return true // Optionnel
+  return step4Form.skills.every(skill => 
+    skill.skillName && skill.experienceYears > 0
+  )
+}
+
+const skipStep4 = () => {
+  showCreationWizard.value = false
+  loadCandidateProfile()
+}
+
+const saveStep4 = async () => {
+  try {
+    isSavingStep4.value = true
+    
+    // Ajouter chaque compétence
+    for (const skill of step4Form.skills) {
+      await candidateService.createCandidateSkill({
+        profileId: profile.value.candidateProfileId,
+        skillName: skill.skillName,
+        experienceYears: skill.experienceYears
+      })
+    }
+    
+    // Terminer la création
+    showCreationWizard.value = false
+    await loadCandidateProfile()
+    
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout des compétences:', error)
+  } finally {
+    isSavingStep4.value = false
+  }
+}
+
+// Édition des sections
+const openEditSection = async (section: string) => {
+  // Pré-remplir le formulaire d'édition
   Object.assign(editForm, {
     firstName: profile.value.firstName,
     lastName: profile.value.lastName,
@@ -848,15 +1627,13 @@ const openProfileWizard = async (initialStep?: string) => {
     bio: profile.value.bio || '',
     salaryExpectationMin: profile.value.salaryExpectationMin || 10,
     salaryExpectationMax: profile.value.salaryExpectationMax || 10,
-    email: profile.value.candidate?.email || '',
-    phone: profile.value.candidate?.phone || '',
-    skills: (Array.isArray(skills.value) ? skills.value : []).map(skill => ({
+    skills: skills.value.map(skill => ({
       id: skill.id,
       skillName: skill.skillName,
       experienceYears: skill.experienceYears,
       profileId: skill.profileId
     })),
-    experiences: (Array.isArray(experiences.value) ? experiences.value : []).map(exp => ({
+    experiences: experiences.value.map(exp => ({
       id: exp.id,
       jobTitle: exp.jobTitle,
       companyName: exp.companyName,
@@ -864,236 +1641,151 @@ const openProfileWizard = async (initialStep?: string) => {
       startDate: exp.startDate,
       endDate: exp.endDate,
       currentExperienceStatus: exp.currentExperienceStatus,
-      location: exp.location,
+      location: exp.location || '',
       profileId: exp.profileId
     })),
-    educations: (Array.isArray(educations.value) ? educations.value : []).map(edu => ({
+    educations: educations.value.map(edu => ({
       id: edu.id,
       institutionName: edu.institutionName,
       degree: edu.degree,
       fieldStudy: edu.fieldStudy,
       startDate: edu.startDate,
       endDate: edu.endDate,
-      description: edu.description,
+      description: edu.description || '',
       profileId: edu.profileId
     }))
   })
 
-  if (initialStep) {
-    const index = steps.findIndex(step => step.key === initialStep)
-    currentStepIndex.value = index >= 0 ? index : 0
-  } else {
-    currentStepIndex.value = 0
-  }
-
-  showWizard.value = true
+  showEditModal.value = section
 }
 
-const closeWizard = () => {
-  showWizard.value = false
+// Sauvegarde des sections
+const saveBasics = async () => {
+  try {
+    isSaving.value = true
+    await candidateService.updateCandidateProfile(userId, {
+      firstName: editForm.firstName,
+      lastName: editForm.lastName,
+      location: editForm.location,
+      salaryExpectationMin: profile.value.salaryExpectationMin,
+      salaryExpectationMax: profile.value.salaryExpectationMax,
+      resumeUrl: profile.value.resumeUrl || '',
+      title: editForm.title,
+      bio: profile.value.bio
+    })
+    
+    await loadCandidateProfile()
+    showEditModal.value = null
+    
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour:', error)
+  } finally {
+    isSaving.value = false
+  }
 }
 
-const saveStep = async (stepKey: string) => {
-  if (!profileReady.value && stepKey !== 'basics') {
-    showNotification('info', 'Créez d\'abord votre profil candidat.')
-    return
-  }
-
-  if (stepKey === 'basics') {
-    if (!profileReady.value) {
-      const created = await candidateService.createCandidateProfile({
-        userId,
-        firstName: editForm.firstName || 'FirstName',
-        lastName: editForm.lastName || 'LastName',
-        title: editForm.title,
-        location: editForm.location,
-        salaryExpectationMin: Math.max(editForm.salaryExpectationMin || 10, 10),
-        salaryExpectationMax: Math.max(editForm.salaryExpectationMax || 10, 10),
-        resumeUrl: profile.value.resumeUrl || ''
-      })
-      profile.value = created
-    } else {
-      await candidateService.updateCandidateProfile(userId, {
-        firstName: editForm.firstName,
-        lastName: editForm.lastName,
-        title: editForm.title,
-        location: editForm.location,
-        salaryExpectationMin: Math.max(editForm.salaryExpectationMin || profile.value.salaryExpectationMin || 10, 10),
-        salaryExpectationMax: Math.max(editForm.salaryExpectationMax || profile.value.salaryExpectationMax || 10, 10),
-        resumeUrl: profile.value.resumeUrl || ''
-      })
-      profile.value.firstName = editForm.firstName
-      profile.value.lastName = editForm.lastName
-      profile.value.title = editForm.title
-      profile.value.location = editForm.location
-      profile.value.salaryExpectationMin = Math.max(editForm.salaryExpectationMin || 10, 10)
-      profile.value.salaryExpectationMax = Math.max(editForm.salaryExpectationMax || 10, 10)
-    }
-    showNotification('success', 'Informations de base enregistrées')
-  } else if (stepKey === 'about') {
+const saveAbout = async () => {
+  try {
+    isSaving.value = true
     await candidateService.updateCandidateProfile(userId, {
       firstName: profile.value.firstName,
       lastName: profile.value.lastName,
       location: profile.value.location,
+      salaryExpectationMin: profile.value.salaryExpectationMin,
+      salaryExpectationMax: profile.value.salaryExpectationMax,
+      resumeUrl: profile.value.resumeUrl || '',
       title: profile.value.title,
       bio: editForm.bio
     })
-    profile.value.bio = editForm.bio
-    showNotification('success', 'Bio mise à jour')
-  } else if (stepKey === 'salary') {
-    await candidateService.updateCandidateProfile(userId, {
-      firstName: profile.value.firstName,
-      lastName: profile.value.lastName,
-      location: profile.value.location,
-      title: profile.value.title,
-      bio: profile.value.bio,
-      salaryExpectationMin: editForm.salaryExpectationMin,
-      salaryExpectationMax: editForm.salaryExpectationMax
-    })
-    profile.value.salaryExpectationMin = editForm.salaryExpectationMin
-    profile.value.salaryExpectationMax = editForm.salaryExpectationMax
-    showNotification('success', 'Salaire mis à jour')
-  } else if (stepKey === 'contact') {
-    await candidateService.updateCandidateProfile(userId, {
-      firstName: profile.value.firstName,
-      lastName: profile.value.lastName,
-      location: profile.value.location,
-      title: profile.value.title,
-      bio: profile.value.bio,
-      salaryExpectationMin: profile.value.salaryExpectationMin,
-      salaryExpectationMax: profile.value.salaryExpectationMax
-    })
-    showNotification('success', 'Contact synchronisé')
-  } else if (stepKey === 'skills') {
-    const updatedSkills = await Promise.all(
-      editForm.skills.map(async (skill) => {
-        if (skill.id) {
-          return await candidateService.updateCandidateSkill(skill.id, {
-            skillName: skill.skillName,
-            experienceYears: skill.experienceYears
-          })
-        } else {
-          return await candidateService.createCandidateSkill({
-            skillName: skill.skillName,
-            experienceYears: skill.experienceYears,
-            profileId: profile.value.candidateProfileId
-          })
-        }
-      })
-    )
-    skills.value = updatedSkills
-    showNotification('success', 'Compétences mises à jour')
-  } else if (stepKey === 'experience') {
-    const updatedExperiences = await Promise.all(
-      editForm.experiences.map(async (exp) => {
-        if (exp.id) {
-          return await candidateService.updateCandidateExperience(exp.id, {
-            jobTitle: exp.jobTitle,
-            companyName: exp.companyName,
-            description: exp.description,
-            startDate: exp.startDate,
-            endDate: exp.endDate,
-            currentExperienceStatus: exp.currentExperienceStatus,
-            location: exp.location
-          })
-        } else {
-          return await candidateService.createCandidateExperience({
-            jobTitle: exp.jobTitle,
-            companyName: exp.companyName,
-            description: exp.description,
-            startDate: exp.startDate,
-            endDate: exp.endDate,
-            currentExperienceStatus: exp.currentExperienceStatus,
-            location: exp.location,
-            profileId: profile.value.candidateProfileId
-          })
-        }
-      })
-    )
-    experiences.value = updatedExperiences
-    showNotification('success', 'Expériences mises à jour')
-  } else if (stepKey === 'education') {
-    const updatedEducations = await Promise.all(
-      editForm.educations.map(async (edu) => {
-        if (edu.id) {
-          return await candidateService.updateCandidateEducation(edu.id, {
-            institutionName: edu.institutionName,
-            degree: edu.degree,
-            fieldStudy: edu.fieldStudy,
-            startDate: edu.startDate,
-            endDate: edu.endDate,
-            description: edu.description
-          })
-        } else {
-          return await candidateService.createCandidateEducation({
-            institutionName: edu.institutionName,
-            degree: edu.degree,
-            fieldStudy: edu.fieldStudy,
-            startDate: edu.startDate,
-            endDate: edu.endDate,
-            description: edu.description,
-            profileId: profile.value.candidateProfileId
-          })
-        }
-      })
-    )
-    educations.value = updatedEducations
-    showNotification('success', 'Formations mises à jour')
-  }
-}
-
-const nextStep = async () => {
-  try {
-    isLoading.value = true
-    await saveStep(currentStep.value.key)
-    if (currentStepIndex.value < steps.length - 1) {
-      currentStepIndex.value += 1
-    } else {
-      showWizard.value = false
-    }
+    
+    await loadCandidateProfile()
+    showEditModal.value = null
+    
   } catch (error) {
-    console.error('Error saving step:', error)
-    showNotification('error', 'Échec de la sauvegarde de cette étape')
+    console.error('Erreur lors de la mise à jour:', error)
   } finally {
-    isLoading.value = false
+    isSaving.value = false
   }
 }
 
-const previousStep = () => {
-  if (currentStepIndex.value > 0) {
-    currentStepIndex.value -= 1
+const saveSalary = async () => {
+  try {
+    isSaving.value = true
+    await candidateService.updateCandidateProfile(userId, {
+      firstName: profile.value.firstName,
+      lastName: profile.value.lastName,
+      location: profile.value.location,
+      salaryExpectationMin: editForm.salaryExpectationMin,
+      salaryExpectationMax: editForm.salaryExpectationMax,
+      resumeUrl: profile.value.resumeUrl || '',
+      title: profile.value.title,
+      bio: profile.value.bio
+    })
+    
+    await loadCandidateProfile()
+    showEditModal.value = null
+    
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour:', error)
+  } finally {
+    isSaving.value = false
   }
 }
 
-const goToStep = (index: number) => {
-  if (index <= currentStepIndex.value) {
-    currentStepIndex.value = index
-  }
-}
-
-const addNewSkill = () => {
+// Gestion des compétences (édition)
+const addEditSkill = () => {
   editForm.skills.push({
     skillName: '',
     experienceYears: 1
   })
 }
 
-const removeSkill = async (index: number) => {
+const removeEditSkill = async (index: number) => {
   const skill = editForm.skills[index]
   if (skill.id) {
     try {
       await candidateService.deleteCandidateSkill(skill.id)
-      showNotification('success', 'Skill deleted successfully')
     } catch (error) {
-      console.error('Error deleting skill:', error)
-      showNotification('error', 'Failed to delete skill')
-      return
+      console.error('Erreur suppression compétence:', error)
     }
   }
   editForm.skills.splice(index, 1)
 }
 
-const addNewExperience = () => {
+const saveSkills = async () => {
+  try {
+    isSaving.value = true
+    
+    // Traiter chaque compétence
+    for (const skill of editForm.skills) {
+      if (skill.id) {
+        // Mise à jour
+        await candidateService.updateCandidateSkill(skill.id, {
+          skillName: skill.skillName,
+          experienceYears: skill.experienceYears
+        })
+      } else {
+        // Création
+        await candidateService.createCandidateSkill({
+          profileId: profile.value.candidateProfileId,
+          skillName: skill.skillName,
+          experienceYears: skill.experienceYears
+        })
+      }
+    }
+    
+    await loadCandidateProfile()
+    showEditModal.value = null
+    
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des compétences:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+// Gestion des expériences (édition)
+const addEditExperience = () => {
   editForm.experiences.push({
     companyName: '',
     jobTitle: '',
@@ -1105,22 +1797,62 @@ const addNewExperience = () => {
   })
 }
 
-const removeExperience = async (index: number) => {
+const removeEditExperience = async (index: number) => {
   const exp = editForm.experiences[index]
   if (exp.id) {
     try {
       await candidateService.deleteCandidateExperience(exp.id)
-      showNotification('success', 'Experience deleted successfully')
     } catch (error) {
-      console.error('Error deleting experience:', error)
-      showNotification('error', 'Failed to delete experience')
-      return
+      console.error('Erreur suppression expérience:', error)
     }
   }
   editForm.experiences.splice(index, 1)
 }
 
-const addNewEducation = () => {
+const saveExperiences = async () => {
+  try {
+    isSaving.value = true
+    
+    // Traiter chaque expérience
+    for (const exp of editForm.experiences) {
+      if (exp.id) {
+        // Mise à jour
+        await candidateService.updateCandidateExperience(exp.id, {
+          jobTitle: exp.jobTitle,
+          companyName: exp.companyName,
+          description: exp.description,
+          startDate: exp.startDate,
+          endDate: exp.endDate,
+          currentExperienceStatus: exp.currentExperienceStatus,
+          location: exp.location
+        })
+      } else {
+        // Création
+        await candidateService.createCandidateExperience({
+          profileId: profile.value.candidateProfileId,
+          jobTitle: exp.jobTitle,
+          companyName: exp.companyName,
+          description: exp.description,
+          startDate: exp.startDate,
+          endDate: exp.endDate,
+          currentExperienceStatus: exp.currentExperienceStatus,
+          location: exp.location
+        })
+      }
+    }
+    
+    await loadCandidateProfile()
+    showEditModal.value = null
+    
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des expériences:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+// Gestion des formations (édition)
+const addEditEducation = () => {
   editForm.educations.push({
     institutionName: '',
     degree: 'Bachelor',
@@ -1131,43 +1863,68 @@ const addNewEducation = () => {
   })
 }
 
-const removeEducation = async (index: number) => {
+const removeEditEducation = async (index: number) => {
   const edu = editForm.educations[index]
   if (edu.id) {
     try {
       await candidateService.deleteCandidateEducation(edu.id)
-      showNotification('success', 'Education deleted successfully')
     } catch (error) {
-      console.error('Error deleting education:', error)
-      showNotification('error', 'Failed to delete education')
-      return
+      console.error('Erreur suppression formation:', error)
     }
   }
   editForm.educations.splice(index, 1)
 }
 
-const downloadCV = () => {
-  if (profile.value.resumeUrl) {
-    window.open(profile.value.resumeUrl, '_blank')
-  } else {
-    showNotification('info', 'No CV available for download')
+const saveEducations = async () => {
+  try {
+    isSaving.value = true
+    
+    // Traiter chaque formation
+    for (const edu of editForm.educations) {
+      if (edu.id) {
+        // Mise à jour
+        await candidateService.updateCandidateEducation(edu.id, {
+          institutionName: edu.institutionName,
+          degree: edu.degree,
+          fieldStudy: edu.fieldStudy,
+          startDate: edu.startDate,
+          endDate: edu.endDate,
+          description: edu.description
+        })
+      } else {
+        // Création
+        await candidateService.createCandidateEducation({
+          profileId: profile.value.candidateProfileId,
+          institutionName: edu.institutionName,
+          degree: edu.degree,
+          fieldStudy: edu.fieldStudy,
+          startDate: edu.startDate,
+          endDate: edu.endDate,
+          description: edu.description
+        })
+      }
+    }
+    
+    await loadCandidateProfile()
+    showEditModal.value = null
+    
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des formations:', error)
+  } finally {
+    isSaving.value = false
   }
 }
 
-const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
-  console.log(`${type}: ${message}`)
-}
-
-// Fonctions utilitaires
+// Utilitaires
 const getInitials = (firstName: string, lastName: string): string => {
   return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase()
 }
 
 const formatDate = (dateString: string): string => {
-  if (!dateString) return 'Present'
+  if (!dateString) return 'Présent'
   try {
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    return date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })
   } catch {
     return dateString
   }
@@ -1175,67 +1932,50 @@ const formatDate = (dateString: string): string => {
 
 const getSkillWidth = (years: number): string => {
   const safeSkills = Array.isArray(skills.value) ? skills.value : []
-  if (safeSkills.length === 0) return '0%'
-  const maxYears = Math.max(...safeSkills.map(s => s.experienceYears || 0))
-  return maxYears > 0 ? `${(years / maxYears) * 100}%` : '0%'
+  if (safeSkills.length === 0 || years === 0) return '0%'
+  const maxYears = Math.max(...safeSkills.map(s => s.experienceYears || 0), years)
+  return `${(years / maxYears) * 100}%`
 }
 
 onMounted(() => {
-  loadCandidateProfile()
+  if (user) {
+    loadCandidateProfile()
+  }
 })
 </script>
 
 <style scoped>
-.profile-enter-active {
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active, .slide-up-leave-active {
   transition: all 0.3s ease-out;
 }
-
-.profile-leave-active {
-  transition: all 0.2s ease-in;
-}
-
-.profile-enter-from {
+.slide-up-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(20px);
 }
-
-.profile-leave-to {
+.slide-up-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-20px);
 }
 
-.modal-enter-active {
-  transition: all 0.3s ease-out;
+::-webkit-scrollbar {
+  width: 6px;
 }
-
-.modal-leave-active {
-  transition: all 0.2s ease-in;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
 }
-
-.modal-enter-from {
-  opacity: 0;
-  transform: scale(0.95) translateY(-10px);
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
 }
-
-.modal-leave-to {
-  opacity: 0;
-  transform: scale(1.05) translateY(10px);
-}
-
-
-.loading-skeleton {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 1;
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
 }
 </style>
