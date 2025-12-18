@@ -7,6 +7,8 @@ import { useToast } from 'vue-toast-notification';
 import { useCompanyService } from '@/utils/service/CompagnyService';
 import type { ICompany } from '@/utils/interface/ICompagny';
 import { getUser } from '@/stores/authStorage';
+// @ts-ignore
+import Footer from '../components/footer/FooterComponent.vue';
 
 const toast = useToast();
 const router = useRouter();
@@ -419,6 +421,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
+  <Footer />
 </template>
 
 
