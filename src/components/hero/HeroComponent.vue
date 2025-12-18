@@ -13,6 +13,8 @@ import remoteWork from '../../assets/carousel-2.jpg'
 import careerGrowth from '../../assets/carousel-4.jpg'
 //@ts-ignore
 import Navbar from '../navbar/NavBarComponent.vue'
+//@ts-ignore
+import Footer from '../footer/FooterComponent.vue'
 
 import { 
   MagnifyingGlassIcon, 
@@ -41,7 +43,6 @@ import { useJobService } from '@/utils/service/jobService'
 //@ts-ignore
 import { useCompanyService } from '@/utils/service/CompagnyService'
 import type { IJob, IJobResponse } from '@/utils/interface/IJobOffers'
-import { JobType } from '@/utils/interface/IJobOffers'
 import type { ICompany } from '@/utils/interface/ICompagny'
 
 // Services
@@ -211,16 +212,15 @@ let interval: number
 
 const searchQuery = ref('')
 const locationQuery = ref('')
-const jobType = ref<JobType | ''>('')
+const jobType = ref('')
 
-// Options de type de contrat basées sur l'enum JobType
 const jobTypes = computed(() => [
   { value: '', label: t('hero.jobTypeAll') },
-  { value: JobType.FULL_TIME, label: t('hero.jobTypeFullTime') },
-  { value: JobType.PART_TIME, label: t('hero.jobTypePartTime') },
-  { value: JobType.CONTRACT, label: t('hero.jobTypeContract') },
-  { value: JobType.INTERNSHIP, label: t('hero.jobTypeInternship') },
-  { value: JobType.FREELANCE, label: t('hero.jobTypeFreelance') },
+  { value: 'full-time', label: t('hero.jobTypeFullTime') },
+  { value: 'part-time', label: t('hero.jobTypePartTime') },
+  { value: 'contract', label: t('hero.jobTypeContract') },
+  { value: 'internship', label: t('hero.jobTypeInternship') },
+  { value: 'remote', label: t('hero.jobTypeRemote') },
 ])
 
 // Fonction pour déterminer les catégories d'un job basée uniquement sur le secteur
@@ -468,6 +468,16 @@ const displayedCategories = computed(() => {
 // Fonction pour toggle l'affichage des catégories
 const toggleCategories = () => {
   showAllCategories.value = !showAllCategories.value
+  
+  // Smooth scroll vers la section si on expand
+  if (showAllCategories.value) {
+    setTimeout(() => {
+      const categoriesSection = document.querySelector('.categories-section')
+      if (categoriesSection) {
+        categoriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  }
 }
 
 // Récupérer les offres featured
@@ -538,6 +548,7 @@ const goToSlide = (index: number) => {
 }
 
 const startAutoPlay = () => {
+  if (interval) clearInterval(interval)
   interval = setInterval(nextSlide, 5000)
 }
 
@@ -551,15 +562,14 @@ const resetTimer = () => {
 }
 
 const handleSearch = () => {
-  // Rediriger vers la page des jobs avec les paramètres de recherche
-  router.push({
-    name: 'jobs',
-    query: {
-      q: searchQuery.value || undefined,
-      location: locationQuery.value || undefined,
-      type: jobType.value || undefined
-    }
-  });
+  // Rediriger vers la page de recherche avec les paramètres
+  const queryParams = new URLSearchParams({
+    q: searchQuery.value,
+    location: locationQuery.value,
+    type: jobType.value
+  }).toString()
+  
+  window.location.href = `/jobs?${queryParams}`;
 }
 
 onMounted(() => {
@@ -574,10 +584,31 @@ onUnmounted(() => {
 
 <template>
   <Navbar />
-  <div class="hero-carousel h-screen relative overflow-hidden">
+  <div class="hero-landing relative h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <!-- Decorative Animated Background Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <!-- Floating shapes -->
+      <div class="absolute -top-48 -right-48 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
+      <div class="absolute -bottom-48 -left-48 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-violet-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 4s"></div>
+      
+      <!-- Animated particles -->
+      <div class="absolute inset-0">
+        <div v-for="i in 15" :key="i" 
+          class="absolute w-1 h-1 bg-white/60 rounded-full animate-pulse"
+          :style="{ 
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 3}s`,
+            animationDuration: `${3 + Math.random() * 4}s`
+          }">
+        </div>
+      </div>
+    </div>
+
     <div
       id="carouselId"
-      class="carousel-container w-full h-full"
+      class="relative w-full h-full"
       @mouseenter="
         () => {
           isHovering = true
@@ -593,140 +624,140 @@ onUnmounted(() => {
     >
       <!-- Carousel Slides -->
       <div
-        class="slides-container flex h-full"
+        class="flex h-full transition-transform duration-1000 ease-in-out"
         :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
       >
         <div
           v-for="(slide, index) in slides"
           :key="index"
-          class="slide-item w-full h-full flex-shrink-0 relative"
+          class="relative flex-shrink-0 w-full h-full"
         >
-          <div class="gradient-overlay"></div>
-          <img
-            :src="slide.image"
-            class="w-full h-full object-cover"
-            :alt="`Slide ${index + 1}: ${slide.title}`"
-            loading="lazy"
-          />
+          <!-- Background Image -->
+          <div class="absolute inset-0">
+            <img
+              :src="slide.image"
+              class="w-full h-full object-cover transition-all duration-1000"
+              :class="{
+                'opacity-100 scale-100': currentSlide === index,
+                'opacity-50 scale-105': currentSlide !== index
+              }"
+              :alt="`Slide ${index + 1}: ${slide.title}`"
+              loading="lazy"
+            />
+            <!-- Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-br from-black/60 via-black/45 to-black/60 z-10"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/40 z-10"></div>
+          </div>
 
           <!-- Slide Content -->
-          <div class="slide-content">
-            <div class="content-wrapper">
+          <div class="relative z-20 flex items-center justify-center h-full px-4 sm:px-6 lg:px-8 pt-24 md:pt-28 pb-20">
+            <div class="w-full max-w-5xl mx-auto text-center">
               <div
-                class="text-content transition-all duration-700 ease-out"
+                class="transition-all duration-700 ease-out"
                 :class="{
                   'translate-y-0 opacity-100': currentSlide === index,
                   'translate-y-10 opacity-0': currentSlide !== index,
                 }"
               >
-                <h5 class="slide-pre-title">
-                  {{ slide.title }} <span class="highlight-text">{{ slide.highlight }}</span>
-                </h5>
-                <h4 class="slide-title">
-                  {{ slide.subtitle }}
+                <!-- Main Title -->
+                <h4 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight tracking-tight px-4">
+                  <span class="block bg-gradient-to-r from-white via-emerald-50/90 to-white bg-clip-text text-transparent drop-shadow-xl">
+                    {{ slide.subtitle }}
+                  </span>
                 </h4>
-                <p class="slide-description">
+                
+                <!-- Description -->
+                <p class="text-base sm:text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed font-normal drop-shadow-lg px-4">
                   {{ slide.description }}
                 </p>
+                
+                <!-- Modern Search Bar -->
+                <div class="mt-10 sm:mt-12 max-w-4xl mx-auto px-4">
+                  <form @submit.prevent="handleSearch" class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-3 sm:p-4 flex flex-col sm:flex-row gap-3 border border-white/40 transition-all duration-300 hover:shadow-emerald-500/30 hover:shadow-[0_25px_60px_-12px_rgba(16,185,129,0.4)] hover:-translate-y-1">
+                    <!-- Search Input -->
+                    <div class="group flex-1 flex items-center bg-white/80 rounded-xl px-4 py-3.5 transition-all duration-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/40 focus-within:shadow-md">
+                      <MagnifyingGlassIcon class="w-5 h-5 text-gray-500 mr-3 flex-shrink-0 transition-colors duration-200 group-focus-within:text-emerald-600" />
+                      <input
+                        v-model="searchQuery"
+                        type="text"
+                        :placeholder="$t('hero.searchPlaceholder')"
+                        class="flex-1 bg-transparent border-0 outline-none text-gray-900 placeholder-gray-400 text-sm sm:text-base font-medium"
+                      />
+                    </div>
+                    
+                    <!-- Location Input -->
+                    <div class="group flex-1 flex items-center bg-white/80 rounded-xl px-4 py-3.5 transition-all duration-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/40 focus-within:shadow-md">
+                      <MapPinIcon class="w-5 h-5 text-gray-500 mr-3 flex-shrink-0 transition-colors duration-200 group-focus-within:text-emerald-600" />
+                      <input
+                        v-model="locationQuery"
+                        type="text"
+                        :placeholder="$t('hero.locationPlaceholder')"
+                        class="flex-1 bg-transparent border-0 outline-none text-gray-900 placeholder-gray-400 text-sm sm:text-base font-medium"
+                      />
+                    </div>
+                    
+                    <!-- Search Button -->
+                    <button 
+                      type="submit" 
+                      class="flex items-center justify-center w-full sm:w-auto sm:min-w-[56px] h-12 sm:h-14 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                      :aria-label="$t('hero.searchButton')"
+                    >
+                      <MagnifyingGlassIcon class="w-5 h-5 sm:w-6 sm:h-6" />
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Carousel Controls -->
-      <button class="carousel-control prev" @click="prevSlide" aria-label="Slide précédent">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="control-icon"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </button>
-      <button class="carousel-control next" @click="nextSlide" aria-label="Slide suivant">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="control-icon"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </button>
-
-      <!-- Carousel Indicators -->
-      <div class="indicators-container">
-        <button
-          v-for="(slide, index) in slides"
-          :key="index"
-          :class="['indicator', { active: currentSlide === index }]"
-          @click="goToSlide(index)"
-          :aria-label="`Aller au slide ${index + 1}`"
-        >
-          <span class="progress-bar" v-if="currentSlide === index && !isHovering"></span>
-        </button>
-      </div>
-
-      <!-- Modern Search Bar -->
-      <div class="search-container animate-on-scroll" data-delay="300">
-        <form @submit.prevent="handleSearch" class="search-form">
-          <div class="search-input-group">
-            <MagnifyingGlassIcon class="search-icon" />
-            <input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="$t('hero.searchPlaceholder')"
-              class="search-input"
-            />
-          </div>
-          <div class="search-input-group">
-            <MapPinIcon class="search-icon" />
-            <input
-              v-model="locationQuery"
-              type="text"
-              :placeholder="$t('hero.locationPlaceholder')"
-              class="search-input"
-            />
-          </div>
-          <div class="search-input-group">
-            <BriefcaseIcon class="search-icon" />
-            <select v-model="jobType" class="search-select">
-              <option v-for="type in jobTypes" :key="type.value" :value="type.value">
-                {{ type.label }}
-              </option>
-            </select>
-          </div>
-          <button type="submit" class="search-button">
-            <span>{{ $t('hero.searchButton') }}</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="button-icon"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+      <!-- Modern Slide Counter - Bottom Right -->
+      <div class="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 lg:bottom-10 lg:right-10 z-20 flex flex-col items-end gap-3">
+        <!-- Slide Navigation Dots -->
+        <div class="flex items-center gap-2.5 bg-black/20 backdrop-blur-md rounded-full px-4 py-2.5 border border-white/10">
+          <button
+            v-for="(slide, index) in slides"
+            :key="index"
+            @click="goToSlide(index)"
+            :aria-label="`Aller au slide ${index + 1}`"
+            class="group relative flex items-center transition-all duration-300"
+          >
+            <!-- Active indicator with number -->
+            <div 
+              v-if="currentSlide === index"
+              class="relative w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500/40 to-teal-500/40 backdrop-blur-sm border border-emerald-400/60 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:border-emerald-400 group-hover:shadow-md group-hover:shadow-emerald-500/50"
             >
-              <path
-                fill-rule="evenodd"
-                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              />
-            </svg>
+              <span class="text-white font-semibold text-xs relative z-10">{{ index + 1 }}</span>
+              <!-- Animated ring -->
+              <div 
+                v-if="!isHovering" 
+                class="absolute inset-0 rounded-full border border-transparent border-t-emerald-400/80 animate-spin-slow"
+                style="animation-duration: 5s;"
+              ></div>
+            </div>
+            <!-- Inactive indicator -->
+            <div 
+              v-else
+              class="w-2 h-2 rounded-full bg-white/50 backdrop-blur-sm transition-all duration-300 group-hover:bg-white/80 group-hover:scale-125"
+            ></div>
           </button>
-        </form>
+        </div>
+        
+        <!-- Current Slide Number - Small and subtle -->
+        <div class="flex items-center gap-1 text-white/70 text-xs font-medium">
+          <span>{{ String(currentSlide + 1).padStart(2, '0') }}</span>
+          <span>/</span>
+          <span>{{ String(slides.length).padStart(2, '0') }}</span>
+        </div>
       </div>
-    </div>
-    <div class="transition-spacer"></div>
-  </div>
 
+    </div>
+    
+    <!-- Transition Spacer -->
+    <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none"></div>
+  </div>
+  
   <section class="featured-jobs">
     <div class="container">
       <div class="categories-section">
@@ -766,20 +797,28 @@ onUnmounted(() => {
             class="categories-grid"
             :class="{ 'expanded': showAllCategories }"
           >
-             <button 
-               v-for="category in displayedCategories" 
-               :key="category.id" 
-               @click="navigateToCategory(category.id)"
-               class="category-card"
-             >
-               <div class="category-icon" :style="{ backgroundColor: category.color }">
-                 <component :is="category.icon" />
-               </div>
-               <div class="category-info">
-                 <h4>{{ category.name }}</h4>
-                 <p>{{ getFormattedJobsCount(category.id) }} {{ t('hero.categories.offers') }}</p>
-               </div>
-             </button>
+            <button 
+              v-for="(category, index) in displayedCategories" 
+              :key="category.id" 
+              @click="navigateToCategory(category.id)"
+              class="category-card"
+              :style="{ '--animation-delay': `${index * 0.05}s` }"
+            >
+              <div class="category-card-inner">
+                <div class="category-icon" :style="{ backgroundColor: category.color }">
+                  <component :is="category.icon" class="category-icon-svg" />
+                  <div class="icon-glow" :style="{ backgroundColor: category.color }"></div>
+                </div>
+                <div class="category-info">
+                  <h4>{{ category.name }}</h4>
+                  <p class="category-count">
+                    <span class="count-number">{{ getFormattedJobsCount(category.id) }}</span>
+                    <span class="count-label">{{ t('hero.categories.offers') }}</span>
+                  </p>
+                </div>
+                <div class="category-hover-effect" :style="{ backgroundColor: category.color }"></div>
+              </div>
+            </button>
           </div>
         </div>
       </div>
@@ -788,17 +827,11 @@ onUnmounted(() => {
 
       <!-- Section Opportunités en vedette -->
       <div class="jobs-section">
-        <div class="section-header text-left featured-header">
-          <div class="featured-header-text">
-            <div class="featured-badge">
-              <span class="badge-dot"></span>
-              <span class="badge-text">{{ t('hero.featuredJobs.badge', 'Opportunités en vedette') }}</span>
-            </div>
-            <h2 class="section-title">{{ t('hero.featuredJobs.title') }}</h2>
-            <p class="section-subtitle">{{ t('hero.featuredJobs.subtitle') }}</p>
-          </div>
-          <a href="/jobs" class="view-all featured-view-all">
-            <span>{{ t('hero.featuredJobs.viewAll') }}</span>
+        <div class="section-header text-left">
+          <h2 class="section-title">{{ t('hero.featuredJobs.title') }}</h2>
+          <p class="section-subtitle">{{ t('hero.featuredJobs.subtitle') }}</p>
+          <a href="/jobs" class="view-all">
+            {{ t('hero.featuredJobs.viewAll') }}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="icon"
@@ -919,45 +952,50 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* Les styles restent exactement les mêmes que dans le code précédent */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
-.hero-carousel {
+:root {
   --primary-color: #10b981;
   --primary-hover: #059669;
   --accent-color: #d1fae5;
   --text-color: #ffffff;
   --dark-text: #1f2937;
   --transition-speed: 0.5s;
-  font-family: 'Inter', sans-serif;
-  padding-top: 64px;
 }
 
-@media (max-width: 768px) {
-  .hero-carousel {
-    padding-top: 56px;
+.hero-landing {
+  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Progress bar animation */
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
   }
 }
 
-@media (max-width: 480px) {
-  .hero-carousel {
-    padding-top: 56px;
+.animate-progress {
+  animation: progress 5s linear forwards;
+}
+
+/* Slow spin animation for slide indicator */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (max-width: 380px) {
-  .hero-carousel {
-    padding-top: 48px;
-  }
+.animate-spin-slow {
+  animation: spin-slow linear infinite;
 }
 
-.transition-spacer {
-  height: 8rem;
-  position: relative;
-  z-index: 5;
-  background: linear-gradient(to bottom, transparent 0%, #f9fafb 100%);
-  margin-top: -8rem;
-}
+/* Remove old styles as we're using Tailwind now */
 
 .carousel-container {
   position: relative;
@@ -971,150 +1009,7 @@ onUnmounted(() => {
   position: relative;
 }
 
-.gradient-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 100%);
-  z-index: 1;
-}
-
-.slide-content {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  padding: 0 10%;
-}
-
-.content-wrapper {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.text-content {
-  max-width: 600px;
-  will-change: transform, opacity;
-}
-
-.slide-pre-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--accent-color);
-  margin-bottom: 1rem;
-  letter-spacing: 0.05em;
-  transition:
-    transform 0.7s ease-out,
-    opacity 0.7s ease-out;
-}
-
-.highlight-text {
-  color: var(--primary-color);
-  font-weight: 700;
-}
-
-.slide-title {
-  font-size: 2.75rem;
-  font-weight: 800;
-  color: var(--text-color);
-  margin-bottom: 1.5rem;
-  line-height: 1.2;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  transition:
-    transform 0.7s ease-out 0.1s,
-    opacity 0.7s ease-out 0.1s;
-}
-
-.slide-description {
-  font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 2.5rem;
-  line-height: 1.6;
-  transition:
-    transform 0.7s ease-out 0.2s,
-    opacity 0.7s ease-out 0.2s;
-}
-
-.carousel-control {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(5px);
-  border: none;
-  color: white;
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 3;
-  transition: all var(--transition-speed) ease;
-  opacity: 0.9;
-}
-
-.carousel-control:hover {
-  opacity: 1;
-  background-color: var(--primary-color);
-}
-
-.carousel-control.prev {
-  left: 2rem;
-}
-
-.carousel-control.next {
-  right: 2rem;
-}
-
-.control-icon {
-  width: 1.75rem;
-  height: 1.75rem;
-}
-
-.indicators-container {
-  position: absolute;
-  bottom: 6rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 0.75rem;
-  z-index: 3;
-}
-
-.indicator {
-  width: 3rem;
-  height: 0.375rem;
-  background-color: rgba(255, 255, 255, 0.4);
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  padding: 0;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.indicator.active {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.indicator:hover {
-  transform: scaleY(1.5);
-}
-
-.progress-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background-color: var(--primary-color);
-  animation: progress 5s linear forwards;
-  transform-origin: left;
-}
+/* Styles removed - using Tailwind CSS classes instead */
 
 @keyframes progress {
   0% {
@@ -1153,34 +1048,69 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: none;
-  border: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  border: 2px solid #e5e7eb;
   color: #6b7280;
   padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  background-color: white;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-weight: 600;
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.toggle-button.header-toggle-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.toggle-button.header-toggle-btn:hover::before {
+  left: 100%;
 }
 
 .toggle-button.header-toggle-btn:hover {
-  background-color: #f9fafb;
-  border-color: #d1d5db;
-  color: #374151;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border-color: #10b981;
+  color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.toggle-button.header-toggle-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1);
+}
+
+.toggle-button.header-toggle-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
 .toggle-icon {
   width: 1rem;
   height: 1rem;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
 }
 
 .toggle-icon.rotated {
   transform: rotate(180deg);
+}
+
+.toggle-button.header-toggle-btn:hover .toggle-icon {
+  transform: translateY(2px);
+}
+
+.toggle-button.header-toggle-btn:hover .toggle-icon.rotated {
+  transform: rotate(180deg) translateY(-2px);
 }
 
 /* Pour la section des opportunités en vedette */
@@ -1269,27 +1199,54 @@ onUnmounted(() => {
   }
 }
 
-/* Modern Search Bar Styles */
+/* Modern Search Bar Styles - Hidden (using inline version now) */
 .search-container {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 1200px;
-  z-index: 10;
+  display: none; /* Using inline search bar instead */
 }
 
 .search-form {
   display: flex;
-  background: white;
+  background: rgba(255, 255, 255, 0.98);
   border-radius: 1rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.5);
   overflow: hidden;
   padding: 0.75rem;
   gap: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative;
+  animation: searchBarSlideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes searchBarSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-form::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 1rem;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(6, 182, 212, 0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.search-form:hover::before {
+  opacity: 1;
 }
 
 .search-input-group {
@@ -1429,6 +1386,18 @@ onUnmounted(() => {
   max-width: none;
   margin-left: 0;
   padding-left: 0;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .section-title {
@@ -1437,6 +1406,31 @@ onUnmounted(() => {
   color: #111827;
   margin-bottom: 0.75rem;
   line-height: 1.2;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #06b6d4);
+  border-radius: 2px;
+  animation: underlineExpand 0.8s ease-out 0.3s both;
+}
+
+@keyframes underlineExpand {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 60px;
+    opacity: 1;
+  }
 }
 
 .section-subtitle {
@@ -1448,101 +1442,7 @@ onUnmounted(() => {
   max-width: none;
   margin-left: 0;
   padding-left: 0;
-}
-
-/* Badge & meta pour la section catégories */
-.categories-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.4rem 1.1rem;
-  background: #ecfdf5;
-  border-radius: 999px;
-  border: 1px solid #bbf7d0;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #047857;
-  margin-bottom: 0.8rem;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.18);
-}
-
-.categories-badge .badge-dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 999px;
-  background: radial-gradient(circle, #22c55e 0, #16a34a 40%, #0f766e 100%);
-  margin-right: 0.45rem;
-}
-
-.categories-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
-}
-
-.categories-meta .dot {
-  width: 0.2rem;
-  height: 0.2rem;
-  border-radius: 999px;
-  background: #a7f3d0;
-}
-
-/* Featured jobs header */
-.featured-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1.5rem;
-}
-
-.featured-header-text {
-  flex: 1;
-}
-
-.featured-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.35rem 1rem;
-  background: #eff6ff;
-  border-radius: 999px;
-  border: 1px solid #bfdbfe;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #1d4ed8;
-  margin-bottom: 0.85rem;
-}
-
-.featured-badge .badge-dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 999px;
-  background: radial-gradient(circle, #60a5fa 0, #2563eb 40%, #1d4ed8 100%);
-  margin-right: 0.45rem;
-}
-
-.featured-view-all {
-  padding: 0.6rem 1.25rem;
-  border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  background: white;
-  font-size: 0.9rem;
-}
-
-.featured-view-all:hover {
-  border-color: #16a34a;
-  background: #ecfdf5;
-}
-
-.featured-view-all span {
-  display: inline-flex;
-  align-items: center;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
 .view-all {
@@ -1570,7 +1470,22 @@ onUnmounted(() => {
 }
 
 .jobs-section {
-  margin-top: 4rem;
+  margin-top: 5rem;
+  padding-top: 3rem;
+  border-top: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.jobs-section::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #10b981, transparent);
+  border-radius: 2px;
 }
 
 .jobs-grid {
@@ -1760,65 +1675,229 @@ onUnmounted(() => {
 }
 
 .categories-section {
-  margin-bottom: 4rem;
+  margin-bottom: 5rem;
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.categories-section::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #10b981, transparent);
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+.categories-container {
+  position: relative;
 }
 
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1.5rem;
+  transition: max-height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  max-height: 520px;
+  overflow: hidden;
+  position: relative;
+}
+
+.categories-grid::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, rgba(249, 250, 251, 1));
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 1;
+}
+
+.categories-grid.expanded {
+  max-height: 3000px !important;
+  overflow: visible;
+}
+
+.categories-grid.expanded::after {
+  opacity: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.categories-grid.expanded .category-card {
+  opacity: 1;
+  animation: categoryCardFadeIn 0.4s ease-out var(--animation-delay, 0s) forwards;
 }
 
 .category-card {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  padding: 0;
+  position: relative;
+  opacity: 1;
+}
+
+.categories-grid:not(.expanded) .category-card:nth-child(n+9) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes categoryCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.category-card-inner {
   background-color: white;
   border-radius: 0.75rem;
   padding: 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.category-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+.category-card:hover .category-card-inner {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.category-hover-effect {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  opacity: 0.08;
+  transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 0;
+}
+
+.category-card:hover .category-hover-effect {
+  left: 0;
 }
 
 .category-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 0.5rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
 }
 
-.category-icon svg {
-  width: 24px;
-  height: 24px;
+.category-card:hover .category-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.icon-glow {
+  position: absolute;
+  inset: -50%;
+  opacity: 0;
+  filter: blur(20px);
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.category-card:hover .icon-glow {
+  opacity: 0.6;
+  animation: iconGlowPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconGlowPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.category-icon-svg {
+  width: 28px;
+  height: 28px;
   color: white;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.category-card:hover .category-icon-svg {
+  transform: scale(1.15);
 }
 
 .category-info {
-  /* retour au style simple */
+  position: relative;
+  z-index: 1;
+  flex: 1;
 }
 
 .category-info h4 {
   font-size: 1rem;
   font-weight: 600;
   color: #111827;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+  line-height: 1.3;
 }
 
-.category-info p {
+.category-card:hover .category-info h4 {
+  color: #059669;
+}
+
+.category-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.count-number {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #16a34a;
+  transition: all 0.3s ease;
+}
+
+.category-card:hover .count-number {
+  transform: scale(1.1);
+  color: #059669;
+}
+
+.count-label {
   font-size: 0.875rem;
   color: #6b7280;
+  font-weight: 500;
 }
 
 /* Loading States */
@@ -1909,7 +1988,25 @@ onUnmounted(() => {
   }
 
   .slide-title {
-    font-size: 2.25rem;
+    font-size: 2rem;
+  }
+  
+  .search-form-inline {
+    flex-wrap: wrap;
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .search-input-group-inline {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 200px;
+    min-height: 52px;
+  }
+  
+  .search-button-inline {
+    flex: 1 1 100%;
+    margin-top: 0.25rem;
+    min-height: 52px;
   }
 
   .jobs-grid {
@@ -1979,15 +2076,49 @@ onUnmounted(() => {
 
   .slide-content {
     padding: 0 1.5rem;
-    justify-content: flex-start;
+    justify-content: center;
     text-align: center;
     align-items: center;
-    padding-top: 2rem;
-    padding-bottom: 8rem;
+    padding-top: 3rem;
+    padding-bottom: 4rem;
   }
 
   .text-content {
     max-width: 100%;
+  }
+  
+  .slide-pre-title {
+    font-size: 0.875rem;
+  }
+  
+  .slide-title {
+    font-size: 1.75rem;
+  }
+  
+  .slide-description {
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-container-inline {
+    margin-top: 1.25rem;
+  }
+  
+  .search-form-inline {
+    flex-direction: column;
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .search-input-group-inline {
+    width: 100%;
+    min-height: 48px;
+  }
+  
+  .search-button-inline {
+    width: 100%;
+    margin-top: 0;
+    min-height: 48px;
   }
 
   .gradient-overlay {
@@ -2031,7 +2162,7 @@ onUnmounted(() => {
   }
 
   .indicators-container {
-    bottom: 6.5rem;
+    bottom: 1.5rem;
     gap: 0.5rem;
   }
 
@@ -2084,7 +2215,7 @@ onUnmounted(() => {
     height: 40px;
   }
 
-  .category-icon svg {
+  .category-icon-svg {
     width: 20px;
     height: 20px;
   }
@@ -2184,6 +2315,31 @@ onUnmounted(() => {
     font-size: 0.875rem;
     margin-bottom: 1.25rem;
   }
+  
+  .search-container-inline {
+    margin-top: 1rem;
+    width: 100%;
+  }
+  
+  .search-form-inline {
+    padding: 0.625rem;
+    gap: 0.625rem;
+  }
+  
+  .search-input-group-inline {
+    min-height: 44px;
+  }
+  
+  .search-input-inline,
+  .search-select-inline {
+    font-size: 0.875rem;
+  }
+  
+  .search-button-inline {
+    min-height: 44px;
+    font-size: 0.875rem;
+    padding: 0 1.5rem;
+  }
 
   .carousel-control {
     width: 2.5rem;
@@ -2199,7 +2355,7 @@ onUnmounted(() => {
   }
 
   .indicators-container {
-    bottom: 5.5rem;
+    bottom: 1rem;
   }
   
   .transition-spacer {
@@ -2240,7 +2396,7 @@ onUnmounted(() => {
     height: 36px;
   }
 
-  .category-icon svg {
+  .category-icon-svg {
     width: 18px;
     height: 18px;
   }
@@ -2352,6 +2508,44 @@ onUnmounted(() => {
     margin-bottom: 1rem;
     line-height: 1.4;
   }
+  
+  .search-container-inline {
+    margin-top: 0.875rem;
+  }
+  
+  .search-form-inline {
+    padding: 0.5rem;
+    gap: 0.5rem;
+    border-radius: 0.875rem;
+  }
+  
+  .search-input-group-inline {
+    min-height: 42px;
+    padding: 0 0.875rem;
+  }
+  
+  .search-input-inline,
+  .search-select-inline {
+    font-size: 0.8125rem;
+    padding: 0.75rem 0;
+  }
+  
+  .search-icon-inline {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-right: 0.625rem;
+  }
+  
+  .search-button-inline {
+    min-height: 42px;
+    font-size: 0.8125rem;
+    padding: 0 1.25rem;
+  }
+  
+  .button-icon-inline {
+    width: 1rem;
+    height: 1rem;
+  }
 
   .carousel-control {
     width: 2.25rem;
@@ -2373,7 +2567,7 @@ onUnmounted(() => {
   }
 
   .indicators-container {
-    bottom: 4.5rem;
+    bottom: 0.75rem;
     gap: 0.375rem;
   }
 
@@ -2441,7 +2635,7 @@ onUnmounted(() => {
     border-radius: 0.375rem;
   }
 
-  .category-icon svg {
+  .category-icon-svg {
     width: 16px;
     height: 16px;
   }
@@ -2595,7 +2789,7 @@ onUnmounted(() => {
   }
 
   .indicators-container {
-    bottom: 3.5rem;
+    bottom: 0.5rem;
   }
   
   .transition-spacer {
@@ -2642,7 +2836,7 @@ onUnmounted(() => {
     height: 28px;
   }
 
-  .category-icon svg {
+  .category-icon-svg {
     width: 14px;
     height: 14px;
   }
@@ -2690,79 +2884,6 @@ onUnmounted(() => {
   }
 }
 
-.categories-section {
-  margin-bottom: 4rem;
-}
-
-.categories-container {
-  position: relative;
-}
-
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
-  transition: all 0.3s ease;
-  max-height: 400px;
-  overflow: hidden;
-}
-
-.categories-grid.expanded {
-  max-height: none;
-  overflow: visible;
-}
-
-.category-card {
-  background-color: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  min-height: 100px;
-}
-
-.category-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-.category-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.category-icon svg {
-  width: 24px;
-  height: 24px;
-  color: white;
-}
-
-.category-info h4 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 0.25rem;
-  line-height: 1.3;
-}
-
-.category-info p {
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: 500;
-}
 
 .categories-toggle {
   display: flex;
@@ -2818,8 +2939,8 @@ onUnmounted(() => {
 
 /* Gradient overlay pour l'état réduit */
 .categories-grid:not(.expanded) {
-  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 75%, rgba(0,0,0,0.5) 90%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 75%, rgba(0,0,0,0.5) 90%, transparent 100%);
 }
 
 /* Responsive Design */
@@ -2843,7 +2964,11 @@ onUnmounted(() => {
   .categories-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 1rem;
-    max-height: 350px;
+    max-height: 400px;
+  }
+  
+  .categories-grid.expanded {
+    max-height: 2500px;
   }
   
   .category-card {
@@ -2857,7 +2982,7 @@ onUnmounted(() => {
     height: 40px;
   }
   
-  .category-icon svg {
+  .category-icon-svg {
     width: 20px;
     height: 20px;
   }
@@ -2875,7 +3000,11 @@ onUnmounted(() => {
 @media (max-width: 640px) {
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
-    max-height: 300px;
+    max-height: 350px;
+  }
+  
+  .categories-grid.expanded {
+    max-height: 2000px;
   }
   
   .category-card {
@@ -2900,7 +3029,11 @@ onUnmounted(() => {
   .categories-grid {
     grid-template-columns: 1fr;
     gap: 0.875rem;
-    max-height: 280px;
+    max-height: 320px;
+  }
+  
+  .categories-grid.expanded {
+    max-height: 1800px;
   }
   
   .category-card {
@@ -2910,7 +3043,7 @@ onUnmounted(() => {
   }
   
   .categories-section {
-    margin-bottom: 4.25rem;
+    margin-bottom: 3rem;
   }
   
   .section-title {
