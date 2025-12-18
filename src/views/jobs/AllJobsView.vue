@@ -1,8 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <Navbar />
+  <transition name="page-fade" appear>
+    <div class="min-h-screen bg-gray-50" key="all-jobs-page">
+      <Navbar />
     
-    <section class="relative overflow-hidden bg-gradient-to-br mt-5 sm:mt-15 from-emerald-800 via-emerald-700 to-teal-600 py-20 px-4 sm:px-6 lg:px-8">
+    <section class="relative overflow-hidden bg-gradient-to-br mt-4 sm:mt-8 from-emerald-800 via-emerald-700 to-teal-600 py-16 px-4 sm:px-6 lg:px-8">
       <div class="absolute inset-0 bg-black/10"></div>
       <div class="absolute top-0 left-0 w-72 h-72 bg-emerald-400/20 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
       <div class="absolute bottom-0 right-0 w-96 h-96 bg-teal-400/20 rounded-full translate-x-1/3 translate-y-1/3"></div>
@@ -280,8 +281,10 @@
       </div>
     </main>
 
-    <Footer />
-  </div>
+
+    </div>
+  </transition>
+  <Footer />
 </template>
 
 <script setup lang="ts">
@@ -807,5 +810,17 @@ watch(
 .page-transition-leave-to {
   opacity: 0;
   transform: translateY(-20px);
+}
+
+/* Effet d'apparition global de la page */
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 </style>
