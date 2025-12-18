@@ -112,7 +112,7 @@ const fetchJobDetails = async () => {
       console.warn('Impossible de récupérer les données de l\'entreprise:', companyError)
       companyData = {
         id: jobData.companyId,
-        name: jobData.companyName || `Entreprise #${jobData.companyId}`,
+        name: `Entreprise #${jobData.companyId}`,
         location: jobData.location || 'Non spécifié',
         webSiteUrl: null,
         logoUrl: null
