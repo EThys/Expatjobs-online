@@ -11,6 +11,8 @@ import EntrepriseRecruteComponent from '@/components/jobs/EntrepriseRecruteCompo
 //@ts-ignore
 import TestimonialComponent from '@/components/testimonial/TestimonialComponent.vue'
 import { useScrollAnimation } from '@/composables/useScrollAnimation'
+// @ts-ignore
+import Footer from '../components/footer/FooterComponent.vue';
 
 // Initialiser les animations au scroll
 useScrollAnimation({
@@ -24,6 +26,7 @@ useScrollAnimation({
     <HeroComponent />
     <AboutComponent />
     <EntrepriseRecruteComponent />
+    <Footer />
   </div>
 </template>
 <style scoped>
