@@ -95,7 +95,9 @@
       "partTime": "Part-time",
       "contract": "Contract",
       "internship": "Internship",
-      "remote": "Remote"
+      "remote": "Remote",
+      "noJobsAvailable": "No jobs available",
+      "noJobsDescription": "There are currently no job offers to display."
     }
   },
   "about": {
