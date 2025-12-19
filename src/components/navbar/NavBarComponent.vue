@@ -205,8 +205,8 @@
     <header class="fixed top-0 left-0 right-0 w-full z-50 transition-all duration-500">
       <!-- Barre promotionnelle élégante -->
       <div
-        v-if="!isMobile && !isLoggedIn"
-        class="bg-gradient-to-r from-emerald-600/95 via-emerald-700/95 to-green-600/95 backdrop-blur-xl text-white py-3 px-6 border-b border-emerald-400/20"
+        v-if="!isLoggedIn"
+        class="bg-gradient-to-r from-emerald-600/95 via-emerald-700/95 to-green-600/95 backdrop-blur-xl text-white py-2 sm:py-3 px-4 sm:px-6 border-b border-emerald-400/20 text-xs sm:text-sm"
       >
         <div class="max-w-7xl mx-auto flex items-center justify-center gap-4">
           <div class="flex items-center gap-2">
@@ -686,16 +686,42 @@
                   </transition>
                 </div>
   
+                <!-- Bouton mobile menu -->
+                <button
+                  v-if="isMobile"
+                  @click="isMobileMenuOpen = !isMobileMenuOpen"
+                  class="lg:hidden text-gray-700 focus:outline-none z-50 p-2 rounded-lg hover:bg-emerald-50 transition-colors"
+                  :class="{ 'text-emerald-600': isMobileMenuOpen }"
+                  aria-label="Toggle menu"
+                >
+                  <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      v-if="!isMobileMenuOpen"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                    <path
+                      v-else
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+  
                 <router-link
                   to="/login"
-                  class="px-5 py-2.5 text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 rounded-xl hover:bg-emerald-50/50 border border-transparent hover:border-emerald-200"
+                  class="hidden lg:block px-5 py-2.5 text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 rounded-xl hover:bg-emerald-50/50 border border-transparent hover:border-emerald-200"
                   @click="closeAllDropdowns"
                 >
                   {{ t('nav.login') }}
                 </router-link>
                 <router-link
                   to="/register"
-                  class="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-emerald-600/25 flex items-center justify-center group"
+                  class="hidden lg:flex bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-emerald-600/25 items-center justify-center group"
                   @click="closeAllDropdowns"
                 >
                   <span>{{ t('nav.register') }}</span>
@@ -705,32 +731,6 @@
                 </router-link>
               </div>
             </div>
-  
-            <!-- Bouton mobile menu -->
-            <button
-              v-if="isMobile"
-              @click="isMobileMenuOpen = !isMobileMenuOpen"
-              class="lg:hidden text-gray-700 focus:outline-none z-50 p-2 rounded-lg hover:bg-emerald-50 transition-colors"
-              :class="{ 'text-emerald-600': isMobileMenuOpen }"
-              aria-label="Toggle menu"
-            >
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  v-if="!isMobileMenuOpen"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-                <path
-                  v-else
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
           </div>
         </nav>
   
@@ -1323,19 +1323,32 @@
       left: 0 !important;
       right: 0 !important;
       z-index: 50 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* Navbar au top sur mobile */
+    nav.navbar-professional {
+      position: relative !important;
+      top: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
   
     nav {
       padding: 0 !important;
+      margin: 0 !important;
     }
   
     nav > div {
       padding-left: 0.75rem !important;
       padding-right: 0.75rem !important;
+      margin: 0 !important;
     }
   
     nav > div > div {
       height: 3.5rem !important;
+      margin: 0 !important;
     }
   
     /* Logo réduit sur mobile */
