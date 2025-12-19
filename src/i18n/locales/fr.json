@@ -18,7 +18,6 @@
     "manageAccount": "Gérer mon compte",
     "myCompany": "Mon entreprise",
     "manageOffers": "Gérer mes offres",
-    "logout": "Se déconnecter",
     "leaveAccount": "Quitter mon compte",
     "account": "Compte",
     "promoText": "50K+ offres d'emploi internationales disponibles",
@@ -34,6 +33,31 @@
     "jobTypeInternship": "Stage",
     "jobTypeRemote": "Télétravail",
     "searchButton": "Rechercher",
+    "allJobsView": {
+      "title": "Trouvez le job de vos rêves",
+      "titleHighlight": "de vos rêves",
+      "subtitle": "Découvrez des opportunités uniques dans les entreprises les plus innovantes",
+      "searchPlaceholder": "Développeur, Designer, Marketing, Remote...",
+      "searchButton": "Rechercher"
+    },
+    "jobsByTypeView": {
+      "title": "Explorez les offres par type de contrat",
+      "titleHighlight": "par type de contrat",
+      "subtitle": "Filtrez les opportunités selon le format de travail qui vous correspond le mieux : CDI, temps partiel, freelance, stage ou contrat."
+    },
+    "categoriesView": {
+      "title": "Trouvez Votre Prochain Défi",
+      "titleHighlight": "Prochain Défi",
+      "subtitle": "Des opportunités de carrière triées sur le volet dans les meilleures entreprises. Rejoignez les talents qui façonnent l'avenir professionnel.",
+      "searchPlaceholder": "Poste, compétence ou entreprise...",
+      "locationPlaceholder": "Localisation...",
+      "stats": {
+        "activeOffers": "Offres actives",
+        "domains": "Domaines",
+        "companies": "Entreprises",
+        "responseTime": "Réponse moyenne"
+      }
+    },
     "slide1": {
       "title": "Trouvez votre",
       "highlight": "emploi idéal",
@@ -179,6 +203,26 @@
     "privacy": "Politique de confidentialité",
     "terms": "Conditions d'utilisation"
   },
+  "testimonials": {
+    "title": "Ils ont transformé leur",
+    "titleHighlight": "carrière",
+    "subtitle": "Découvrez les success stories de professionnels qui ont trouvé leur emploi de rêve grâce à ExpatJobs"
+  },
+  "cta": {
+    "badge": "Prêt à commencer ?",
+    "title": "Rejoignez ExpatJobs maintenant",
+    "subtitle": "Trouvez votre prochain emploi international ou recrutez les meilleurs talents, en quelques clics seulement.",
+    "searchJob": "Je cherche un job",
+    "wantToRecruit": "Je veux recruter",
+    "freeSignup": "Inscription gratuite",
+    "cancelAnytime": "Annulation à tout moment",
+    "dedicatedSupport": "Support dédié",
+    "realTime": "Temps réel",
+    "international": "International",
+    "activeOffers": "Offres actives",
+    "connectedCountries": "Pays connectés",
+    "dailyJoiners": "Des candidats et des entreprises rejoignent la plateforme chaque jour."
+  },
   "common": {
     "readMore": "Lire plus",
     "learnMore": "En savoir plus",
@@ -197,6 +241,104 @@
     "salaryNegotiable": "Salaire à négocier",
     "salaryUpTo": "Jusqu'à {max} €",
     "salaryFrom": "À partir de {min} €"
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "subtitle": "Connectez-vous pour accéder à votre espace personnel.",
+      "welcomeBack": "Bon retour !",
+      "manageCareer": "Connectez-vous pour gérer votre carrière",
+      "emailPlaceholder": "Email ou nuémro de téléphone",
+      "passwordPlaceholder": "Mot de passe",
+      "rememberMe": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submitButton": "Se connecter",
+      "loading": "Connexion en cours...",
+      "noAccount": "Pas encore de compte ?",
+      "createAccount": "Créer un compte",
+      "heroTitle": "Expat",
+      "heroSubtitle": "Jobs",
+      "heroDescription": "Accédez à des opportunités professionnelles mondiales en un clic.",
+      "sideTitle": "Construisez votre carrière",
+      "sideHighlight": "Internationale",
+      "sideDescription": "Rejoignez des milliers de professionnels et d'entreprises qui font confiance à ExpatJobs pour connecter les talents du monde entier.",
+      "stats": {
+        "offers": "Offres",
+        "countries": "Pays",
+        "verified": "Vérifié"
+      },
+      "errors": {
+        "network": "Erreur réseau, veuillez vérifier votre connexion.",
+        "fillAll": "Veuillez remplir tous les champs",
+        "credentials": "Identifiants incorrects",
+        "default": "Erreur lors de la connexion"
+      },
+      "success": "Connexion réussie !"
+    },
+    "register": {
+      "title": "Créer un compte",
+      "subtitle": "Rejoignez notre communauté et accédez à des opportunités exclusives.",
+      "createTitle": "Créez votre compte",
+      "createSubtitle": "Commencez votre aventure internationale aujourd'hui.",
+      "roleLabel": "Je suis :",
+      "candidate": {
+        "title": "Candidat",
+        "description": "Je cherche un emploi"
+      },
+      "recruiter": {
+        "title": "Recruteur",
+        "description": "Je cherche des talents"
+      },
+      "fullNamePlaceholder": "Nom complet",
+      "emailPlaceholder": "Adresse email",
+      "phonePlaceholder": "Téléphone",
+      "passwordPlaceholder": "Mot de passe",
+      "confirmPasswordPlaceholder": "Confirmer le mot de passe",
+      "passwordStrength": "Force du mot de passe",
+      "weak": "Faible",
+      "medium": "Moyen",
+      "strong": "Fort",
+      "terms": "J'accepte les",
+      "termsLink": "conditions générales",
+      "submitButton": "S'inscrire",
+      "loading": "Création en cours...",
+      "alreadyAccount": "Vous avez déjà un compte ?",
+      "heroTitle": "Votre avenir commence",
+      "heroHighlight": "Ici et Maintenant",
+      "heroDescription": "Créez votre profil en quelques minutes et accédez instantanément à des milliers d'offres exclusives à travers le monde.",
+      "errors": {
+        "network": "Erreur réseau",
+        "fillRequired": "Veuillez remplir les champs obligatoires",
+        "acceptTerms": "Veuillez accepter les conditions générales",
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "invalidEmail": "Veuillez entrer une adresse email valide!",
+        "invalidPhone": "Veuillez entrer un numéro de téléphone valide!",
+        "passwordLength": "Le mot de passe doit contenir au moins 8 caractères!",
+        "passwordDigits": "Le mot de passe ne doit pas contenir uniquement des chiffres!",
+        "passwordCommon": "Le mot de passe est trop faible. Utilisez des lettres, chiffres et caractères spéciaux."
+      },
+      "success": "Inscription réussie ! Connexion..."
+    }
+  },
+  "contactPage": {
+    "badge": "Contactez notre équipe",
+    "title": "Prenons contact",
+    "subtitle": "pour discuter de vos besoins",
+    "description": "Notre équipe est disponible pour répondre à vos questions sous",
+    "descriptionHighlight": "24 heures",
+    "writeUs": "Nous écrire",
+    "callUs": "Appeler maintenant",
+    "formTitle": "Envoyez-nous un message",
+    "nameLabel": "Nom complet",
+    "namePlaceholder": "Votre nom",
+    "emailLabel": "Adresse email",
+    "emailPlaceholder": "votre@email.com",
+    "subjectLabel": "Sujet",
+    "subjectPlaceholder": "Sujet de votre message",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Comment pouvons-nous vous aider ?",
+    "submitButton": "Envoyer le message",
+    "contactInfoTitle": "Nos coordonnées",
+    "successMessage": "Votre message a été envoyé avec succès ! Nous vous répondrons sous 24h."
   }
 }
-
