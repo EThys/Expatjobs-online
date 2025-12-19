@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/ban-ts-comment -->
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 //@ts-ignore
@@ -49,7 +49,7 @@ import type { ICompany } from '@/utils/interface/ICompagny'
 const jobService = useJobService();
 const companyService = useCompanyService();
 const router = useRouter();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const featuredJobs = ref<any[]>([])
 const loading = ref(false)
@@ -208,7 +208,140 @@ const slides = computed(() => [
 const currentSlide = ref(0)
 const isHovering = ref(false)
 const isTransitioning = ref(false)
+const isLoaded = ref(false)
+const displayedTitle = ref('')
+const displayedDescription = ref('')
+const isTyping = ref(false)
 let interval: number
+let typingInterval: number | null = null
+
+// Tous les textes pour l'animation (utilise tous les slides)
+const allTexts = computed(() => {
+  return slides.value.map((slide, index) => ({
+    subtitle: slide.subtitle,
+    description: slide.description,
+    title: slide.title,
+    highlight: slide.highlight,
+    animationType: ['zoom', 'spin', 'fade', 'slide'][index % 4] // Alterner les types d'animations
+  }))
+})
+
+// Index du texte actuellement affiché
+const currentTextIndex = ref(0)
+const isAnimating = ref(false)
+const titleVisible = ref(false)
+const subtitleVisible = ref(false)
+const currentAnimationType = ref('fade')
+
+// Fonction pour l'animation séquentielle : titre puis sous-titre, puis disparition
+const startTypingEffect = () => {
+  if (typingInterval) clearTimeout(typingInterval)
+  isTyping.value = true
+  
+  const cycleTexts = () => {
+    if (isAnimating.value) return
+    
+    const texts = allTexts.value
+    if (texts.length === 0) return
+    
+    const currentText = texts[currentTextIndex.value]
+    currentAnimationType.value = currentText.animationType
+    
+    // Étape 1: Le titre apparaît et reste
+    isAnimating.value = true
+    titleVisible.value = false
+    subtitleVisible.value = false
+    displayedTitle.value = currentText.subtitle
+    displayedDescription.value = currentText.description
+    
+    // Animation d'entrée du titre (petit délai pour éviter le chevauchement)
+    setTimeout(() => {
+      titleVisible.value = true
+      
+      // Étape 2: Le sous-titre apparaît après le titre (0.6s après pour laisser le titre s'afficher)
+      setTimeout(() => {
+        subtitleVisible.value = true
+        
+        // Étape 3: Après 5 secondes, les deux disparaissent ensemble
+        typingInterval = setTimeout(() => {
+          titleVisible.value = false
+          subtitleVisible.value = false
+          
+          // Attendre la fin complète de l'animation de sortie (max 0.7s pour spin, 0.6s pour les autres)
+          const leaveDuration = currentText.animationType === 'spin' ? 700 : 600
+          setTimeout(() => {
+            // Petit délai supplémentaire pour éviter le chevauchement visuel
+            setTimeout(() => {
+              isAnimating.value = false
+              currentTextIndex.value = (currentTextIndex.value + 1) % texts.length
+              cycleTexts() // Relancer le cycle avec le prochain texte
+            }, 100)
+          }, leaveDuration)
+        }, 5000)
+      }, 500)
+    }, 100)
+  }
+  
+  // Démarrer le cycle
+  cycleTexts()
+}
+
+const stopTypingEffect = () => {
+  if (typingInterval) {
+    clearTimeout(typingInterval)
+    typingInterval = null
+  }
+  isTyping.value = false
+  isAnimating.value = false
+  titleVisible.value = false
+  subtitleVisible.value = false
+  // Réinitialiser l'affichage avec le premier texte
+  if (allTexts.value.length > 0) {
+    displayedTitle.value = allTexts.value[0].subtitle
+    displayedDescription.value = allTexts.value[0].description
+    currentTextIndex.value = 0
+    currentAnimationType.value = allTexts.value[0].animationType
+  }
+}
+
+// Watch pour réagir aux changements de langue
+watch(
+  () => locale.value,
+  () => {
+    // Réinitialiser l'affichage quand la langue change
+    stopTypingEffect()
+    // Mettre à jour les textes
+    if (allTexts.value.length > 0) {
+      currentTextIndex.value = 0
+      displayedTitle.value = allTexts.value[0].subtitle
+      displayedDescription.value = allTexts.value[0].description
+      currentAnimationType.value = allTexts.value[0].animationType
+    }
+    // Relancer après un court délai
+    setTimeout(() => {
+      startTypingEffect()
+    }, 500)
+  }
+)
+
+// Watch pour réagir aux changements des textes (slides)
+watch(
+  () => allTexts.value,
+  () => {
+    // Réinitialiser si les textes changent
+    stopTypingEffect()
+    if (allTexts.value.length > 0) {
+      currentTextIndex.value = 0
+      displayedTitle.value = allTexts.value[0].subtitle
+      displayedDescription.value = allTexts.value[0].description
+      currentAnimationType.value = allTexts.value[0].animationType
+      setTimeout(() => {
+        startTypingEffect()
+      }, 500)
+    }
+  },
+  { deep: true }
+)
 
 const searchQuery = ref('')
 const locationQuery = ref('')
@@ -573,12 +706,20 @@ const handleSearch = () => {
 }
 
 onMounted(() => {
-  startAutoPlay()
+  // Trigger animation after component is mounted
+  setTimeout(() => {
+    isLoaded.value = true
+  }, 100)
+  // Démarrer l'effet typing après un court délai
+  setTimeout(() => {
+    startTypingEffect()
+  }, 500)
   fetchFeaturedJobs()
 })
 
 onUnmounted(() => {
   stopAutoPlay()
+  stopTypingEffect()
 })
 </script>
 
@@ -586,16 +727,27 @@ onUnmounted(() => {
   <Navbar />
   <div class="hero-landing relative h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
     <!-- Decorative Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <!-- Floating shapes -->
-      <div class="absolute -top-48 -right-48 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
-      <div class="absolute -bottom-48 -left-48 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s"></div>
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-violet-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 4s"></div>
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <!-- Floating shapes with animations -->
+      <div class="absolute -top-48 -right-48 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" :class="{ 'animate-fade-in': isLoaded }"></div>
+      <div class="absolute -bottom-48 -left-48 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000" :class="{ 'animate-fade-in': isLoaded }" style="animation-delay: 2s"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-violet-500/10 rounded-full blur-3xl animate-pulse delay-2000" :class="{ 'animate-fade-in': isLoaded }" style="animation-delay: 4s"></div>
+      
+      <!-- Animated gradient orbs -->
+      <div class="absolute top-20 right-20 w-72 h-72 bg-emerald-400/20 rounded-full blur-3xl animate-blob" :class="{ 'animate-fade-in': isLoaded }"></div>
+      <div class="absolute bottom-20 left-20 w-72 h-72 bg-cyan-400/20 rounded-full blur-3xl animate-blob animation-delay-2000" :class="{ 'animate-fade-in': isLoaded }"></div>
+      <div class="absolute top-1/2 right-1/4 w-64 h-64 bg-teal-400/20 rounded-full blur-3xl animate-blob animation-delay-4000" :class="{ 'animate-fade-in': isLoaded }"></div>
+      
+      <!-- Animated grid lines -->
+      <div class="absolute inset-0 opacity-10" :class="{ 'animate-fade-in': isLoaded }">
+        <div class="absolute inset-0 grid-animation" style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
+      </div>
       
       <!-- Animated particles -->
       <div class="absolute inset-0">
-        <div v-for="i in 15" :key="i" 
-          class="absolute w-1 h-1 bg-white/60 rounded-full animate-pulse"
+        <div v-for="i in 20" :key="i" 
+          class="absolute w-1.5 h-1.5 bg-white/40 rounded-full animate-float"
+          :class="{ 'animate-fade-in': isLoaded }"
           :style="{ 
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
@@ -604,6 +756,19 @@ onUnmounted(() => {
           }">
         </div>
       </div>
+      
+      <!-- Decorative lines -->
+      <svg class="absolute inset-0 w-full h-full opacity-5" :class="{ 'animate-fade-in': isLoaded }">
+        <defs>
+          <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#10b981" />
+            <stop offset="50%" stop-color="#06b6d4" />
+            <stop offset="100%" stop-color="#8b5cf6" />
+          </linearGradient>
+        </defs>
+        <path d="M0,200 Q400,100 800,200 T1600,200" stroke="url(#line-gradient)" stroke-width="2" fill="none" class="animate-draw-line" />
+        <path d="M0,400 Q400,300 800,400 T1600,400" stroke="url(#line-gradient)" stroke-width="2" fill="none" class="animate-draw-line animation-delay-1000" />
+      </svg>
     </div>
 
     <div
@@ -622,140 +787,223 @@ onUnmounted(() => {
         }
       "
     >
-      <!-- Carousel Slides -->
-      <div
-        class="flex h-full transition-transform duration-1000 ease-in-out"
-        :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
-      >
-        <div
-          v-for="(slide, index) in slides"
-          :key="index"
-          class="relative flex-shrink-0 w-full h-full"
-        >
-          <!-- Background Image -->
-          <div class="absolute inset-0">
-            <img
-              :src="slide.image"
-              class="w-full h-full object-cover transition-all duration-1000"
-              :class="{
-                'opacity-100 scale-100': currentSlide === index,
-                'opacity-50 scale-105': currentSlide !== index
+      <!-- Single Slide with Typing Effect -->
+      <div class="relative w-full h-full">
+        <!-- Background Image (only first slide) -->
+        <div class="absolute inset-0">
+          <img
+            :src="slides[0].image"
+            class="w-full h-full object-cover"
+            :alt="`Hero background`"
+            loading="eager"
+          />
+          <!-- Gradient Overlay with reduced opacity -->
+          <div class="absolute inset-0 bg-gradient-to-br from-black/50 via-black/40 to-black/50 z-10"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/40 z-10"></div>
+          
+          <!-- Decorative Elements -->
+          <div class="absolute inset-0 z-5 pointer-events-none">
+            <!-- Floating geometric shapes -->
+            <div class="absolute top-20 left-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+            <div class="absolute top-40 right-20 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl animate-blob"></div>
+            <div class="absolute bottom-40 left-1/4 w-36 h-36 bg-teal-500/10 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
+            
+            <!-- Animated grid pattern -->
+            <div class="absolute inset-0 opacity-5 grid-animation" style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
+            
+            <!-- Floating particles -->
+            <div 
+              v-for="i in 15" 
+              :key="`particle-${i}`"
+              class="absolute w-1.5 h-1.5 bg-white/30 rounded-full animate-float"
+              :style="{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 6}s`,
+                animationDuration: `${4 + Math.random() * 4}s`
               }"
-              :alt="`Slide ${index + 1}: ${slide.title}`"
-              loading="lazy"
-            />
-            <!-- Gradient Overlay -->
-            <div class="absolute inset-0 bg-gradient-to-br from-black/60 via-black/45 to-black/60 z-10"></div>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/40 z-10"></div>
+            ></div>
+            
+            <!-- Decorative circles with borders -->
+            <div class="absolute top-1/4 right-1/4 w-64 h-64 border border-white/10 rounded-full animate-pulse delay-1000"></div>
+            <div class="absolute bottom-1/3 left-1/3 w-48 h-48 border border-white/5 rounded-full animate-pulse delay-2000"></div>
+            
+            <!-- Animated SVG decorative lines -->
+            <svg class="absolute top-0 left-0 w-full h-full opacity-10" style="overflow: visible;">
+              <defs>
+                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.5" />
+                  <stop offset="50%" style="stop-color:#06b6d4;stop-opacity:0.3" />
+                  <stop offset="100%" style="stop-color:#14b8a6;stop-opacity:0.5" />
+                </linearGradient>
+              </defs>
+          <path
+                d="M 0,200 Q 400,100 800,200 T 1600,200" 
+                stroke="url(#lineGradient)" 
+                stroke-width="2" 
+                fill="none"
+                class="animate-draw-line"
+              />
+          <path
+                d="M 0,400 Q 600,300 1200,400 T 2400,400" 
+                stroke="url(#lineGradient)" 
+                stroke-width="2" 
+                fill="none"
+                class="animate-draw-line delay-1000"
+          />
+        </svg>
           </div>
+          
+          <!-- White fog effect at bottom (no blur on image) -->
+        </div>
 
-          <!-- Slide Content -->
-          <div class="relative z-20 flex items-center justify-center h-full px-4 sm:px-6 lg:px-8 pt-24 md:pt-28 pb-20">
-            <div class="w-full max-w-5xl mx-auto text-center">
-              <div
-                class="transition-all duration-700 ease-out"
-                :class="{
-                  'translate-y-0 opacity-100': currentSlide === index,
-                  'translate-y-10 opacity-0': currentSlide !== index,
-                }"
-              >
-                <!-- Main Title -->
-                <h4 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight tracking-tight px-4">
-                  <span class="block bg-gradient-to-r from-white via-emerald-50/90 to-white bg-clip-text text-transparent drop-shadow-xl">
-                    {{ slide.subtitle }}
+        <!-- Slide Content with Typing Effect -->
+        <div class="relative z-20 flex items-center justify-center h-full px-4 sm:px-6 lg:px-8 pt-25 sm:pt-5 md:pt-5 pb-20">
+          <div class="w-full max-w-5xl mx-auto text-center">
+            <!-- Main Title and Subtitle with sequential animations -->
+            <div 
+              class="mb-10"
+              :class="{ 'animate-slide-in-up opacity-100': isLoaded }"
+              style="animation-delay: 0.2s; animation-fill-mode: both; min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center;"
+            >
+              <!-- Title with animation -->
+              <transition :name="`text-${currentAnimationType}-title`" appear>
+                <h4 
+                  v-if="titleVisible"
+                  key="title"
+                  class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight tracking-tight px-4 text-center"
+                >
+                  <span class="block bg-gradient-to-r from-white via-emerald-50/90 to-white bg-clip-text text-transparent drop-shadow-xl animate-gradient-shift">
+                    {{ displayedTitle }}
                   </span>
                 </h4>
-                
-                <!-- Description -->
-                <p class="text-base sm:text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed font-normal drop-shadow-lg px-4">
-                  {{ slide.description }}
+              </transition>
+              
+              <!-- Subtitle with animation -->
+              <transition :name="`text-${currentAnimationType}-subtitle`" appear>
+                <p 
+                  v-if="subtitleVisible"
+                  key="description"
+                  class="text-base sm:text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed font-normal drop-shadow-lg px-4 text-center"
+                >
+                  {{ displayedDescription }}
                 </p>
-                
-                <!-- Modern Search Bar -->
-                <div class="mt-10 sm:mt-12 max-w-4xl mx-auto px-4">
-                  <form @submit.prevent="handleSearch" class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-3 sm:p-4 flex flex-col sm:flex-row gap-3 border border-white/40 transition-all duration-300 hover:shadow-emerald-500/30 hover:shadow-[0_25px_60px_-12px_rgba(16,185,129,0.4)] hover:-translate-y-1">
-                    <!-- Search Input -->
-                    <div class="group flex-1 flex items-center bg-white/80 rounded-xl px-4 py-3.5 transition-all duration-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/40 focus-within:shadow-md">
-                      <MagnifyingGlassIcon class="w-5 h-5 text-gray-500 mr-3 flex-shrink-0 transition-colors duration-200 group-focus-within:text-emerald-600" />
-                      <input
-                        v-model="searchQuery"
-                        type="text"
-                        :placeholder="$t('hero.searchPlaceholder')"
-                        class="flex-1 bg-transparent border-0 outline-none text-gray-900 placeholder-gray-400 text-sm sm:text-base font-medium"
-                      />
-                    </div>
-                    
-                    <!-- Location Input -->
-                    <div class="group flex-1 flex items-center bg-white/80 rounded-xl px-4 py-3.5 transition-all duration-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/40 focus-within:shadow-md">
-                      <MapPinIcon class="w-5 h-5 text-gray-500 mr-3 flex-shrink-0 transition-colors duration-200 group-focus-within:text-emerald-600" />
-                      <input
-                        v-model="locationQuery"
-                        type="text"
-                        :placeholder="$t('hero.locationPlaceholder')"
-                        class="flex-1 bg-transparent border-0 outline-none text-gray-900 placeholder-gray-400 text-sm sm:text-base font-medium"
-                      />
-                    </div>
-                    
-                    <!-- Search Button -->
-                    <button 
-                      type="submit" 
-                      class="flex items-center justify-center w-full sm:w-auto sm:min-w-[56px] h-12 sm:h-14 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
-                      :aria-label="$t('hero.searchButton')"
-                    >
-                      <MagnifyingGlassIcon class="w-5 h-5 sm:w-6 sm:h-6" />
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </div>
+              </transition>
+      </div>
+
+            <!-- Modern Search Bar with entrance animation -->
+            <div 
+              class="mt-10 sm:mt-12 max-w-4xl mx-auto px-4"
+              :class="{ 'animate-slide-in-up opacity-100': isLoaded }"
+              style="animation-delay: 0.6s; animation-fill-mode: both;"
+            >
+              <form @submit.prevent="handleSearch" class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-3 sm:p-4 flex flex-col sm:flex-row gap-3 border border-white/40 transition-all duration-300 hover:shadow-emerald-500/30 hover:shadow-[0_25px_60px_-12px_rgba(16,185,129,0.4)] hover:-translate-y-1 hover:scale-[1.01] animate-float-subtle">
+                <!-- Search Input -->
+                <div class="group flex-1 flex items-center bg-white/80 rounded-xl px-3 sm:px-4 py-3.5 transition-all duration-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/40 focus-within:shadow-md">
+                  <MagnifyingGlassIcon class="w-5 h-5 text-gray-500 mr-2 sm:mr-3 flex-shrink-0 transition-colors duration-200 group-focus-within:text-emerald-600" />
+            <input
+              v-model="searchQuery"
+              type="text"
+              :placeholder="$t('hero.searchPlaceholder')"
+                    class="flex-1 bg-transparent border-0 outline-none text-gray-900 placeholder-gray-400 text-xs sm:text-sm md:text-base font-medium"
+            />
           </div>
+                
+                <!-- Location Input -->
+                <div class="group flex-1 flex items-center bg-white/80 rounded-xl px-3 sm:px-4 py-3.5 transition-all duration-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/40 focus-within:shadow-md">
+                  <MapPinIcon class="w-5 h-5 text-gray-500 mr-2 sm:mr-3 flex-shrink-0 transition-colors duration-200 group-focus-within:text-emerald-600" />
+            <input
+              v-model="locationQuery"
+              type="text"
+              :placeholder="$t('hero.locationPlaceholder')"
+                    class="flex-1 bg-transparent border-0 outline-none text-gray-900 placeholder-gray-400 text-sm sm:text-base font-medium"
+            />
+          </div>
+                
+                <!-- Search Button -->
+                <button 
+                  type="submit" 
+                  class="flex items-center justify-center w-full sm:w-auto sm:min-w-[56px] h-12 sm:h-14 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                  :aria-label="$t('hero.searchButton')"
+                >
+                  <MagnifyingGlassIcon class="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+        </form>
+      </div>
+    </div>
         </div>
       </div>
 
-      <!-- Modern Slide Counter - Bottom Right -->
-      <div class="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 lg:bottom-10 lg:right-10 z-20 flex flex-col items-end gap-3">
-        <!-- Slide Navigation Dots -->
-        <div class="flex items-center gap-2.5 bg-black/20 backdrop-blur-md rounded-full px-4 py-2.5 border border-white/10">
-          <button
-            v-for="(slide, index) in slides"
-            :key="index"
-            @click="goToSlide(index)"
-            :aria-label="`Aller au slide ${index + 1}`"
-            class="group relative flex items-center transition-all duration-300"
-          >
-            <!-- Active indicator with number -->
+      <!-- Modern Indicator - Bottom Right (fade-in animation) -->
+      <div 
+        class="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 lg:bottom-10 lg:right-10 z-20 flex flex-col items-end gap-3"
+        :class="{ 'animate-fade-in': isLoaded }"
+        style="animation-delay: 0.8s; animation-fill-mode: both;"
+      >
+        <!-- Single indicator dot -->
+        <div class="flex items-center gap-2.5 bg-black/20 backdrop-blur-md rounded-full px-4 py-2.5 border border-white/10 animate-float-subtle">
+          <div class="relative w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500/40 to-teal-500/40 backdrop-blur-sm border border-emerald-400/60 flex items-center justify-center transition-all duration-300 shadow-md shadow-emerald-500/50">
+            <span class="text-white font-semibold text-xs relative z-10">01</span>
+            <!-- Animated ring -->
             <div 
-              v-if="currentSlide === index"
-              class="relative w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500/40 to-teal-500/40 backdrop-blur-sm border border-emerald-400/60 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:border-emerald-400 group-hover:shadow-md group-hover:shadow-emerald-500/50"
-            >
-              <span class="text-white font-semibold text-xs relative z-10">{{ index + 1 }}</span>
-              <!-- Animated ring -->
-              <div 
-                v-if="!isHovering" 
-                class="absolute inset-0 rounded-full border border-transparent border-t-emerald-400/80 animate-spin-slow"
-                style="animation-duration: 5s;"
-              ></div>
-            </div>
-            <!-- Inactive indicator -->
-            <div 
-              v-else
-              class="w-2 h-2 rounded-full bg-white/50 backdrop-blur-sm transition-all duration-300 group-hover:bg-white/80 group-hover:scale-125"
+              v-if="!isHovering" 
+              class="absolute inset-0 rounded-full border border-transparent border-t-emerald-400/80 animate-spin-slow"
+              style="animation-duration: 5s;"
             ></div>
-          </button>
-        </div>
-        
-        <!-- Current Slide Number - Small and subtle -->
-        <div class="flex items-center gap-1 text-white/70 text-xs font-medium">
-          <span>{{ String(currentSlide + 1).padStart(2, '0') }}</span>
-          <span>/</span>
-          <span>{{ String(slides.length).padStart(2, '0') }}</span>
+          </div>
         </div>
       </div>
 
     </div>
     
+    <!-- White fog effect at bottom of hero - smooth transition without separator -->
+    <div class="absolute bottom-0 left-0 right-0 z-15 pointer-events-none fog-effect"></div>
+    <div class="absolute bottom-0 left-0 right-0 z-15 pointer-events-none fog-overlay"></div>
+    
+    <!-- Statistics in fog area - Positioned at bottom left (hidden on mobile) -->
+  
+    <!-- Popular Searches / Quick Links - Centered bottom area (hidden on mobile) -->
+    <div class="hidden md:block absolute bottom-0 left-1/2 transform -translate-x-1/2 z-20 py-5 lg:py-11">
+      <div class="flex flex-col items-center gap-2">
+        <span class="text-xs lg:text-sm text-white/70 font-medium mb-1">Recherches populaires</span>
+        <div class="flex items-center gap-2 lg:gap-3 flex-wrap justify-center max-w-2xl px-4">
+          <router-link 
+            to="/jobs?q=Développeur"
+            class="px-3 py-1.5 lg:px-4 lg:py-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs lg:text-sm font-medium rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          >
+            Développeur
+          </router-link>
+          <router-link 
+            to="/jobs?q=Marketing"
+            class="px-3 py-1.5 lg:px-4 lg:py-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs lg:text-sm font-medium rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          >
+            Marketing
+          </router-link>
+          <router-link 
+            to="/jobs?q=Finance"
+            class="px-3 py-1.5 lg:px-4 lg:py-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs lg:text-sm font-medium rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          >
+            Finance
+          </router-link>
+          <router-link 
+            to="/jobs?q=Designer"
+            class="px-3 py-1.5 lg:px-4 lg:py-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs lg:text-sm font-medium rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          >
+            Designer
+          </router-link>
+          <router-link 
+            to="/jobs?q=Remote"
+            class="px-3 py-1.5 lg:px-4 lg:py-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs lg:text-sm font-medium rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          >
+            Remote
+          </router-link>
+         
+        </div>
+      </div>
+    </div>
+    
     <!-- Transition Spacer -->
-    <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none z-10"></div>
   </div>
   
   <section class="featured-jobs">
@@ -805,12 +1053,12 @@ onUnmounted(() => {
               :style="{ '--animation-delay': `${index * 0.05}s` }"
             >
               <div class="category-card-inner">
-                <div class="category-icon" :style="{ backgroundColor: category.color }">
+              <div class="category-icon" :style="{ backgroundColor: category.color }">
                   <component :is="category.icon" class="category-icon-svg" />
                   <div class="icon-glow" :style="{ backgroundColor: category.color }"></div>
-                </div>
-                <div class="category-info">
-                  <h4>{{ category.name }}</h4>
+              </div>
+              <div class="category-info">
+                <h4>{{ category.name }}</h4>
                   <p class="category-count">
                     <span class="count-number">{{ getFormattedJobsCount(category.id) }}</span>
                     <span class="count-label">{{ t('hero.categories.offers') }}</span>
@@ -936,14 +1184,39 @@ onUnmounted(() => {
         <!-- État vide -->
         <div v-else class="empty-state">
           <div class="empty-content">
-              <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-3xl flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
-                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <!-- Illustration SVG moderne -->
+            <div class="illustration-container mx-auto mb-8">
+              <svg width="300" height="250" viewBox="0 0 300 250" fill="none" xmlns="http://www.w3.org/2000/svg" class="empty-illustration">
+                <!-- Background circle -->
+                <circle cx="150" cy="125" r="80" fill="url(#gradient1)" opacity="0.1"/>
+                <!-- Person searching illustration -->
+                <g transform="translate(75, 60)">
+                  <!-- Person -->
+                  <circle cx="75" cy="30" r="20" fill="#10b981" opacity="0.2"/>
+                  <path d="M75 50 L70 70 L80 70 Z" fill="#10b981" opacity="0.3"/>
+                  <!-- Search icon -->
+                  <circle cx="120" cy="45" r="25" stroke="#10b981" stroke-width="3" fill="none" opacity="0.6"/>
+                  <line x1="135" y1="60" x2="150" y2="75" stroke="#10b981" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+                  <!-- Documents/Pages -->
+                  <rect x="30" y="80" width="40" height="50" rx="4" fill="#06b6d4" opacity="0.2" transform="rotate(-10 50 105)"/>
+                  <rect x="50" y="85" width="40" height="50" rx="4" fill="#10b981" opacity="0.2" transform="rotate(5 70 110)"/>
+                  <rect x="70" y="90" width="40" height="50" rx="4" fill="#8b5cf6" opacity="0.2" transform="rotate(-5 90 115)"/>
+                  <!-- Stars/Dots decoration -->
+                  <circle cx="160" cy="100" r="3" fill="#f59e0b" opacity="0.4"/>
+                  <circle cx="180" cy="85" r="2.5" fill="#ef4444" opacity="0.4"/>
+                  <circle cx="40" cy="60" r="2" fill="#8b5cf6" opacity="0.4"/>
+                </g>
+                <!-- Gradient definitions -->
+                <defs>
+                  <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+                  </linearGradient>
+                </defs>
                 </svg>
               </div>
-            <h3>Aucune offre disponible</h3>
-            <p>Il n'y a actuellement aucune offre d'emploi à afficher.</p>
+            <h3 class="empty-title">{{ t('hero.featuredJobs.noJobsAvailable') }}</h3>
+            <p class="empty-description">{{ t('hero.featuredJobs.noJobsDescription') }}</p>
           </div>
         </div>
       </div>
@@ -967,13 +1240,339 @@ onUnmounted(() => {
   font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+/* Custom Tailwind animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -20px) scale(1.1);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  75% {
+    transform: translate(20px, 20px) scale(1.05);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.8;
+  }
+}
+
+@keyframes float-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes grid-move {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+@keyframes draw-line {
+  from {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes typing-cursor {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-blob {
+  animation: blob 20s ease-in-out infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-subtle {
+  animation: float-subtle 3s ease-in-out infinite;
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+.animate-draw-line {
+  animation: draw-line 3s ease-out forwards;
+}
+
+.grid-animation {
+  animation: grid-move 20s linear infinite;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
+}
+
+.delay-2000 {
+  animation-delay: 2s;
+}
+
+/* ===== ZOOM ANIMATIONS ===== */
+.text-zoom-title-enter-active {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.text-zoom-title-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+.text-zoom-title-enter-from {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.text-zoom-title-leave-to {
+  opacity: 0;
+  transform: scale(1.5);
+}
+
+.text-zoom-subtitle-enter-active {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: 0.1s;
+}
+
+.text-zoom-subtitle-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+.text-zoom-subtitle-enter-from {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.text-zoom-subtitle-leave-to {
+  opacity: 0;
+  transform: scale(1.3);
+}
+
+/* ===== SPIN/TOURBILLON ANIMATIONS ===== */
+.text-spin-title-enter-active {
+  transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.text-spin-title-leave-active {
+  transition: all 0.6s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+.text-spin-title-enter-from {
+  opacity: 0;
+  transform: rotate(-180deg) scale(0.5);
+}
+
+.text-spin-title-leave-to {
+  opacity: 0;
+  transform: rotate(180deg) scale(0.3);
+}
+
+.text-spin-subtitle-enter-active {
+  transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: 0.1s;
+}
+
+.text-spin-subtitle-leave-active {
+  transition: all 0.6s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+.text-spin-subtitle-enter-from {
+  opacity: 0;
+  transform: rotate(180deg) scale(0.5);
+}
+
+.text-spin-subtitle-leave-to {
+  opacity: 0;
+  transform: rotate(-180deg) scale(0.3);
+}
+
+/* ===== FADE ANIMATIONS ===== */
+.text-fade-title-enter-active {
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.text-fade-title-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+.text-fade-title-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+  filter: blur(10px);
+}
+
+.text-fade-title-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+  filter: blur(10px);
+}
+
+.text-fade-subtitle-enter-active {
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition-delay: 0.1s;
+}
+
+.text-fade-subtitle-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+.text-fade-subtitle-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+  filter: blur(8px);
+}
+
+.text-fade-subtitle-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+  filter: blur(8px);
+}
+
+/* ===== SLIDE ANIMATIONS ===== */
+.text-slide-title-enter-active {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.text-slide-title-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+.text-slide-title-enter-from {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+.text-slide-title-leave-to {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.text-slide-subtitle-enter-active {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: 0.1s;
+}
+
+.text-slide-subtitle-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+.text-slide-subtitle-enter-from {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.text-slide-subtitle-leave-to {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+/* Smooth fog effect at bottom - no blur on image */
+.fog-effect {
+  height: 7rem; /* 112px - reduced for smaller stats */
+  background: linear-gradient(
+    to top,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.12) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%,
+    transparent 100%
+  );
+  /* No backdrop-filter blur to keep image sharp */
+}
+
+.fog-overlay {
+  height: 6rem; /* 96px - reduced for smaller stats */
+  background: linear-gradient(
+    to top,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.15) 30%,
+    rgba(255, 255, 255, 0.08) 60%,
+    transparent 100%
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0.85;
+}
+
 /* Progress bar animation */
 @keyframes progress {
   0% {
     width: 0%;
   }
   100% {
-    width: 100%;
+  width: 100%;
   }
 }
 
@@ -1496,28 +2095,49 @@ onUnmounted(() => {
 
 .job-card {
   background-color: white;
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   overflow: hidden;
   box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
   flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.job-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #06b6d4, #8b5cf6);
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .job-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-8px) scale(1.02);
   box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.job-card:hover::before {
+  opacity: 1;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 1.5rem 1.5rem 0;
+  padding: 1.75rem 1.75rem 0;
+  position: relative;
 }
 
 .company-logo {
@@ -1527,10 +2147,17 @@ onUnmounted(() => {
 }
 
 .logo-image {
-  width: 40px;
-  height: 40px;
-  border-radius: 0.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 0.75rem;
   object-fit: cover;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.job-card:hover .logo-image {
+  transform: scale(1.1) rotate(2deg);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .job-meta {
@@ -1584,7 +2211,7 @@ onUnmounted(() => {
 }
 
 .card-body {
-  padding: 1.25rem 1.5rem;
+  padding: 1.5rem 1.75rem;
   flex-grow: 1;
 }
 
@@ -1592,7 +2219,13 @@ onUnmounted(() => {
   font-size: 1.25rem;
   font-weight: 700;
   color: #111827;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.job-card:hover .job-title {
+  color: #059669;
 }
 
 .company-info {
@@ -1630,11 +2263,12 @@ onUnmounted(() => {
 }
 
 .card-footer {
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.75rem;
   border-top: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: linear-gradient(to top, #f9fafb, transparent);
 }
 
 .skills {
@@ -1645,27 +2279,64 @@ onUnmounted(() => {
 
 .skill-tag {
   font-size: 0.75rem;
-  background-color: #f3f4f6;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
   color: #4b5563;
-  padding: 0.25rem 0.5rem;
+  padding: 0.375rem 0.75rem;
   border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.job-card:hover .skill-tag {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border-color: rgba(16, 185, 129, 0.2);
+  transform: translateY(-1px);
 }
 
 .apply-button {
   display: inline-flex;
   align-items: center;
-  background-color: #16a34a;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.apply-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.apply-button:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .apply-button:hover {
-  background-color: #15803d;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.apply-button:active {
+  transform: translateY(0);
 }
 
 .apply-button svg {
@@ -1931,29 +2602,53 @@ onUnmounted(() => {
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
+  background: linear-gradient(to bottom, #f9fafb, #ffffff);
+  border-radius: 1.5rem;
+  margin: 2rem 0;
 }
 
 .empty-content {
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
 }
 
-.empty-icon {
-  width: 64px;
-  height: 64px;
-  color: #9ca3af;
-  margin-bottom: 1.5rem;
+.illustration-container {
+  max-width: 300px;
+  animation: float-gentle 3s ease-in-out infinite;
 }
 
-.empty-state h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.5rem;
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
-.empty-state p {
+.empty-illustration {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 25px rgba(16, 185, 129, 0.1));
+}
+
+.empty-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #059669 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.empty-description {
+  font-size: 1rem;
   color: #6b7280;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 /* Responsive Design */
