@@ -332,7 +332,7 @@
     "nameLabel": "Nom complet",
     "namePlaceholder": "Votre nom",
     "emailLabel": "Adresse email",
-    "emailPlaceholder": "votre@email.com",
+    "emailPlaceholder": "votre{'@'}email.com",
     "subjectLabel": "Sujet",
     "subjectPlaceholder": "Sujet de votre message",
     "messageLabel": "Message",

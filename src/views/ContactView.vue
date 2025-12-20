@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { PaperAirplaneIcon, PhoneIcon, MapPinIcon, EnvelopeIcon } from '@heroicons/vue/24/outline';
 import { useNotif } from '@/composables/useNotif';
@@ -17,11 +17,11 @@ const form = ref({
   message: '',
 });
 
-const contactInfo = [
-  { icon: EnvelopeIcon, title: 'Email', value: 'contact@expatjobs.com', link: 'mailto:contact@expatjobs.com' },
-  { icon: PhoneIcon, title: 'Téléphone', value: '+243 97 000 0000', link: 'tel:+243970000000' },
-  { icon: MapPinIcon, title: 'Adresse', value: '123 Av. de la Justice, Kinshasa, RDC', link: '#' },
-];
+const contactInfo = computed(() => [
+  { icon: EnvelopeIcon, title: t('footer.email'), value: 'contact@expatjobs.com', link: 'mailto:contact@expatjobs.com' },
+  { icon: PhoneIcon, title: t('footer.phone'), value: '+243 97 000 0000', link: 'tel:+243970000000' },
+  { icon: MapPinIcon, title: t('footer.address'), value: '123 Av. de la Justice, Kinshasa, RDC', link: '#' },
+]);
 
 const submitForm = () => {
   notifySuccess(t('contactPage.successMessage'));

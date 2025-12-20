@@ -241,5 +241,104 @@
     "salaryNegotiable": "Salary negotiable",
     "salaryUpTo": "Up to {max} €",
     "salaryFrom": "From {min} €"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "subtitle": "Log in to access your personal space.",
+      "welcomeBack": "Welcome back!",
+      "manageCareer": "Log in to manage your career",
+      "emailPlaceholder": "Email or phone number",
+      "passwordPlaceholder": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submitButton": "Log in",
+      "loading": "Logging in...",
+      "noAccount": "No account yet?",
+      "createAccount": "Create an account",
+      "heroTitle": "Expat",
+      "heroSubtitle": "Jobs",
+      "heroDescription": "Access global career opportunities in one click.",
+      "sideTitle": "Build your career",
+      "sideHighlight": "Internationally",
+      "sideDescription": "Join thousands of professionals and companies trusting ExpatJobs to connect talents worldwide.",
+      "stats": {
+        "offers": "Offers",
+        "countries": "Countries",
+        "verified": "Verified"
+      },
+      "errors": {
+        "network": "Network error, please check your connection.",
+        "fillAll": "Please fill in all fields",
+        "credentials": "Incorrect credentials",
+        "default": "Error logging in"
+      },
+      "success": "Login successful!"
+    },
+    "register": {
+      "title": "Create an account",
+      "subtitle": "Join our community and access exclusive opportunities.",
+      "createTitle": "Create your account",
+      "createSubtitle": "Start your international journey today.",
+      "roleLabel": "I am:",
+      "candidate": {
+        "title": "Candidate",
+        "description": "I'm looking for a job"
+      },
+      "recruiter": {
+        "title": "Recruiter",
+        "description": "I'm looking for talent"
+      },
+      "fullNamePlaceholder": "Full Name",
+      "emailPlaceholder": "Email Address",
+      "phonePlaceholder": "Phone",
+      "passwordPlaceholder": "Password",
+      "confirmPasswordPlaceholder": "Confirm Password",
+      "passwordStrength": "Password Strength",
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong",
+      "terms": "I accept the",
+      "termsLink": "terms and conditions",
+      "submitButton": "Register",
+      "loading": "Creating...",
+      "alreadyAccount": "Already have an account?",
+      "heroTitle": "Your future starts",
+      "heroHighlight": "Here and Now",
+      "heroDescription": "Create your profile in minutes and instantly access thousands of exclusive offers worldwide.",
+      "errors": {
+        "network": "Network error",
+        "fillRequired": "Please fill in required fields",
+        "acceptTerms": "Please accept terms and conditions",
+        "passwordMismatch": "Passwords do not match",
+        "invalidEmail": "Please enter a valid email address!",
+        "invalidPhone": "Please enter a valid phone number!",
+        "passwordLength": "Password must be at least 8 characters!",
+        "passwordDigits": "Password must not contain only digits!",
+        "passwordCommon": "Password is too weak. Use letters, numbers and special characters."
+      },
+      "success": "Registration successful! Logging in..."
+    }
+  },
+  "contactPage": {
+    "badge": "Contact our team",
+    "title": "Let's get in touch",
+    "subtitle": "to discuss your needs",
+    "description": "Our team is available to answer your questions under",
+    "descriptionHighlight": "24 hours",
+    "writeUs": "Write to us",
+    "callUs": "Call now",
+    "formTitle": "Send us a message",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "your{'@'}email.com",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "Subject of your message",
+    "messageLabel": "Message",
+    "messagePlaceholder": "How can we help you?",
+    "submitButton": "Send message",
+    "contactInfoTitle": "Our contact info",
+    "successMessage": "Your message has been sent successfully! We will reply within 24h."
   }
 }
