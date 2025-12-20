@@ -1,70 +1,73 @@
 <template>
-  <div class="min-h-screen bg-gray-50 page-fade-in">
+  <div class="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden page-fade-in">
     <Navbar />
 
-    <section class="relative overflow-hidden bg-gradient-to-br mt-4 sm:mt-8 from-emerald-800 via-emerald-700 to-teal-600 py-16 px-4 sm:px-6 lg:px-8">
-      <div class="absolute inset-0 bg-black/10"></div>
-      <div class="absolute top-0 left-0 w-72 h-72 bg-emerald-400/20 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-      <div class="absolute bottom-0 right-0 w-96 h-96 bg-teal-400/20 rounded-full translate-x-1/3 translate-y-1/3"></div>
+    <main class="flex-grow">
+    <PageHero>
+      <template #title>
+        {{ $t('hero.jobsByTypeView.title').split($t('hero.jobsByTypeView.titleHighlight'))[0] }} <span class="text-emerald-400">{{ $t('hero.jobsByTypeView.titleHighlight') }}</span>
+      </template>
+      <template #subtitle>
+        {{ $t('hero.jobsByTypeView.subtitle') }}
+      </template>
 
-      <div class="max-w-5xl mx-auto text-center relative z-10">
-        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white leading-tight">
-          Explorez les offres <span class="text-emerald-200">par type de contrat</span>
-        </h1>
-        <p class="text-lg text-emerald-50/90 max-w-3xl mx-auto mb-10 leading-relaxed">
-          Filtrez les opportunités selon le format de travail qui vous correspond le mieux : CDI, temps partiel, freelance, stage ou contrat.
-        </p>
-
-        <div class="inline-flex flex-wrap justify-center gap-2 bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20">
+      <div class="flex justify-center">
+        <div class="inline-flex flex-wrap justify-center gap-2 bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-xl">
           <button
             v-for="type in jobTypeOptions"
             :key="type.value"
             @click="changeType(type.value)"
             :class="[
-              'px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all duration-200',
+              'px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all duration-300',
               selectedType === type.value
-                ? 'bg-white text-emerald-700 shadow-lg shadow-emerald-500/20'
-                : 'bg-white/5 text-emerald-50 hover:bg-white/20'
+                ? 'bg-white text-emerald-700 shadow-lg shadow-emerald-500/20 scale-105'
+                : 'bg-white/5 text-emerald-50 hover:bg-white/20 hover:text-white'
             ]"
           >
-            <span class="inline-block w-2 h-2 rounded-full"
-                  :class="selectedType === type.value ? 'bg-emerald-500' : 'bg-emerald-200'"></span>
+            <span class="inline-block w-2 h-2 rounded-full transition-colors duration-300"
+                  :class="selectedType === type.value ? 'bg-emerald-500' : 'bg-emerald-200/50'"></span>
             {{ type.label }}
           </button>
         </div>
       </div>
-    </section>
+    </PageHero>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div class="flex flex-col lg:flex-row gap-8">
-        <aside class="lg:w-72 flex-shrink-0">
-          <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200/80 sticky top-24">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">
-              Types de contrat
-            </h3>
-            <div class="space-y-2">
-              <button
-                v-for="type in jobTypeOptions"
-                :key="type.value"
-                @click="changeType(type.value)"
-                :class="[
-                  'w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200',
-                  selectedType === type.value
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-transparent'
-                ]"
-              >
-                <span>{{ type.label }}</span>
-                <span class="text-xs text-gray-500" v-if="counts[type.value] !== undefined">
-                  {{ counts[type.value] }} offres
-                </span>
-              </button>
-            </div>
-          </div>
-        </aside>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <!-- Filters Section - Horizontal Chips -->
+      <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-gray-200/80">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+          Types de contrat
+        </h3>
+        <div class="flex flex-wrap gap-3">
+          <button
+            v-for="type in jobTypeOptions"
+            :key="type.value"
+            @click="changeType(type.value)"
+            :class="[
+              'px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2',
+              selectedType === type.value
+                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
+            ]"
+          >
+            <span class="inline-block w-2 h-2 rounded-full transition-colors duration-300"
+                  :class="selectedType === type.value ? 'bg-white' : 'bg-emerald-500'"></span>
+            <span>{{ type.label }}</span>
+            <span v-if="counts[type.value] !== undefined" 
+                  :class="[
+                    'text-xs px-2 py-0.5 rounded-full',
+                    selectedType === type.value ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'
+                  ]">
+              {{ counts[type.value] }}
+            </span>
+          </button>
+        </div>
+      </div>
 
-        <section class="flex-1 min-w-0">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <!-- Job Cards Section -->
+      <div class="space-y-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
               <h2 class="text-xl font-bold text-gray-800">
                 Offres en {{ currentTypeLabel }}
@@ -96,7 +99,7 @@
             </div>
           </div>
 
-          <div v-else-if="formattedOffres.length > 0" class="grid gap-6">
+          <div v-else-if="formattedOffres.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <OffreCard
               v-for="offre in formattedOffres"
               :key="offre.id"
@@ -127,63 +130,21 @@
           </div>
 
           <div v-if="!loading && totalPages > 1" class="mt-10">
-            <div class="bg-white rounded-2xl border border-gray-200/80 p-6">
-              <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p class="text-sm text-gray-600">
-                  Page {{ currentPage + 1 }} sur {{ totalPages }}
-                  <span class="text-gray-400 mx-2">•</span>
-                  {{ totalElements }} résultat{{ totalElements !== 1 ? 's' : '' }}
-                </p>
-
-                <nav class="flex items-center space-x-2">
-                  <button
-                    @click="changePage(currentPage - 1)"
-                    :disabled="currentPage === 0"
-                    class="p-3 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-
-                  <template v-for="(page, index) in visiblePages" :key="index">
-                    <button
-                      v-if="typeof page === 'number'"
-                      @click="changePage((page as number) - 1)"
-                      :class="[
-                        'px-4 py-2 rounded-xl font-medium transition-all duration-300 min-w-10 flex items-center justify-center',
-                        currentPage === ((page as number) - 1)
-                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 transform scale-105'
-                          : 'border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                      ]"
-                    >
-                      {{ page }}
-                    </button>
-                    <span v-else class="px-2 text-gray-400">
-                      ...
-                    </span>
-                  </template>
-
-                  <button
-                    @click="changePage(currentPage + 1)"
-                    :disabled="currentPage >= totalPages - 1"
-                    class="p-3 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </nav>
-              </div>
-            </div>
+          <Pagination
+            v-if="!loading && totalPages > 1"
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :total-elements="totalElements"
+            :loading="paginationLoading"
+            @change="changePage"
+          />
           </div>
-        </section>
+        </div>
+      </div>
       </div>
     </main>
     <Footer />
-   
   </div>
-  
 </template>
 
 <script setup lang="ts">
@@ -191,6 +152,8 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 //@ts-ignore
 import Navbar from '@/components/navbar/NavBarComponent.vue';
+import PageHero from '@/components/shared/PageHero.vue';
+import Pagination from '@/components/shared/Pagination.vue';
 //@ts-ignore
 import Footer from '@/components/footer/FooterComponent.vue';
 //@ts-ignore
@@ -232,45 +195,18 @@ const currentTypeLabel = computed(() => {
   return jobTypeOptions.find(t => t.value === selectedType.value)?.label || 'CDI';
 });
 
-const visiblePages = computed(() => {
-  const pages: (number | string)[] = [];
-  const total = totalPages.value;
-  const current = currentPage.value + 1;
+// Pagination handled by component
 
-  if (total <= 7) {
-    for (let i = 1; i <= total; i++) {
-      pages.push(i);
-    }
-  } else {
-    if (current <= 4) {
-      for (let i = 1; i <= 5; i++) {
-        pages.push(i);
-      }
-      pages.push('...');
-      pages.push(total);
-    } else if (current >= total - 3) {
-      pages.push(1);
-      pages.push('...');
-      for (let i = total - 4; i <= total; i++) {
-        pages.push(i);
-      }
-    } else {
-      pages.push(1);
-      pages.push('...');
-      for (let i = current - 1; i <= current + 1; i++) {
-        pages.push(i);
-      }
-      pages.push('...');
-      pages.push(total);
-    }
-  }
-
-  return pages;
-});
+const paginationLoading = ref(false);
 
 const fetchJobsByType = async (page = 0) => {
   try {
-    loading.value = true;
+    if (page === currentPage.value && jobs.value.length === 0) {
+       loading.value = true;
+    } else {
+       paginationLoading.value = true;
+    }
+
     const response: IJobResponse = await jobService.searchJobs({
       jobType: selectedType.value,
       page,
@@ -297,6 +233,7 @@ const fetchJobsByType = async (page = 0) => {
     totalElements.value = 0;
   } finally {
     loading.value = false;
+    paginationLoading.value = false;
   }
 };
 
