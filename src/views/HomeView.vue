@@ -7,9 +7,13 @@ import FeaturedJobsComponent from '@/components/jobs/FeaturedJobsComponent.vue'
 //@ts-ignore
 import AboutComponent from '@/components/about/AboutComponent.vue'
 //@ts-ignore
+import ProcessStepsComponent from '@/components/process/ProcessStepsComponent.vue'
+//@ts-ignore
 import EntrepriseRecruteComponent from '@/components/jobs/EntrepriseRecruteComponent.vue'
 //@ts-ignore
 import TestimonialComponent from '@/components/testimonial/TestimonialComponent.vue'
+//@ts-ignore
+import CTAComponent from '@/components/cta/CTAComponent.vue'
 import { useScrollAnimation } from '@/composables/useScrollAnimation'
 // @ts-ignore
 import Footer from '../components/footer/FooterComponent.vue';
@@ -25,7 +29,11 @@ useScrollAnimation({
   <div class="home-page">
     <HeroComponent />
     <AboutComponent />
+     <CTAComponent />
+    <ProcessStepsComponent />
     <EntrepriseRecruteComponent />
+    <TestimonialComponent />
+   
     <Footer />
   </div>
 </template>
