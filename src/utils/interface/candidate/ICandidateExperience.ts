@@ -6,6 +6,6 @@ export interface ICandidateExperience {
   description: string;
   startDate: string;
   endDate: string;
-  currentExperienceStatus: string;
+  currentExperienceStatus?: string;
   location?: string;
 }
