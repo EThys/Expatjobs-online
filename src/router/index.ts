@@ -16,6 +16,7 @@ import CompanyManagementView from '@/views/CompanyManagementView.vue'
 import OffreByCategorieView from '@/views/OffreByCategorieView.vue'
 import JobsByTypeView from '@/views/jobs/JobsByTypeView.vue'
 import MyJobsView from '@/views/jobs/MyJobsView.vue'
+import CompanyDetailsView from '@/views/CompanyDetailsView.vue'
 
 // Définition des métadonnées de route étendues
 declare module 'vue-router' {
@@ -78,6 +79,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: 'Créer une entreprise' },
   },
   {
+    path: '/company/:id',
+    name: 'companyDetails',
+    component: CompanyDetailsView,
+    meta: { title: 'Détails Entreprise' },
+  },
+  {
     path: '/jobs',
     name: 'jobs',
     component: AllJobs,
@@ -89,7 +96,7 @@ const routes: Array<RouteRecordRaw> = [
     component: JobsByTypeView,
     meta: { title: 'jobs-by-type' },
   },
-    {
+  {
     path: '/profile',
     name: 'profile',
     component: ProfileCandidateView,
