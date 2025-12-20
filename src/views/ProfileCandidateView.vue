@@ -1,9 +1,10 @@
 <template>
-  <Navbar/>
-  
-  <!-- Écran d'accueil pour les nouveaux utilisateurs -->
-  <div v-if="!profile.candidateProfileId && !showCreationWizard" class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center px-4">
-    <div class="max-w-lg w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
+  <div class="min-h-screen flex flex-col">
+    <Navbar/>
+    
+    <!-- Écran d'accueil pour les nouveaux utilisateurs -->
+  <div v-if="!profile.candidateProfileId && !showCreationWizard" class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center px-4 py-8">
+    <div class="max-w-lg w-full bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden">
       <div class="p-8 text-center">
         <div class="w-24 h-24 mx-auto bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-6">
           <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -11,7 +12,7 @@
           </svg>
         </div>
         
-        <h1 class="text-3xl font-bold text-gray-900 mb-3">Bienvenue sur votre espace candidat !</h1>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Bienvenue sur votre espace candidat !</h1>
         <p class="text-gray-600 mb-8">
           Créez votre profil professionnel en quelques étapes simples pour accéder aux meilleures opportunités d'emploi.
         </p>
@@ -32,13 +33,13 @@
   </div>
 
   <!-- Assistant de création de profil -->
-  <div v-if="showCreationWizard" class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center p-4">
-    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+  <div v-if="showCreationWizard" class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center p-2 sm:p-4">
+    <div class="w-full max-w-4xl bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden">
       <!-- En-tête avec progression -->
-      <div class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white p-6">
-        <div class="flex items-center justify-between mb-6">
+      <div class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2">
           <div>
-            <h2 class="text-2xl font-bold">Assistant de création de profil</h2>
+            <h2 class="text-xl sm:text-2xl font-bold">Assistant de création de profil</h2>
             <p class="text-emerald-100 mt-1">{{ currentStep.title }}</p>
           </div>
           <div class="text-right">
@@ -64,19 +65,19 @@
           >
             <div class="relative">
               <div 
-                class="w-8 h-8 rounded-full mx-auto mb-2 flex items-center justify-center text-sm font-semibold transition-all duration-300"
+                class="w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-semibold transition-all duration-300"
                 :class="index < currentStepIndex ? 'bg-emerald-700 text-white' : 
                         index === currentStepIndex ? 'bg-white text-emerald-600' : 
                         'bg-white/30 text-emerald-100'"
               >
                 <span v-if="index < currentStepIndex">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                   </svg>
                 </span>
                 <span v-else>{{ index + 1 }}</span>
               </div>
-              <div class="text-xs font-medium truncate px-1">{{ step.title }}</div>
+              <div class="text-[10px] sm:text-xs font-medium truncate px-0.5 sm:px-1">{{ step.title }}</div>
               <div v-if="index === currentStepIndex" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rotate-45"></div>
             </div>
           </div>
@@ -84,10 +85,10 @@
       </div>
 
       <!-- Contenu de l'étape -->
-      <div class="p-6 md:p-8">
+      <div class="p-4 sm:p-6 md:p-8">
         <!-- Étape 1: Informations de base -->
-        <div v-if="currentStepIndex === 0" class="space-y-6">
-          <h3 class="text-xl font-bold text-gray-900 mb-6">Étape 1 : Informations personnelles</h3>
+        <div v-if="currentStepIndex === 0" class="space-y-4 sm:space-y-6">
+          <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Étape 1 : Informations personnelles</h3>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -142,7 +143,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Salaire maximum (k€) *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Salaire maximum (€) *</label>
               <input 
                 v-model="step1Form.salaryExpectationMax" 
                 type="number" 
@@ -536,20 +537,24 @@
   </div>
 
   <!-- Profil complet (une fois créé) -->
-  <div v-if="profile.candidateProfileId && !showCreationWizard" class="min-h-screen bg-gray-50/30 pt-20 pb-12">
-    <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-12">
-      <div class="container mx-auto px-4 sm:px-6">
-        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between">
-          <div class="flex items-center space-x-6">
-            <div class="relative">
-              <div class="w-24 h-24 lg:w-28 lg:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border-2 border-white/30">
-                <div class="w-20 h-20 lg:w-24 lg:h-24 bg-emerald-500 rounded-xl flex items-center justify-center text-white text-2xl lg:text-3xl font-bold shadow-lg">
+  <div v-if="profile.candidateProfileId && !showCreationWizard" class="min-h-screen bg-gray-50/30 pb-12 mt-10 sm:mt-10 md:mt-10">
+    <!-- Header du profil avec gradient -->
+    <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white pt-6 pb-8 sm:pt-8 sm:pb-10 md:py-12">
+      <div class="container mx-auto px-3 sm:px-4 md:px-6">
+        <!-- Layout mobile: stack vertical -->
+        <div class="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <!-- Avatar et infos -->
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
+            <!-- Avatar avec edit button -->
+            <div class="relative flex-shrink-0">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border-2 border-white/30">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-emerald-500 rounded-xl flex items-center justify-center text-white text-xl sm:text-2xl lg:text-3xl font-bold shadow-lg">
                   {{ getInitials(profile.firstName, profile.lastName) }}
                 </div>
               </div>
               <button 
                 @click="openEditSection('basics')"
-                class="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center shadow-lg hover:bg-emerald-600 hover:scale-110 transition-all duration-200 cursor-pointer"
+                class="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-7 h-7 sm:w-8 sm:h-8 bg-emerald-500 rounded-full border-3 sm:border-4 border-white flex items-center justify-center shadow-lg hover:bg-emerald-600 hover:scale-110 transition-all duration-200 cursor-pointer"
               >
                 <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
@@ -557,44 +562,47 @@
               </button>
             </div>
             
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-2">
-                <h1 class="text-2xl lg:text-4xl font-bold">
+            <!-- Infos utilisateur -->
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-col sm:flex-row items-center sm:items-start gap-2 mb-2">
+                <h1 class="text-xl sm:text-2xl lg:text-4xl font-bold truncate max-w-full">
                   {{ profile.firstName }} {{ profile.lastName }}
                 </h1>
-                <span class="bg-white/20 text-xs px-2 py-1 rounded-full">Profil complet</span>
+                <span class="bg-white/20 text-[10px] sm:text-xs px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap">Profil complet</span>
               </div>
-              <p class="text-emerald-100 text-lg lg:text-xl mb-3">
+              <p class="text-emerald-100 text-base sm:text-lg lg:text-xl mb-2 sm:mb-3 truncate">
                 {{ profile.title || 'Professional Candidate' }}
               </p>
-              <div class="flex flex-wrap items-center gap-4 text-emerald-100/90">
-                <div class="flex items-center space-x-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <!-- Contact info - responsive grid -->
+              <div class="flex flex-col sm:flex-row flex-wrap items-center sm:items-start justify-center sm:justify-start gap-2 sm:gap-4 text-emerald-100/90 text-sm sm:text-base">
+                <div class="flex items-center space-x-1.5 sm:space-x-2">
+                  <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                   </svg>
-                  <span>{{ profile.location || 'Location not specified' }}</span>
+                  <span class="truncate max-w-[180px] sm:max-w-none">{{ profile.location || 'Location not specified' }}</span>
                 </div>
-                <div class="flex items-center space-x-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center space-x-1.5 sm:space-x-2">
+                  <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                   </svg>
-                  <span>{{ profile.candidate?.phone || 'Phone not specified' }}</span>
+                  <span class="truncate max-w-[150px] sm:max-w-none">{{ profile.candidate?.phone || 'Phone not specified' }}</span>
                 </div>
-                <div class="flex items-center space-x-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center space-x-1.5 sm:space-x-2">
+                  <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                   </svg>
-                  <span>{{ profile.candidate?.email || 'Email not specified' }}</span>
+                  <span class="truncate max-w-[180px] sm:max-w-none">{{ profile.candidate?.email || 'Email not specified' }}</span>
                 </div>
               </div>
             </div>
           </div>
           
-          <div class="flex items-center space-x-3 mt-6 lg:mt-0">
+          <!-- Bouton Modifier - full width on mobile, auto on larger -->
+          <div class="flex items-center justify-center lg:justify-end w-full lg:w-auto">
             <button 
               @click="openEditSection('all')"
-              class="bg-white text-emerald-700 hover:bg-emerald-50 px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg flex items-center space-x-2"
+              class="w-full sm:w-auto bg-white text-emerald-700 hover:bg-emerald-50 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -606,10 +614,11 @@
       </div>
     </div>
 
-    <div class="container mx-auto px-4 sm:px-6 -mt-8">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Contenu du profil -->
+    <div class="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 lg:py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-8">
         <!-- Colonne gauche -->
-        <div class="lg:col-span-1 space-y-6">
+        <div class="lg:col-span-1 space-y-4 sm:space-y-6 order-2 lg:order-1">
           <!-- Attentes salariales -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -631,7 +640,7 @@
             <div class="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-100">
               <div class="text-center">
                 <div class="text-2xl font-bold text-emerald-700 mb-1">
-                  {{ profile.salaryExpectationMin || 0 }}k€ - {{ profile.salaryExpectationMax || 0 }}k€
+                  {{ profile.salaryExpectationMin || 0 }}€ - {{ profile.salaryExpectationMax || 0 }}€
                 </div>
                 <div class="text-sm text-emerald-600">Fourchette annuelle</div>
               </div>
@@ -700,10 +709,10 @@
           </div>
         </div>
 
-        <!-- Colonne droite -->
-        <div class="lg:col-span-2 space-y-6">
+        <!-- Colonne droite - shown first on mobile for better UX -->
+        <div class="lg:col-span-2 space-y-4 sm:space-y-6 order-1 lg:order-2">
           <!-- À propos -->
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
+          <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 relative group">
             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button 
                 @click="openEditSection('about')"
@@ -828,7 +837,7 @@
                   </svg>
                 </button>
                 <div class="bg-gradient-to-r from-white to-emerald-50/30 p-5 rounded-xl border border-gray-100 hover:border-emerald-200 transition-all duration-300 group-hover:shadow-sm">
-                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2 gap-1 sm:gap-0">
                     <h3 class="text-lg font-semibold text-gray-900">{{ edu.degree }} en {{ edu.fieldStudy }}</h3>
                     <div class="flex items-center space-x-2 mt-1 sm:mt-0">
                       <span class="bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-1 rounded-full">
@@ -865,9 +874,9 @@
 
     <!-- Modals d'édition par section -->
     <!-- Modal: Informations de base -->
-    <div v-if="showEditModal === 'basics'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+    <div v-if="showEditModal === 'basics'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-4">
+      <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
+        <div class="p-4 sm:p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <div class="flex items-center justify-between">
             <div>
               <h3 class="text-2xl font-bold">Modifier les informations de base</h3>
@@ -924,12 +933,12 @@
     </div>
 
     <!-- Modal: À propos -->
-    <div v-if="showEditModal === 'about'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+    <div v-if="showEditModal === 'about'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-4">
+      <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
+        <div class="p-4 sm:p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-2xl font-bold">Modifier la biographie</h3>
+              <h3 class="text-xl sm:text-2xl font-bold">Modifier la biographie</h3>
             </div>
             <button 
               @click="showEditModal = null"
@@ -967,12 +976,12 @@
     </div>
 
     <!-- Modal: Salaire -->
-    <div v-if="showEditModal === 'salary'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+    <div v-if="showEditModal === 'salary'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-4">
+      <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
+        <div class="p-4 sm:p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-2xl font-bold">Modifier les attentes salariales</h3>
+              <h3 class="text-xl sm:text-2xl font-bold">Modifier les attentes salariales</h3>
             </div>
             <button 
               @click="showEditModal = null"
@@ -989,11 +998,11 @@
           <div class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Salaire minimum (k€)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Salaire minimum (€)</label>
                 <input v-model="editForm.salaryExpectationMin" type="number" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Salaire maximum (k€)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Salaire maximum (€)</label>
                 <input v-model="editForm.salaryExpectationMax" type="number" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
               </div>
             </div>
@@ -1016,12 +1025,12 @@
     </div>
 
     <!-- Modal: Compétences -->
-    <div v-if="showEditModal === 'skills'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+    <div v-if="showEditModal === 'skills'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-4">
+      <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
+        <div class="p-4 sm:p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-2xl font-bold">Gérer les compétences</h3>
+              <h3 class="text-xl sm:text-2xl font-bold">Gérer les compétences</h3>
             </div>
             <button 
               @click="showEditModal = null"
@@ -1082,12 +1091,12 @@
     </div>
 
     <!-- Modal: Expériences -->
-    <div v-if="showEditModal === 'experience'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+    <div v-if="showEditModal === 'experience'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-4">
+      <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
+        <div class="p-4 sm:p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-2xl font-bold">Gérer les expériences</h3>
+              <h3 class="text-xl sm:text-2xl font-bold">Gérer les expériences</h3>
             </div>
             <button 
               @click="showEditModal = null"
@@ -1172,12 +1181,12 @@
     </div>
 
     <!-- Modal: Formations -->
-    <div v-if="showEditModal === 'education'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+    <div v-if="showEditModal === 'education'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-4">
+      <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
+        <div class="p-4 sm:p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-2xl font-bold">Gérer les formations</h3>
+              <h3 class="text-xl sm:text-2xl font-bold">Gérer les formations</h3>
             </div>
             <button 
               @click="showEditModal = null"
@@ -1270,22 +1279,26 @@
     </div>
   </div>
 
-  <Footer/>
+    <!-- Footer - toujours visible -->
+    <Footer/>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, nextTick } from 'vue'
 import type { ICandidateData } from '@/utils/interface/candidate/ICandidateData'
 import type { ICandidateProfile } from '@/utils/interface/candidate/ICandidateProfile'
 import type { ICandidateEducation } from '@/utils/interface/candidate/ICandidateEducation'
 import type { ICandidateExperience } from '@/utils/interface/candidate/ICandidateExperience'
 import type { ICandidateSkill } from '@/utils/interface/candidate/ICandidateSkill'
 import { useCandidateService } from '@/utils/service/CandidateService'
+import { useNotif } from '@/composables/useNotif'
 import Navbar from '../components/navbar/NavBarComponent.vue'
 import Footer from '../components/footer/FooterComponent.vue'
 import { getUser } from '@/stores/user';
 
 const candidateService = useCandidateService();
+const { notifySuccess, notifyError, notifyInfo } = useNotif();
 const user = getUser();
 const userId = user?.id ?? 0;
 
@@ -1308,10 +1321,10 @@ const candidateData = ref<ICandidateData>({
   skills: []
 })
 
-const profile = ref(candidateData.value.profile)
-const experiences = ref(candidateData.value.experiences)
-const educations = ref(candidateData.value.educations)
-const skills = ref(candidateData.value.skills)
+const profile = computed(() => candidateData.value.profile)
+const experiences = ref<any[]>([])
+const educations = ref<any[]>([])
+const skills = ref<any[]>([])
 
 // État de l'interface
 const showCreationWizard = ref(false)
@@ -1377,13 +1390,54 @@ const loadCandidateProfile = async () => {
   try {
     isLoading.value = true
     const data = await candidateService.getCompleteCandidateData(userId)
-    candidateData.value = data
-    profile.value = data.profile
-    experiences.value = Array.isArray(data.experiences) ? data.experiences : []
-    educations.value = Array.isArray(data.educations) ? data.educations : []
-    skills.value = Array.isArray(data.skills) ? data.skills : []
+    
+    console.log('📥 DONNÉES BRUTES DE L\'API:', JSON.stringify(data, null, 2))
+    
+    // L'API retourne des objets paginés, extraire le .content
+    const experiencesArray = Array.isArray(data.experiences) 
+      ? data.experiences 
+      : (data.experiences?.content || [])
+    
+    const educationsArray = Array.isArray(data.educations)
+      ? data.educations
+      : (data.educations?.content || [])
+    
+    const skillsArray = Array.isArray(data.skills)
+      ? data.skills
+      : (data.skills?.content || [])
+    
+    console.log('📦 Données extraites:')
+    console.log('  - experiencesArray:', experiencesArray.length, 'items')
+    console.log('  - educationsArray:', educationsArray.length, 'items')
+    console.log('  - skillsArray:', skillsArray.length, 'items')
+    
+    // Mettre à jour candidateData
+    candidateData.value = {
+      profile: data.profile || candidateData.value.profile,
+      experiences: [...experiencesArray],
+      educations: [...educationsArray],
+      skills: [...skillsArray]
+    }
+    
+    // Forcer la mise à jour des refs
+    experiences.value = [...experiencesArray]
+    educations.value = [...educationsArray]
+    skills.value = [...skillsArray]
+    
+    // Attendre le prochain tick pour s'assurer que Vue a mis à jour le DOM
+    await nextTick()
+    
+    console.log('✅ Profil rechargé:', {
+      experiences: experiences.value.length,
+      educations: educations.value.length,
+      skills: skills.value.length
+    })
+    
+    console.log('📊 Détails skills:', skills.value)
+    console.log('📊 Détails experiences:', experiences.value)
+    console.log('📊 Détails educations:', educations.value)
   } catch (error) {
-    console.error('Erreur lors du chargement du profil:', error)
+    console.error('❌ Erreur lors du chargement du profil:', error)
   } finally {
     isLoading.value = false
   }
@@ -1448,7 +1502,13 @@ const saveStep1 = async () => {
       bio: step1Form.bio
     })
     
-    profile.value = { ...profileData, title: step1Form.title, bio: step1Form.bio }
+    // Mettre à jour les données locales
+    candidateData.value.profile = {
+      ...candidateData.value.profile,
+      ...profileData,
+      title: step1Form.title,
+      bio: step1Form.bio
+    }
     
     // Passer à l'étape suivante
     currentStepIndex.value = 1
@@ -1494,21 +1554,21 @@ const saveStep2 = async () => {
     
     // Ajouter chaque expérience
     for (const exp of step2Form.experiences) {
-      await candidateService.createCandidateExperience({
+      const newExp = await candidateService.createCandidateExperience({
         profileId: profile.value.candidateProfileId,
         companyName: exp.companyName,
         jobTitle: exp.jobTitle,
-        description: exp.description,
+        description: exp.description || '',
         startDate: exp.startDate,
-        endDate: exp.endDate,
-        currentExperienceStatus: exp.currentExperienceStatus,
-        location: exp.location || ''
+        endDate: exp.endDate
       })
+      
+      // Ajouter à la liste locale
+      candidateData.value.experiences.push(newExp)
     }
     
     // Passer à l'étape suivante
     currentStepIndex.value = 2
-    await loadCandidateProfile()
     
   } catch (error) {
     console.error('Erreur lors de l\'ajout des expériences:', error)
@@ -1550,7 +1610,7 @@ const saveStep3 = async () => {
     
     // Ajouter chaque formation
     for (const edu of step3Form.educations) {
-      await candidateService.createCandidateEducation({
+      const newEdu = await candidateService.createCandidateEducation({
         profileId: profile.value.candidateProfileId,
         institutionName: edu.institutionName,
         degree: edu.degree,
@@ -1559,11 +1619,13 @@ const saveStep3 = async () => {
         endDate: edu.endDate,
         description: edu.description || ''
       })
+      
+      // Ajouter à la liste locale
+      candidateData.value.educations.push(newEdu)
     }
     
     // Passer à l'étape suivante
     currentStepIndex.value = 3
-    await loadCandidateProfile()
     
   } catch (error) {
     console.error('Erreur lors de l\'ajout des formations:', error)
@@ -1602,16 +1664,18 @@ const saveStep4 = async () => {
     
     // Ajouter chaque compétence
     for (const skill of step4Form.skills) {
-      await candidateService.createCandidateSkill({
+      const newSkill = await candidateService.createCandidateSkill({
         profileId: profile.value.candidateProfileId,
         skillName: skill.skillName,
         experienceYears: skill.experienceYears
       })
+      
+      // Ajouter à la liste locale
+      candidateData.value.skills.push(newSkill)
     }
     
     // Terminer la création
     showCreationWizard.value = false
-    await loadCandidateProfile()
     
   } catch (error) {
     console.error('Erreur lors de l\'ajout des compétences:', error)
@@ -1622,7 +1686,10 @@ const saveStep4 = async () => {
 
 // Édition des sections
 const openEditSection = async (section: string) => {
-  // Pré-remplir le formulaire d'édition
+  // Charger les données fraîches depuis l'API
+  await loadCandidateProfile()
+  
+  // Pré-remplir le formulaire d'édition avec les données actuelles
   Object.assign(editForm, {
     firstName: profile.value.firstName,
     lastName: profile.value.lastName,
@@ -1631,13 +1698,13 @@ const openEditSection = async (section: string) => {
     bio: profile.value.bio || '',
     salaryExpectationMin: profile.value.salaryExpectationMin || 10,
     salaryExpectationMax: profile.value.salaryExpectationMax || 10,
-    skills: skills.value.map(skill => ({
+    skills: [...skills.value].map(skill => ({
       id: skill.id,
       skillName: skill.skillName,
       experienceYears: skill.experienceYears,
       profileId: skill.profileId
     })),
-    experiences: experiences.value.map(exp => ({
+    experiences: [...experiences.value].map(exp => ({
       id: exp.id,
       jobTitle: exp.jobTitle,
       companyName: exp.companyName,
@@ -1648,7 +1715,7 @@ const openEditSection = async (section: string) => {
       location: exp.location || '',
       profileId: exp.profileId
     })),
-    educations: educations.value.map(edu => ({
+    educations: [...educations.value].map(edu => ({
       id: edu.id,
       institutionName: edu.institutionName,
       degree: edu.degree,
@@ -1738,9 +1805,12 @@ const saveSalary = async () => {
 
 // Gestion des compétences (édition)
 const addEditSkill = () => {
-  editForm.skills.push({
+  // Ajouter en haut de la liste - SANS id pour que ce soit traité comme nouveau
+  editForm.skills.unshift({
     skillName: '',
-    experienceYears: 1
+    experienceYears: 1,
+    profileId: profile.value.candidateProfileId
+    // Pas d'id = nouvel item
   })
 }
 
@@ -1749,8 +1819,13 @@ const removeEditSkill = async (index: number) => {
   if (skill.id) {
     try {
       await candidateService.deleteCandidateSkill(skill.id)
+      notifySuccess('Compétence supprimée avec succès')
+      // Recharger immédiatement
+      await loadCandidateProfile()
     } catch (error) {
       console.error('Erreur suppression compétence:', error)
+      notifyError('Erreur lors de la suppression de la compétence')
+      return
     }
   }
   editForm.skills.splice(index, 1)
@@ -1760,29 +1835,58 @@ const saveSkills = async () => {
   try {
     isSaving.value = true
     
-    // Traiter chaque compétence
-    for (const skill of editForm.skills) {
-      if (skill.id) {
-        // Mise à jour
+    console.log('🔵 Début sauvegarde skills, editForm.skills:', editForm.skills)
+    
+    // Séparer les nouveaux des existants
+    const newSkills = editForm.skills.filter(skill => !skill.id)
+    const existingSkills = editForm.skills.filter(skill => skill.id)
+    
+    console.log('➕ Nouveaux skills à créer:', newSkills.length)
+    console.log('🔄 Skills existants à vérifier:', existingSkills.length)
+    
+    // Créer les nouveaux
+    for (const skill of newSkills) {
+      if (!skill.skillName || !skill.experienceYears) {
+        console.warn('⚠️ Skill incomplet ignoré:', skill)
+        continue
+      }
+      
+      console.log('➕ Create skill:', skill.skillName)
+      await candidateService.createCandidateSkill({
+        profileId: profile.value.candidateProfileId,
+        skillName: skill.skillName,
+        experienceYears: skill.experienceYears
+      })
+    }
+    
+    // Mettre à jour les existants modifiés
+    for (const skill of existingSkills) {
+      const original = skills.value.find(s => s.id === skill.id)
+      if (original && (original.skillName !== skill.skillName || original.experienceYears !== skill.experienceYears)) {
+        console.log('🔄 Update skill:', skill.id, skill.skillName)
         await candidateService.updateCandidateSkill(skill.id, {
-          skillName: skill.skillName,
-          experienceYears: skill.experienceYears
-        })
-      } else {
-        // Création
-        await candidateService.createCandidateSkill({
           profileId: profile.value.candidateProfileId,
           skillName: skill.skillName,
-          experienceYears: skill.experienceYears
+          experienceYears: skill.experienceYears,
+          id: skill.id
         })
       }
     }
     
+    console.log('✅ Skills sauvegardées, rechargement du profil...')
+    
+    // Recharger les données avec un petit délai pour s'assurer que le backend a fini
+    await new Promise(resolve => setTimeout(resolve, 300))
     await loadCandidateProfile()
+    
+    console.log('✅ Profil rechargé, skills.value:', skills.value)
+    
     showEditModal.value = null
+    notifySuccess('Compétences sauvegardées avec succès')
     
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde des compétences:', error)
+    console.error('❌ Erreur lors de la sauvegarde des compétences:', error)
+    notifyError('Erreur lors de la sauvegarde des compétences')
   } finally {
     isSaving.value = false
   }
@@ -1790,14 +1894,15 @@ const saveSkills = async () => {
 
 // Gestion des expériences (édition)
 const addEditExperience = () => {
-  editForm.experiences.push({
+  // Ajouter en haut de la liste - SANS id pour que ce soit traité comme nouveau
+  editForm.experiences.unshift({
     companyName: '',
     jobTitle: '',
     description: '',
     startDate: '',
     endDate: '',
-    currentExperienceStatus: 'previous',
-    location: ''
+    profileId: profile.value.candidateProfileId
+    // Pas d'id = nouvel item
   })
 }
 
@@ -1806,8 +1911,13 @@ const removeEditExperience = async (index: number) => {
   if (exp.id) {
     try {
       await candidateService.deleteCandidateExperience(exp.id)
+      notifySuccess('Expérience supprimée avec succès')
+      // Recharger immédiatement
+      await loadCandidateProfile()
     } catch (error) {
       console.error('Erreur suppression expérience:', error)
+      notifyError('Erreur lors de la suppression de l\'expérience')
+      return
     }
   }
   editForm.experiences.splice(index, 1)
@@ -1817,39 +1927,70 @@ const saveExperiences = async () => {
   try {
     isSaving.value = true
     
-    // Traiter chaque expérience
-    for (const exp of editForm.experiences) {
-      if (exp.id) {
-        // Mise à jour
+    console.log('🔵 Début sauvegarde experiences, editForm.experiences:', editForm.experiences)
+    
+    // Séparer les nouveaux des existants
+    const newExperiences = editForm.experiences.filter(exp => !exp.id)
+    const existingExperiences = editForm.experiences.filter(exp => exp.id)
+    
+    console.log('➕ Nouvelles experiences à créer:', newExperiences.length)
+    console.log('🔄 Experiences existantes à vérifier:', existingExperiences.length)
+    
+    // Créer les nouveaux
+    for (const exp of newExperiences) {
+      if (!exp.jobTitle || !exp.companyName || !exp.startDate) {
+        console.warn('⚠️ Experience incomplète ignorée:', exp)
+        continue
+      }
+      
+      console.log('➕ Create experience:', exp.jobTitle)
+      await candidateService.createCandidateExperience({
+        profileId: profile.value.candidateProfileId,
+        jobTitle: exp.jobTitle,
+        companyName: exp.companyName,
+        description: exp.description || '',
+        startDate: exp.startDate,
+        endDate: exp.endDate
+      })
+    }
+    
+    // Mettre à jour les existants modifiés
+    for (const exp of existingExperiences) {
+      const original = experiences.value.find(e => e.id === exp.id)
+      if (original && (
+        original.jobTitle !== exp.jobTitle ||
+        original.companyName !== exp.companyName ||
+        original.description !== exp.description ||
+        original.startDate !== exp.startDate ||
+        original.endDate !== exp.endDate
+      )) {
+        console.log('🔄 Update experience:', exp.id, exp.jobTitle)
         await candidateService.updateCandidateExperience(exp.id, {
-          jobTitle: exp.jobTitle,
-          companyName: exp.companyName,
-          description: exp.description,
-          startDate: exp.startDate,
-          endDate: exp.endDate,
-          currentExperienceStatus: exp.currentExperienceStatus,
-          location: exp.location
-        })
-      } else {
-        // Création
-        await candidateService.createCandidateExperience({
           profileId: profile.value.candidateProfileId,
-          jobTitle: exp.jobTitle,
           companyName: exp.companyName,
-          description: exp.description,
+          jobTitle: exp.jobTitle,
+          description: exp.description || '',
           startDate: exp.startDate,
           endDate: exp.endDate,
-          currentExperienceStatus: exp.currentExperienceStatus,
-          location: exp.location
+          id: exp.id
         })
       }
     }
     
+    console.log('✅ Experiences sauvegardées, rechargement du profil...')
+    
+    // Recharger les données avec un petit délai
+    await new Promise(resolve => setTimeout(resolve, 300))
     await loadCandidateProfile()
+    
+    console.log('✅ Profil rechargé, experiences.value:', experiences.value)
+    
     showEditModal.value = null
+    notifySuccess('Expériences sauvegardées avec succès')
     
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde des expériences:', error)
+    console.error('❌ Erreur lors de la sauvegarde des expériences:', error)
+    notifyError('Erreur lors de la sauvegarde des expériences')
   } finally {
     isSaving.value = false
   }
@@ -1857,13 +1998,16 @@ const saveExperiences = async () => {
 
 // Gestion des formations (édition)
 const addEditEducation = () => {
-  editForm.educations.push({
+  // Ajouter en haut de la liste - SANS id pour que ce soit traité comme nouveau
+  editForm.educations.unshift({
     institutionName: '',
     degree: 'Bachelor',
     fieldStudy: '',
     startDate: '',
     endDate: '',
-    description: ''
+    description: '',
+    profileId: profile.value.candidateProfileId
+    // Pas d'id = nouvel item
   })
 }
 
@@ -1872,8 +2016,13 @@ const removeEditEducation = async (index: number) => {
   if (edu.id) {
     try {
       await candidateService.deleteCandidateEducation(edu.id)
+      notifySuccess('Formation supprimée avec succès')
+      // Recharger immédiatement
+      await loadCandidateProfile()
     } catch (error) {
       console.error('Erreur suppression formation:', error)
+      notifyError('Erreur lors de la suppression de la formation')
+      return
     }
   }
   editForm.educations.splice(index, 1)
@@ -1883,37 +2032,73 @@ const saveEducations = async () => {
   try {
     isSaving.value = true
     
-    // Traiter chaque formation
-    for (const edu of editForm.educations) {
-      if (edu.id) {
-        // Mise à jour
+    console.log('🔵 Début sauvegarde educations, editForm.educations:', editForm.educations)
+    
+    // Séparer les nouveaux des existants
+    const newEducations = editForm.educations.filter(edu => !edu.id)
+    const existingEducations = editForm.educations.filter(edu => edu.id)
+    
+    console.log('➕ Nouvelles educations à créer:', newEducations.length)
+    console.log('🔄 Educations existantes à vérifier:', existingEducations.length)
+    
+    // Créer les nouveaux
+    for (const edu of newEducations) {
+      if (!edu.institutionName || !edu.degree || !edu.fieldStudy || !edu.startDate || !edu.endDate) {
+        console.warn('⚠️ Education incomplète ignorée:', edu)
+        continue
+      }
+      
+      console.log('➕ Create education:', edu.institutionName)
+      await candidateService.createCandidateEducation({
+        profileId: profile.value.candidateProfileId,
+        institutionName: edu.institutionName,
+        degree: edu.degree,
+        fieldStudy: edu.fieldStudy,
+        startDate: edu.startDate,
+        endDate: edu.endDate,
+        description: edu.description || ''
+      })
+    }
+    
+    // Mettre à jour les existants modifiés
+    for (const edu of existingEducations) {
+      const original = educations.value.find(e => e.id === edu.id)
+      if (original && (
+        original.institutionName !== edu.institutionName ||
+        original.degree !== edu.degree ||
+        original.fieldStudy !== edu.fieldStudy ||
+        original.startDate !== edu.startDate ||
+        original.endDate !== edu.endDate ||
+        original.description !== edu.description
+      )) {
+        console.log('🔄 Update education:', edu.id, edu.institutionName)
         await candidateService.updateCandidateEducation(edu.id, {
-          institutionName: edu.institutionName,
-          degree: edu.degree,
-          fieldStudy: edu.fieldStudy,
-          startDate: edu.startDate,
-          endDate: edu.endDate,
-          description: edu.description
-        })
-      } else {
-        // Création
-        await candidateService.createCandidateEducation({
           profileId: profile.value.candidateProfileId,
           institutionName: edu.institutionName,
           degree: edu.degree,
           fieldStudy: edu.fieldStudy,
           startDate: edu.startDate,
           endDate: edu.endDate,
-          description: edu.description
+          description: edu.description || '',
+          id: edu.id
         })
       }
     }
     
+    console.log('✅ Educations sauvegardées, rechargement du profil...')
+    
+    // Recharger les données avec un petit délai
+    await new Promise(resolve => setTimeout(resolve, 300))
     await loadCandidateProfile()
+    
+    console.log('✅ Profil rechargé, educations.value:', educations.value)
+    
     showEditModal.value = null
+    notifySuccess('Formations sauvegardées avec succès')
     
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde des formations:', error)
+    console.error('❌ Erreur lors de la sauvegarde des formations:', error)
+    notifyError('Erreur lors de la sauvegarde des formations')
   } finally {
     isSaving.value = false
   }
@@ -1935,7 +2120,7 @@ const formatDate = (dateString: string): string => {
 }
 
 const getSkillWidth = (years: number): string => {
-  const safeSkills = Array.isArray(skills.value) ? skills.value : []
+  const safeSkills = skills.value
   if (safeSkills.length === 0 || years === 0) return '0%'
   const maxYears = Math.max(...safeSkills.map(s => s.experienceYears || 0), years)
   return `${(years / maxYears) * 100}%`
