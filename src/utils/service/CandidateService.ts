@@ -1,27 +1,44 @@
 import { useAxiosRequestWithToken } from './axios_api';
 import { ApiRoutes } from './endpoints/api';
 import { getToken } from '@/stores/token';
-import type { ICandidateProfile} from '@/utils/interface/candidate/ICandidateProfile'
-import type { ICandidateEducation} from '@/utils/interface/candidate/ICandidateEducation'
-import type { ICandidateExperience} from '@/utils/interface/candidate/ICandidateExperience'
-import type { ICandidateSkill} from '@/utils/interface/candidate/ICandidateSkill'
-import type { ICandidateData} from '@/utils/interface/candidate/ICandidateData'
+import type { ICandidateProfile } from '@/utils/interface/candidate/ICandidateProfile'
+import type { ICandidateEducation } from '@/utils/interface/candidate/ICandidateEducation'
+import type { ICandidateExperience } from '@/utils/interface/candidate/ICandidateExperience'
+import type { ICandidateSkill } from '@/utils/interface/candidate/ICandidateSkill'
+import type { ICandidateData } from '@/utils/interface/candidate/ICandidateData'
 
 export const useCandidateService = () => {
-  const storedToken = getToken();
-  const token = (storedToken as any)?.token || (typeof storedToken === 'string' ? storedToken : '');
+  // Fonction pour récupérer le token frais à chaque appel
+  const getAuthToken = (): string => {
+    const storedToken = getToken();
+    if (!storedToken) {
+      console.warn('⚠️ Aucun token trouvé dans localStorage');
+      return '';
+    }
+    // Le token peut être soit un objet {token: "..."} soit directement une string
+    const token = (storedToken as any)?.token || (typeof storedToken === 'string' ? storedToken : '');
+    console.log('🔑 Token récupéré:', token ? `✅ ${token.substring(0, 30)}...` : '❌ Vide');
+    return token;
+  };
 
   // ==================== CANDIDATE PROFILES ====================
 
   const createCandidateProfile = async (profileData: Partial<ICandidateProfile> & { userId?: number }): Promise<ICandidateProfile> => {
     try {
-      const response = await useAxiosRequestWithToken(token).post(
+      const token = getAuthToken();
+      console.log('🔐 Token utilisé pour createCandidateProfile:', token ? '✅ Présent' : '❌ Absent');
+      console.log('📤 Données envoyées:', profileData);
+
+      const response = await useAxiosRequestWithToken(getAuthToken()).post(
         `${ApiRoutes.addCandidateProfile}`,
         profileData
       );
+
+      console.log('✅ Profil créé:', response.data);
       return response.data;
     } catch (error) {
       console.error('❌ Erreur lors de la création du profil candidat:', error);
+      console.error('❌ Détails de l\'erreur:', (error as any)?.response?.data);
       throw error;
     }
   };
@@ -32,7 +49,8 @@ export const useCandidateService = () => {
     sort: string = 'createdAt,desc'
   ): Promise<any> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const token = getAuthToken();
+      const response = await useAxiosRequestWithToken(getAuthToken()).get(
         `${ApiRoutes.getAllCandidateProfiles}`,
         {
           params: {
@@ -51,7 +69,7 @@ export const useCandidateService = () => {
 
   const getCandidateProfileById = async (id: number): Promise<ICandidateProfile> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken(getAuthToken()).get(
         `${ApiRoutes.getCandidateProfileById}/${id}`
       );
       return response.data;
@@ -64,7 +82,7 @@ export const useCandidateService = () => {
   const getCandidateProfileByUserId = async (userId: number): Promise<ICandidateProfile | null> => {
     try {
       // L'API n'a pas d'endpoint direct par userId, on récupère la liste et on filtre
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken(getAuthToken()).get(
         `${ApiRoutes.getAllCandidateProfiles}`,
         { params: { page: 0, size: 200 } }
       );
@@ -108,7 +126,7 @@ export const useCandidateService = () => {
     size: number = 20
   ): Promise<any> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken(getAuthToken()).get(
         `${ApiRoutes.getCandidateProfilesSalaryMinGte}/${salaryExpectation}`,
         { params: { page, size } }
       );
@@ -125,7 +143,7 @@ export const useCandidateService = () => {
     size: number = 20
   ): Promise<any> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken(getAuthToken()).get(
         `${ApiRoutes.getCandidateProfilesSalaryMaxLte}/${salaryExpectation}`,
         { params: { page, size } }
       );
@@ -142,7 +160,7 @@ export const useCandidateService = () => {
     size: number = 20
   ): Promise<any> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken(getAuthToken()).get(
         `${ApiRoutes.getCandidateProfilesByLocation}/${encodeURIComponent(location)}`,
         { params: { page, size } }
       );
@@ -155,7 +173,7 @@ export const useCandidateService = () => {
 
   const updateCandidateProfile = async (userId: number, profileData: Partial<ICandidateProfile>): Promise<ICandidateProfile> => {
     try {
-      const response = await useAxiosRequestWithToken(token).put(
+      const response = await useAxiosRequestWithToken(getAuthToken()).put(
         `${ApiRoutes.updateCandidateProfile}`,
         { userId, ...profileData }
       );
@@ -168,7 +186,7 @@ export const useCandidateService = () => {
 
   const deleteCandidateProfile = async (id: number): Promise<void> => {
     try {
-      await useAxiosRequestWithToken(token).delete(
+      await useAxiosRequestWithToken(getAuthToken()).delete(
         `${ApiRoutes.deleteCandidateProfile}/${id}`
       );
     } catch (error) {
@@ -181,20 +199,28 @@ export const useCandidateService = () => {
 
   const createCandidateExperience = async (experienceData: Omit<ICandidateExperience, 'id'>): Promise<ICandidateExperience> => {
     try {
-      const response = await useAxiosRequestWithToken(token).post(
+      const token = getAuthToken();
+      console.log('🔐 Token pour createCandidateExperience:', token ? '✅ Présent' : '❌ Absent');
+      console.log('📤 Experience data:', experienceData);
+
+      const response = await useAxiosRequestWithToken(getAuthToken()).post(
         `${ApiRoutes.addCandidateExperience}`,
         experienceData
       );
+
+      console.log('✅ Experience créée:', response.data);
       return response.data;
     } catch (error) {
       console.error('❌ Erreur lors de la création de l\'expérience:', error);
+      console.error('❌ Status:', (error as any)?.response?.status);
+      console.error('❌ Détails:', (error as any)?.response?.data);
       throw error;
     }
   };
 
   const getExperiencesByProfile = async (profileId: number): Promise<ICandidateExperience[]> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken(getAuthToken()).get(
         `${ApiRoutes.getCandidateExperienceById}/by-candidate/${profileId}`
       );
       return response.data;
@@ -206,8 +232,8 @@ export const useCandidateService = () => {
 
   const updateCandidateExperience = async (id: number, experienceData: Partial<ICandidateExperience>): Promise<ICandidateExperience> => {
     try {
-      const response = await useAxiosRequestWithToken(token).put(
-        `${ApiRoutes.updateCandidateExperience}/${id}`,
+      const response = await useAxiosRequestWithToken(getAuthToken()).put(
+        `${ApiRoutes.updateCandidateExperience}`,
         experienceData
       );
       return response.data;
@@ -219,7 +245,7 @@ export const useCandidateService = () => {
 
   const deleteCandidateExperience = async (id: number): Promise<void> => {
     try {
-      await useAxiosRequestWithToken(token).delete(
+      await useAxiosRequestWithToken(getAuthToken()).delete(
         `${ApiRoutes.deleteCandidateExperience}/${id}`
       );
     } catch (error) {
@@ -232,7 +258,7 @@ export const useCandidateService = () => {
 
   const createCandidateEducation = async (educationData: Omit<ICandidateEducation, 'id'>): Promise<ICandidateEducation> => {
     try {
-      const response = await useAxiosRequestWithToken(token).post(
+      const response = await useAxiosRequestWithToken(getAuthToken()).post(
         `${ApiRoutes.addCandidateEducation}`,
         educationData
       );
@@ -245,7 +271,7 @@ export const useCandidateService = () => {
 
   const getEducationsByProfile = async (profileId: number): Promise<ICandidateEducation[]> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken(getAuthToken()).get(
         `${ApiRoutes.getCandidateEducationById}/by-candidate/${profileId}`
       );
       return response.data;
@@ -257,8 +283,8 @@ export const useCandidateService = () => {
 
   const updateCandidateEducation = async (id: number, educationData: Partial<ICandidateEducation>): Promise<ICandidateEducation> => {
     try {
-      const response = await useAxiosRequestWithToken(token).put(
-        `${ApiRoutes.updateCandidateEducation}/${id}`,
+      const response = await useAxiosRequestWithToken(getAuthToken()).put(
+        `${ApiRoutes.updateCandidateEducation}`,
         educationData
       );
       return response.data;
@@ -270,7 +296,7 @@ export const useCandidateService = () => {
 
   const deleteCandidateEducation = async (id: number): Promise<void> => {
     try {
-      await useAxiosRequestWithToken(token).delete(
+      await useAxiosRequestWithToken(getAuthToken()).delete(
         `${ApiRoutes.deleteCandidateEducation}/${id}`
       );
     } catch (error) {
@@ -283,7 +309,7 @@ export const useCandidateService = () => {
 
   const createCandidateSkill = async (skillData: Omit<ICandidateSkill, 'id'>): Promise<ICandidateSkill> => {
     try {
-      const response = await useAxiosRequestWithToken(token).post(
+      const response = await useAxiosRequestWithToken(getAuthToken()).post(
         `${ApiRoutes.addCandidateSkills}`,
         skillData
       );
@@ -296,7 +322,7 @@ export const useCandidateService = () => {
 
   const getSkillsByProfile = async (profileId: number): Promise<ICandidateSkill[]> => {
     try {
-      const response = await useAxiosRequestWithToken(token).get(
+      const response = await useAxiosRequestWithToken(getAuthToken()).get(
         `${ApiRoutes.getCandidateSkillById}/by-candidate/${profileId}`
       );
       return response.data;
@@ -318,8 +344,8 @@ export const useCandidateService = () => {
 
   const updateCandidateSkill = async (id: number, skillData: Partial<ICandidateSkill>): Promise<ICandidateSkill> => {
     try {
-      const response = await useAxiosRequestWithToken(token).put(
-        `${ApiRoutes.updateCandidateSkill}/${id}`,
+      const response = await useAxiosRequestWithToken(getAuthToken()).put(
+        `${ApiRoutes.updateCandidateSkill}`,
         skillData
       );
       return response.data;
@@ -331,7 +357,7 @@ export const useCandidateService = () => {
 
   const deleteCandidateSkill = async (id: number): Promise<void> => {
     try {
-      await useAxiosRequestWithToken(token).delete(
+      await useAxiosRequestWithToken(getAuthToken()).delete(
         `${ApiRoutes.deleteCandidateSkill}/${id}`
       );
     } catch (error) {
@@ -344,14 +370,24 @@ export const useCandidateService = () => {
 
   const getCompleteCandidateData = async (userId: number): Promise<ICandidateData> => {
     try {
+      console.log('🔍 getCompleteCandidateData appelé pour userId:', userId);
+
       const profileDetails = await getOrCreateCandidateProfile(userId);
+      console.log('✅ Profile récupéré:', profileDetails);
+
       const resolvedProfileId = profileDetails.candidateProfileId;
+      console.log('🆔 ProfileId résolu:', resolvedProfileId);
 
       const [experiences, educations, skills] = await Promise.all([
         getExperiencesByProfile(resolvedProfileId),
         getEducationsByProfile(resolvedProfileId),
         getSkillsByProfile(resolvedProfileId)
       ]);
+
+      console.log('📊 Résultats des appels API:');
+      console.log('  - Experiences:', experiences, 'length:', experiences?.length);
+      console.log('  - Educations:', educations, 'length:', educations?.length);
+      console.log('  - Skills:', skills, 'length:', skills?.length);
 
       return {
         profile: profileDetails,
@@ -377,20 +413,20 @@ export const useCandidateService = () => {
 
       // Créer les expériences, formations et compétences en parallèle
       const [experiences, educations, skills] = await Promise.all([
-        candidateData.experiences 
-          ? Promise.all(candidateData.experiences.map(exp => 
-              createCandidateExperience({ ...exp, profileId: profile.candidateProfileId })
-            ))
+        candidateData.experiences
+          ? Promise.all(candidateData.experiences.map(exp =>
+            createCandidateExperience({ ...exp, profileId: profile.candidateProfileId })
+          ))
           : Promise.resolve([]),
-        candidateData.educations 
-          ? Promise.all(candidateData.educations.map(edu => 
-              createCandidateEducation({ ...edu, profileId: profile.candidateProfileId })
-            ))
+        candidateData.educations
+          ? Promise.all(candidateData.educations.map(edu =>
+            createCandidateEducation({ ...edu, profileId: profile.candidateProfileId })
+          ))
           : Promise.resolve([]),
-        candidateData.skills 
-          ? createCandidateSkillsBatch(candidateData.skills.map(skill => 
-              ({ ...skill, profileId: profile.candidateProfileId })
-            ))
+        candidateData.skills
+          ? createCandidateSkillsBatch(candidateData.skills.map(skill =>
+            ({ ...skill, profileId: profile.candidateProfileId })
+          ))
           : Promise.resolve([])
       ]);
 
