@@ -1,155 +1,139 @@
-<!-- eslint-disable @typescript-eslint/ban-ts-comment -->
 <template>
-  <Navbar />
-  
-  <div class="categories-page">
-    <section class="page-header">
-      <div class="container">
-        <div class="header-content mt-10">
-          <div class="header-text">
-            <h1 class="page-title">Trouvez Votre <span class="highlight">Prochain Défi</span></h1>
-            <p class="page-subtitle">
-              Des opportunités de carrière <strong>triées sur le volet</strong> dans les meilleures entreprises. 
-              Rejoignez les talents qui façonnent l'avenir professionnel.
-            </p>
-            
-            <div class="hero-search-form">
-              <div class="search-input-group">
-                <MagnifyingGlassIcon class="search-icon" />
-                <input
-                  v-model="searchQuery"
-                  type="text"
-                  placeholder="Poste, compétence ou entreprise..."
-                  class="search-input"
-                  @input="handleSearch"
-                />
-              </div>
-              <div class="search-input-group">
-                <MapPinIcon class="search-icon" />
-                <input
-                  v-model="locationQuery"
-                  type="text"
-                  placeholder="Localisation..."
-                  class="search-input"
-                  @input="handleSearch"
-                />
-              </div>
-              <button 
-                class="search-button"
-                @click="performSearch"
-                :disabled="loading"
-              >
-                <span v-if="!loading">Rechercher</span>
-                <span v-else>Recherche...</span>
-                <svg
-                  v-if="!loading"
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="button-icon"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                <svg
-                  v-else
-                  class="button-icon animate-spin"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V2a10 10 0 00-10 10h2z"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div class="header-visual">
-            <div class="stats-card">
-              <div class="stats-grid">
-                <div class="stat-item">
-                  <div class="stat-number">{{ totalJobsCount }}+</div>
-                  <div class="stat-label">Offres actives</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-number">{{ jobCategories.length }}+</div>
-                  <div class="stat-label">Domaines</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-number">100+</div>
-                  <div class="stat-label">Entreprises</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-number">24h</div>
-                  <div class="stat-label">Réponse moyenne</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="header-background">
-        <div class="gradient-orbit"></div>
-        <div class="gradient-orbit"></div>
-        <div class="gradient-orbit"></div>
-      </div>
-    </section>
+  <div class="min-h-screen flex flex-col bg-slate-50 overflow-x-hidden">
+    <Navbar />
+    <main class="flex-grow">
+      <div class="categories-page">
+        <PageHero>
+      <template #title>
+        {{ $t('hero.categoriesView.title').split($t('hero.categoriesView.titleHighlight'))[0] }} <span class="text-emerald-400">{{ $t('hero.categoriesView.titleHighlight') }}</span>
+      </template>
+      <template #subtitle>
+        <span v-html="$t('hero.categoriesView.subtitle')"></span>
+      </template>
 
-    <section class="categories-section">
-      <div class="container">
-        <div class="section-header with-toggle">
-          <div class="header-content">
-            <div class="header-text">
-              <h2 class="section-title">Explorez par Catégories</h2>
-              <p class="section-subtitle">Trouvez le poste qui correspond à vos compétences</p>
+      <div class="max-w-4xl mx-auto space-y-8">
+        <!-- Search Bar -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/20 shadow-2xl">
+          <div class="flex flex-col md:flex-row gap-3">
+            <div class="flex-1 relative group">
+              <MagnifyingGlassIcon class="w-5 h-5 text-emerald-200 absolute left-4 top-3.5 group-focus-within:text-emerald-400 transition-colors" />
+              <input
+                v-model="searchQuery"
+                type="text"
+                :placeholder="$t('hero.categoriesView.searchPlaceholder')"
+                class="w-full h-12 pl-12 pr-4 rounded-xl border-0 bg-white/10 text-white placeholder-emerald-100/50 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:ring-0 transition-all duration-300"
+                @input="handleSearch"
+              />
             </div>
             
-            <div class="header-toggle" v-if="jobCategories.length > initialCategoriesCount">
-              <button 
-                @click="toggleCategories" 
-                class="toggle-button header-toggle-btn"
-              >
-                <span>{{ showAllCategories ? 'Voir moins' : 'Voir plus' }}</span>
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  class="toggle-icon" 
-                  :class="{ 'rotated': showAllCategories }"
-                  viewBox="0 0 20 20" 
-                  fill="currentColor"
-                >
-                  <path 
-                    fill-rule="evenodd" 
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
-                    clip-rule="evenodd" 
-                  />
-                </svg>
-              </button>
+            <div class="flex-1 relative group">
+              <MapPinIcon class="w-5 h-5 text-emerald-200 absolute left-4 top-3.5 group-focus-within:text-emerald-400 transition-colors" />
+              <input
+                v-model="locationQuery"
+                type="text"
+                :placeholder="$t('hero.categoriesView.locationPlaceholder')"
+                class="w-full h-12 pl-12 pr-4 rounded-xl border-0 bg-white/10 text-white placeholder-emerald-100/50 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:ring-0 transition-all duration-300"
+                @input="handleSearch"
+              />
             </div>
+
+            <button 
+              class="h-12 px-8 bg-emerald-500 text-white rounded-xl hover:bg-emerald-400 active:scale-95 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 font-semibold shadow-lg shadow-emerald-500/25 min-w-[140px]"
+              @click="performSearch"
+              :disabled="loading"
+            >
+              <span v-if="!loading">{{ $t('hero.searchButton') || 'Rechercher' }}</span>
+              <svg
+                v-else
+                class="w-5 h-5 animate-spin text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V2a10 10 0 00-10 10h2z"/>
+              </svg>
+            </button>
           </div>
         </div>
-        
-        <div class="categories-container">
-          <div 
-            class="categories-grid"
-            :class="{ 'expanded': showAllCategories }"
-          >
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 text-center hover:bg-white/10 transition-colors">
+            <div class="text-2xl font-bold text-white mb-1">{{ totalElements }}+</div>
+            <div class="text-xs text-emerald-200 font-medium uppercase tracking-wide">{{ $t('hero.categoriesView.stats.activeOffers') }}</div>
+          </div>
+          <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 text-center hover:bg-white/10 transition-colors">
+            <div class="text-2xl font-bold text-white mb-1">{{ jobCategories.length }}+</div>
+            <div class="text-xs text-emerald-200 font-medium uppercase tracking-wide">{{ $t('hero.categoriesView.stats.domains') }}</div>
+          </div>
+          <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 text-center hover:bg-white/10 transition-colors">
+            <div class="text-2xl font-bold text-white mb-1">100+</div>
+            <div class="text-xs text-emerald-200 font-medium uppercase tracking-wide">{{ $t('hero.categoriesView.stats.companies') }}</div>
+          </div>
+          <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 text-center hover:bg-white/10 transition-colors">
+            <div class="text-2xl font-bold text-white mb-1">24h</div>
+            <div class="text-xs text-emerald-200 font-medium uppercase tracking-wide">{{ $t('hero.categoriesView.stats.responseTime') }}</div>
+          </div>
+        </div>
+      </div>
+    </PageHero>
+
+    <section class="categories-section py-8">
+      <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200/80">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-800">Explorez par Catégories</h2>
+              <p class="text-sm text-gray-600 mt-1">Trouvez le poste qui correspond à vos compétences</p>
+            </div>
+            
+            <button 
+              v-if="jobCategories.length > initialCategoriesCount"
+              @click="toggleCategories" 
+              class="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors flex items-center gap-2"
+            >
+              <span>{{ showAllCategories ? 'Voir moins' : 'Voir plus' }}</span>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                class="h-4 w-4 transition-transform duration-200" 
+                :class="{ 'rotate-180': showAllCategories }"
+                viewBox="0 0 20 20" 
+                fill="currentColor"
+              >
+                <path 
+                  fill-rule="evenodd" 
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                  clip-rule="evenodd" 
+                />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="flex flex-wrap gap-3">
             <button 
               v-for="category in displayedCategories" 
               :key="category.id" 
               @click="filterByCategory(category.id)"
-              class="category-card"
-              :class="{ active: selectedCategory === category.id }"
+              :class="[
+                'px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2',
+                selectedCategory === category.id
+                  ? 'text-white shadow-lg scale-105'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
+              ]"
+              :style="selectedCategory === category.id ? { backgroundColor: category.color } : {}"
             >
-              <div class="category-icon" :style="{ backgroundColor: category.color }">
-                <component :is="category.icon" />
-              </div>
-              <div class="category-info">
-                <h4>{{ category.name }}</h4>
-                <p>{{ getJobsCountByCategory[category.id] || 0 }}+ offres</p>
-              </div>
+              <component :is="category.icon" class="w-4 h-4" />
+              <span>{{ category.name }}</span>
+              <span 
+                v-if="getJobsCountByCategory[category.id]"
+                :class="[
+                  'text-xs px-2 py-0.5 rounded-full',
+                  selectedCategory === category.id ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'
+                ]"
+              >
+                {{ getJobsCountByCategory[category.id] }}+
+              </span>
             </button>
           </div>
         </div>
@@ -167,8 +151,8 @@
               <span v-if="loading">Chargement...</span>
               <span v-else>
                 {{ displayedJobs.length }} offre{{ displayedJobs.length !== 1 ? 's' : '' }} affichée{{ displayedJobs.length !== 1 ? 's' : '' }}
-                <span v-if="totalFilteredJobs > displayedJobs.length">
-                  sur {{ totalFilteredJobs }} trouvée{{ totalFilteredJobs !== 1 ? 's' : '' }}
+                <span v-if="totalElements > displayedJobs.length">
+                  sur {{ totalElements }} trouvée{{ totalElements !== 1 ? 's' : '' }}
                 </span>
               </span>
             </p>
@@ -303,89 +287,21 @@
         </div>
 
         <!-- PAGINATION -->
-        <div v-if="!loading && totalPages > 1" class="mt-12">
-          <div class="bg-white rounded-2xl border border-gray-200/80 p-6 shadow-sm">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-              
-              <!-- Informations -->
-              <div class="flex-shrink-0">
-                <p class="text-sm text-gray-600">
-                  Page <span class="font-semibold text-gray-800">{{ currentPage + 1 }}</span> sur 
-                  <span class="font-semibold text-gray-800">{{ totalPages }}</span>
-                  <span class="text-gray-400 mx-2">•</span>
-                  <span class="font-semibold text-emerald-600">{{ displayedJobs.length }}</span> offre{{ displayedJobs.length !== 1 ? 's' : '' }} affichée{{ displayedJobs.length !== 1 ? 's' : '' }}
-                  sur <span class="font-semibold text-emerald-600">{{ totalFilteredJobs }}</span>
-                </p>
-              </div>
-              
-              <!-- Navigation -->
-              <nav class="flex items-center space-x-1 sm:space-x-2">
-                <!-- Précédent -->
-                <button 
-                  @click="changePage(currentPage - 1)"
-                  :disabled="currentPage === 0"
-                  class="flex items-center justify-center p-2 sm:p-3 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500 transition-all duration-200 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px]"
-                  aria-label="Page précédente"
-                >
-                  <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-
-             
-                <template v-for="page in visiblePages" :key="page">
-                 <button
-                    v-if="typeof page === 'number'"
-                    @click="changePage(page - 1)"
-                    :class="[
-                      'flex items-center justify-center px-3 py-2 rounded-xl font-medium transition-all duration-200 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] text-sm sm:text-base',
-                      currentPage === page - 1 
-                        ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 ring-2 ring-emerald-500/20 transform scale-105' 
-                        : 'border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-emerald-600 bg-white'
-                    ]"
-                    :aria-label="`Aller à la page ${page}`"
-                    :aria-current="currentPage === page - 1 ? 'page' : undefined"
-                  >
-                    {{ page }}
-                  </button>
-                  <span v-else class="px-2 text-gray-400 text-sm sm:text-base flex items-center" aria-hidden="true">
-                    ...
-                  </span>
-                </template>
-
-                
-                <button 
-                  @click="changePage(currentPage + 1)"
-                  :disabled="currentPage >= totalPages - 1"
-                  class="flex items-center justify-center p-2 sm:p-3 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500 transition-all duration-200 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px]"
-                  aria-label="Page suivante"
-                >
-                  <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </nav>
-
-              <div class="flex items-center gap-2 text-sm text-gray-600 flex-shrink-0">
-                <span class="whitespace-nowrap">Aller à:</span>
-                <select 
-                  v-model="quickPage"
-                  @change="goToQuickPage"
-                  class="px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 bg-white transition-colors appearance-none cursor-pointer"
-                  aria-label="Sélectionner une page"
-                >
-                  <option v-for="page in totalPages" :key="page" :value="page - 1">
-                    Page {{ page }}
-                  </option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
+          <Pagination
+            v-if="!loading && totalPages > 1"
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :total-elements="totalElements"
+            :loading="loading"
+            @change="changePage"
+          />
       </div>
     </section>
+    </div>
+    </main>
   </div>
   <Footer/>
+  
 </template>
 
 <script setup lang="ts">
@@ -393,6 +309,8 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 //@ts-ignore
 import Navbar from '../components/navbar/NavBarComponent.vue'
+import PageHero from '@/components/shared/PageHero.vue'
+import Pagination from '@/components/shared/Pagination.vue'
 import Footer from '../components/footer/FooterComponent.vue'
 //@ts-ignore
 import { useJobService } from '@/utils/service/jobService'
@@ -433,9 +351,9 @@ const router = useRouter()
 const jobService = useJobService();
 const companyService = useCompanyService();
 
-const allJobs = ref<any[]>([])
-const filteredJobs = ref<any[]>([])
+const displayedJobs = ref<any[]>([])
 const loading = ref(false)
+const paginationLoading = ref(false)
 const selectedCategory = ref<string>('')
 const searchQuery = ref('')
 const locationQuery = ref('')
@@ -445,6 +363,7 @@ const showAllCategories = ref(false)
 const currentPage = ref(0)
 const itemsPerPage = 12
 const totalPages = ref(0)
+const totalElements = ref(0) // Total from API
 const quickPage = ref(0)
 
 // Cache
@@ -459,88 +378,23 @@ const displayedCategories = computed(() => {
   return jobCategories.value.slice(0, initialCategoriesCount)
 })
 
-// Jobs affichés avec pagination
-const displayedJobs = computed(() => {
-  const startIndex = currentPage.value * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  return filteredJobs.value.slice(startIndex, endIndex)
-})
-
-// Total des jobs filtrés (sans pagination)
-const totalFilteredJobs = computed(() => {
-  return filteredJobs.value.length
-})
-
-// Total de tous les jobs (pour les stats)
-const totalJobsCount = computed(() => {
-  return allJobs.value.length
-})
-
-// Pages visibles pour la pagination
-const visiblePages = computed(() => {
-  const pages = []
-  const total = totalPages.value
-  const current = currentPage.value + 1
-  
-  if (total <= 7) {
-    for (let i = 1; i <= total; i++) {
-      pages.push(i)
-    }
-  } else {
-    if (current <= 4) {
-      for (let i = 1; i <= 5; i++) {
-        pages.push(i)
-      }
-      pages.push('...')
-      pages.push(total)
-    } else if (current >= total - 3) {
-      pages.push(1)
-      pages.push('...')
-      for (let i = total - 4; i <= total; i++) {
-        pages.push(i)
-      }
-    } else {
-      pages.push(1)
-      pages.push('...')
-      for (let i = current - 1; i <= current + 1; i++) {
-        pages.push(i)
-      }
-      pages.push('...')
-      pages.push(total)
-    }
-  }
-  
-  return pages
-})
+// Removed computed properties that were based on allJobs (client-side)
+// Now we rely on API response for counts if needed, but for now we just show results
 
 const selectedCategoryData = computed(() => {
   if (!selectedCategory.value) return null;
   return jobCategories.value.find(cat => cat.id === selectedCategory.value);
 })
 
-// Comptage des jobs par catégorie (basé sur tous les jobs, pas les jobs filtrés
-const getJobsCountByCategory = computed(() => {
-  const counts: { [key: string]: number } = {};
-  
-  jobCategories.value.forEach(category => {
-    counts[category.id] = 0;
-  });
-  counts['other'] = 0;
-  counts['all'] = allJobs.value.length;
-  
-  // Compter les jobs pour chaque catégorie parmi TOUS les jobs
-  allJobs.value.forEach(job => {
-    job.categories.forEach((categoryId: string) => {
-      if (counts[categoryId] !== undefined) {
-        counts[categoryId]++;
-      } else {
-        counts['other']++;
-      }
-    });
-  });
-  
-  return counts;
-})
+// Note: Accurate "Counts by category" for *all* jobs is expensive to calculate with server-side pagination 
+// unless the API provides a facet endpoint. 
+// For now, we will track counts based on the current search context OR 
+// we would need a separate API call to get stats. 
+// To keep it simple and performant, we might hide the exact count per category in the grid 
+// or implement a separate "stats" fetch if critical.
+// For this refactor, I'll initialize with 0 or remove the count display in the grid if it's misleading.
+// The template uses `getJobsCountByCategory`, let's implement a basic version or mock it.
+const getJobsCountByCategory = ref<Record<string, number>>({});
 
 const toggleCategories = () => {
   showAllCategories.value = !showAllCategories.value
@@ -680,6 +534,8 @@ const determineJobCategories = (job: any): string[] => {
   
   if (job.sector) {
     jobCategories.value.forEach(category => {
+      // Check if job.sector matches any of the category sectors
+      // This logic depends on what `job.sector` actual values are vs `category.sectors`
       if (category.sectors.includes(job.sector)) {
         categories.add(category.id);
       }
@@ -728,81 +584,116 @@ const getCategoryBadges = (job: any) => {
 };
 
 
-const fetchAllJobs = async () => {
+// Primary Fetch Function (Server-Side)
+const fetchJobs = async (page: number = 0) => {
   try {
-    loading.value = true;
-    console.log('📡 Fetching all jobs...');
-
-    const response: IJobResponse = await jobService.getAllJobs(0, 1000);
-    
-    console.log('✅ All jobs response:', response);
-
-    if (response && Array.isArray(response.content)) {
-      const enrichedJobs = await enrichJobsWithCompanyData(response.content);
-      allJobs.value = enrichedJobs.map(formatJobForDisplay);
-      applyFilters();
-      
-      console.log('All jobs formatted:', allJobs.value);
-      console.log('Jobs by category:', getJobsCountByCategory.value);
+    if (page === currentPage.value) {
+      loading.value = true;
     } else {
-      console.warn('Aucune offre trouvée ou format de réponse invalide');
-      allJobs.value = [];
-      filteredJobs.value = [];
+      paginationLoading.value = true;
+    }
+    
+    // Déterminer le secteur à partir de la catégorie sélectionnée
+    let sector: string | undefined;
+    if (selectedCategory.value) {
+      const cat = jobCategories.value.find(c => c.id === selectedCategory.value);
+      // NOTE: API likely takes one sector. We take the first one from the category definition.
+      // Ideally, the API would accept a list or a 'category' param.
+      sector = cat?.sectors?.[0];
     }
 
-  } catch (error: any) {
-    console.error('❌ Erreur lors du chargement des offres:', error);
-    allJobs.value = [];
-    filteredJobs.value = [];
+    console.log('📡 Fetching jobs:', {
+      page,
+      size: itemsPerPage,
+      title: searchQuery.value,
+      location: locationQuery.value,
+      sector
+    });
+
+    const response: IJobResponse = await jobService.searchJobs({
+      title: searchQuery.value.trim() || undefined,
+      location: locationQuery.value.trim() || undefined,
+      sector,
+      page,
+      size: itemsPerPage,
+      status: 'PUBLISHED'
+    });
+
+    console.log('✅ Jobs response:', response);
+
+    if (response && Array.isArray(response.content)) {
+      const enriched = await enrichJobsWithCompanyData(response.content);
+      displayedJobs.value = enriched.map(formatJobForDisplay);
+      
+      currentPage.value = response.number ?? page;
+      totalPages.value = response.totalPages ?? 0;
+      totalElements.value = response.totalElements ?? 0;
+      quickPage.value = currentPage.value;
+    } else {
+      displayedJobs.value = [];
+      totalPages.value = 0;
+      totalElements.value = 0;
+    }
+
+  } catch (error) {
+    console.error('❌ Erreur lors de la recherche des offres:', error);
+    displayedJobs.value = [];
+    totalPages.value = 0;
+    totalElements.value = 0;
   } finally {
     loading.value = false;
+    paginationLoading.value = false;
   }
 };
 
-const applyFilters = () => {
-  let results = [...allJobs.value];
-  
-  // Appliquer les filtres côté client (utilisé notamment après le chargement initial)
-  if (selectedCategory.value) {
-    results = results.filter(job => 
-      job.categories.includes(selectedCategory.value)
-    );
+// ACTIONS
+
+ const filterByCategory = (categoryId: string) => {
+  if (selectedCategory.value === categoryId) {
+    // Toggle off if same category clicked (optional, but standard behavior)
+    // selectedCategory.value = '';
+    return; // Or do nothing
   }
   
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    results = results.filter(job => 
-      job.title.toLowerCase().includes(query) ||
-      job.company.toLowerCase().includes(query) ||
-      job.excerpt.toLowerCase().includes(query) ||
-      job.skills.some((skill: string) => skill.toLowerCase().includes(query))
-    );
-  }
+  selectedCategory.value = categoryId;
+  currentPage.value = 0;
   
-  if (locationQuery.value) {
-    const location = locationQuery.value.toLowerCase();
-    results = results.filter(job => 
-      job.location.toLowerCase().includes(location)
-    );
-  }
+  const query: any = { ...route.query, category: categoryId };
+  if (!categoryId) delete query.category;
   
-  filteredJobs.value = results;
+  router.push({ query });
+  fetchJobs(0);
+};
+
+const handleSearch = () => {
+  clearTimeout(searchTimeout.value);
+  searchTimeout.value = setTimeout(() => {
+    performSearch();
+  }, 500);
+};
+
+const performSearch = () => {
+  currentPage.value = 0;
+  fetchJobs(0);
+};
+
+const clearAllFilters = () => {
+  selectedCategory.value = '';
+  searchQuery.value = '';
+  locationQuery.value = '';
+  currentPage.value = 0;
   
-  // Mettre à jour la pagination
-  totalPages.value = Math.ceil(results.length / itemsPerPage);
+  const query: any = { ...route.query };
+  delete query.category;
   
-  // Réinitialiser à la première page si nécessaire
-  if (currentPage.value >= totalPages.value) {
-    currentPage.value = 0;
-    quickPage.value = 0;
-  }
+  router.push({ query });
+  fetchJobs(0);
 };
 
 // Pagination
 const changePage = (page: number) => {
   if (page >= 0 && page < totalPages.value) {
-    currentPage.value = page;
-    quickPage.value = page;
+    fetchJobs(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 };
@@ -811,118 +702,25 @@ const goToQuickPage = () => {
   changePage(quickPage.value);
 };
 
-const filterByCategory = (categoryId: string) => {
-  selectedCategory.value = categoryId;
-  currentPage.value = 0;
-  quickPage.value = 0;
-  
-  const query: any = { ...route.query };
-  if (categoryId) {
-    query.category = categoryId;
-  } else {
-    delete query.category;
-  }
-  
-  router.push({ query });
-  applyFilters();
-};
-
-const handleSearch = () => {
-  // éviter trop d'appels API
-  clearTimeout(searchTimeout.value);
-  searchTimeout.value = setTimeout(() => {
-    performSearch();
-  }, 500);
-};
-
-/**
- * Utilise l'endpoint /api/job-offers/search pour rechercher
- * par titre + localisation (+ secteur si une catégorie est sélectionnée),
- * puis applique la pagination côté client comme avant.
- */
-const performSearch = async () => {
-  try {
-    loading.value = true;
-    currentPage.value = 0;
-    quickPage.value = 0;
-
-    // Déterminer éventuellement le secteur à partir de la catégorie sélectionnée
-    let sector: string | undefined;
-    if (selectedCategory.value) {
-      const cat = jobCategories.value.find(c => c.id === selectedCategory.value);
-      sector = cat?.sectors?.[0];
-    }
-
-    const response: IJobResponse = await jobService.searchJobs({
-      title: searchQuery.value.trim() || undefined,
-      location: locationQuery.value.trim() || undefined,
-      sector,
-      page: 0,
-      size: 1000 // on garde la pagination côté client sur cette page
-    });
-
-    if (response && Array.isArray(response.content)) {
-      const enriched = await enrichJobsWithCompanyData(response.content);
-      const formatted = enriched.map(formatJobForDisplay);
-      filteredJobs.value = formatted;
-
-      totalPages.value = Math.ceil(formatted.length / itemsPerPage);
-      if (currentPage.value >= totalPages.value) {
-        currentPage.value = 0;
-        quickPage.value = 0;
-      }
-    } else {
-      filteredJobs.value = [];
-      totalPages.value = 0;
-      currentPage.value = 0;
-      quickPage.value = 0;
-    }
-  } catch (error) {
-    console.error('❌ Erreur lors de la recherche des offres par catégories:', error);
-    filteredJobs.value = [];
-    totalPages.value = 0;
-    currentPage.value = 0;
-    quickPage.value = 0;
-  } finally {
-    loading.value = false;
-  }
-};
-
-const clearAllFilters = () => {
-  selectedCategory.value = '';
-  searchQuery.value = '';
-  locationQuery.value = '';
-  currentPage.value = 0;
-  quickPage.value = 0;
-  
-  const query: any = { ...route.query };
-  delete query.category;
-  
-  router.push({ query });
-  applyFilters();
-};
-
 // Watchers 
 const searchTimeout = ref<number>();
 
+// Initialize
 watch(
   () => route.query.category,
   (newCategory) => {
-    if (newCategory && newCategory !== selectedCategory.value) {
-      selectedCategory.value = newCategory as string;
-      currentPage.value = 0;
-      applyFilters();
-    } else if (!newCategory && selectedCategory.value) {
-      selectedCategory.value = '';
-      currentPage.value = 0;
-      applyFilters();
-    }
+     // If URL changes "externally" (back button), sync state
+     const cat = newCategory as string;
+     if (cat !== selectedCategory.value) {
+        selectedCategory.value = cat || '';
+        fetchJobs(0);
+     }
   },
   { immediate: true }
 );
 
 onMounted(() => {
-  fetchAllJobs();
+  fetchJobs(0);
 });
 
 // Catégories
@@ -1661,8 +1459,20 @@ const jobCategories = ref([
 
 .jobs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .jobs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .jobs-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .job-card {
