@@ -1396,15 +1396,15 @@ const loadCandidateProfile = async () => {
     // L'API retourne des objets paginés, extraire le .content
     const experiencesArray = Array.isArray(data.experiences) 
       ? data.experiences 
-      : (data.experiences?.content || [])
+      : ((data.experiences as any)?.content || [])
     
     const educationsArray = Array.isArray(data.educations)
       ? data.educations
-      : (data.educations?.content || [])
+      : ((data.educations as any)?.content || [])
     
     const skillsArray = Array.isArray(data.skills)
       ? data.skills
-      : (data.skills?.content || [])
+      : ((data.skills as any)?.content || [])
     
     console.log('📦 Données extraites:')
     console.log('  - experiencesArray:', experiencesArray.length, 'items')

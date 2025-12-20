@@ -46,7 +46,7 @@
                     :src="getCompanyLogo(company)" 
                     :alt="company.name" 
                     class="w-full h-full object-contain"
-                    @error="(e: any) => e.target.src = getFallbackLogo(company)" 
+                    @error="(e: any) => e.target.src = getFallbackLogo(company!)" 
                   />
                 </div>
               </div>
