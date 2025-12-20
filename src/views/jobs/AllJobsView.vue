@@ -1,112 +1,99 @@
 <template>
-  <transition name="page-fade" appear>
-    <div class="min-h-screen bg-gray-50" key="all-jobs-page">
-      <Navbar />
+  <div class="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden">
+    <transition name="page-fade" appear>
+      <div class="flex flex-col flex-1" key="all-jobs-page">
+        <Navbar />
     
-    <section class="relative overflow-hidden bg-gradient-to-br mt-4 sm:mt-8 from-emerald-800 via-emerald-700 to-teal-600 py-16 px-4 sm:px-6 lg:px-8">
-      <div class="absolute inset-0 bg-black/10"></div>
-      <div class="absolute top-0 left-0 w-72 h-72 bg-emerald-400/20 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-      <div class="absolute bottom-0 right-0 w-96 h-96 bg-teal-400/20 rounded-full translate-x-1/3 translate-y-1/3"></div>
-      
-      <div class="max-w-6xl mx-auto text-center relative z-10">
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white leading-tight">
-          Trouvez le job 
-          <span class="text-emerald-200">de vos rêves</span>
-        </h1>
+        <main class="flex-grow">
+          <PageHero>
+      <template #title>
+        {{ $t('hero.allJobsView.title').split($t('hero.allJobsView.titleHighlight'))[0] }} <span class="text-emerald-400">{{ $t('hero.allJobsView.titleHighlight') }}</span>
+      </template>
+      <template #subtitle>
+        {{ $t('hero.allJobsView.subtitle') }}
+      </template>
 
-        <p class="text-xl text-emerald-50/90 max-w-3xl mx-auto mb-10 leading-relaxed">
-          Découvrez des opportunités uniques dans les entreprises les plus innovantes
-        </p>
-
-        <div class="max-w-3xl mx-auto">
-          <div class="relative bg-white/10 backdrop-blur-sm rounded-2xl p-2 border border-white/20">
-            <div class="flex flex-col sm:flex-row gap-2">
-              <div class="flex-1 relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-200 absolute left-4 top-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input
-                  v-model="searchTerm"
-                  type="text"
-                  placeholder="Développeur, Designer, Marketing, Remote..."
-                  class="w-full h-12 px-12 rounded-xl border-0 bg-white/90 backdrop-blur-sm focus:bg-white focus:outline-none focus:ring-3 focus:ring-emerald-300/50 text-gray-700 placeholder-gray-500 transition-all duration-300"
-                  @keyup.enter="performSearch"
-                />
-              </div>
-              <button
-                @click="performSearch"
-                :disabled="loading"
-                class="h-12 px-8 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 active:scale-95 transition-all duration-300 disabled:opacity-50 flex items-center gap-2 font-semibold shadow-lg shadow-emerald-500/25"
-              >
-                <svg v-if="loading" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                {{ loading ? 'Recherche...' : 'Rechercher' }}
-              </button>
+      <div class="max-w-3xl mx-auto">
+        <div class="relative bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-2xl">
+          <div class="flex flex-col sm:flex-row gap-2">
+            <div class="flex-1 relative group">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-200 absolute left-4 top-4 transition-colors group-focus-within:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                v-model="searchTerm"
+                type="text"
+                :placeholder="$t('hero.allJobsView.searchPlaceholder')"
+                class="w-full h-12 px-12 rounded-xl border-0 bg-white/10 text-white placeholder-emerald-100/50 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:ring-0 transition-all duration-300"
+                @keyup.enter="performSearch"
+              />
             </div>
-          </div>
-          
-          <!-- Filtres rapides -->
-          <!-- <div class="flex flex-wrap justify-center gap-3 mt-6">
-            <button 
-              v-for="filter in quickFilters"
-              :key="filter.label"
-              @click="applyQuickFilter(filter)"
-              class="px-4 py-2 bg-white/10 hover:bg-white/20 text-emerald-50 rounded-full text-sm font-medium transition-all duration-300 border border-white/20 backdrop-blur-sm"
+            <button
+              @click="performSearch"
+              :disabled="loading"
+              class="h-12 px-8 bg-emerald-500 text-white rounded-xl hover:bg-emerald-400 active:scale-95 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 font-semibold shadow-lg shadow-emerald-500/25 min-w-[140px]"
             >
-              {{ filter.label }}
+              <svg v-if="loading" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span v-else>{{ $t('hero.allJobsView.searchButton') }}</span>
             </button>
-          </div> -->
+          </div>
         </div>
       </div>
-    </section>
+    </PageHero>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="flex flex-col lg:flex-row gap-8">
-        
-        <aside class="lg:w-80 flex-shrink-0">
-          <div class="bg-white rounded-2xl shadow-sm p-6 sticky top-24 border border-gray-200/80">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-lg font-semibold text-gray-800">
-                Filtres
-              </h3>
-              <button 
-                @click="resetFilters"
-                class="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
-              >
-                Tout effacer
-              </button>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- Filters Section - Horizontal Layout -->
+      <div class="bg-white rounded-2xl shadow-sm p-4 mb-6 border border-gray-200/80">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-semibold text-gray-800">
+            Filtres de recherche
+          </h3>
+          <button 
+            @click="resetFilters"
+            class="text-xs text-emerald-600 hover:text-emerald-700 font-medium transition-colors flex items-center gap-1.5"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+            </svg>
+            Réinitialiser
+          </button>
+        </div>
+
+        <SearchFilters 
+          :filters="filters"
+          @filter="applyFilters" 
+        />
+
+        <!-- Stats Row -->
+        <div class="mt-4 pt-4 border-t border-gray-200">
+          <div class="flex flex-wrap gap-4 text-xs">
+            <div class="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-gray-600">Offres trouvées:</span>
+              <span class="font-semibold text-emerald-600">{{ totalElements }}</span>
             </div>
-
-            <SearchFilters 
-              :filters="filters"
-              @filter="applyFilters" 
-            />
-
-
-            <div class="mt-8 pt-6 border-t border-gray-200">
-              <div class="space-y-3">
-                <div class="flex justify-between text-sm">
-                  <span class="text-gray-600">Offres trouvées</span>
-                  <span class="font-semibold text-emerald-600">{{ totalElements }}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                  <span class="text-gray-600">Page actuelle</span>
-                  <span class="font-semibold text-gray-700">{{ currentPage + 1 }}/{{ totalPages }}</span>
-                </div>
-              </div>
+            <div class="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.993 1.993 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-gray-600">Page:</span>
+              <span class="font-semibold text-gray-700">{{ currentPage + 1 }}/{{ totalPages }}</span>
             </div>
           </div>
-        </aside>
+        </div>
+      </div>
 
-        <div class="flex-1 min-w-0">
+      <!-- Job Cards Grid -->
+      <div class="space-y-8">
   
-          <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-gray-200/80">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200/80">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div>
                 <h2 class="text-2xl font-bold text-gray-800">
                   Offres d'emploi
@@ -137,7 +124,6 @@
                 </select>
               </div>
             </div>
-          </div>
 
           <div v-if="loading" class="space-y-6">
             <div v-for="n in 6" :key="n" class="bg-white rounded-2xl border border-gray-200/80 p-6 shimmer-container">
@@ -161,7 +147,7 @@
           </div>
 
 
-          <div v-else-if="formattedOffres.length > 0" class="grid gap-6">
+          <div v-else-if="formattedOffres.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <OffreCard
               v-for="offre in sortedOffres"
               :key="offre.id"
@@ -199,98 +185,30 @@
             </div>
           </div>
 
-          <div v-if="!loading && totalPages > 1" class="mt-12">
-            <div class="bg-white rounded-2xl border border-gray-200/80 p-6">
-              <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p class="text-sm text-gray-600">
-                  Page {{ currentPage + 1 }} sur {{ totalPages }} 
-                  <span class="text-gray-400 mx-2">•</span>
-                  {{ totalElements }} résultat{{ totalElements !== 1 ? 's' : '' }}
-                </p>
-                
-                <nav class="flex items-center space-x-2">
-                  <button 
-                    @click="changePage(currentPage - 1)"
-                    :disabled="currentPage === 0 || paginationLoading"
-                    class="p-3 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                  >
-                    <svg v-if="paginationLoading" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  
-                  <template v-for="page in visiblePages" :key="page">
-                    <button
-                      v-if="typeof page === 'number'"
-                      @click="changePage(page - 1)"
-                      :disabled="paginationLoading"
-                      :class="[
-                        'px-4 py-2 rounded-xl font-medium transition-all duration-300 min-w-10 flex items-center justify-center',
-                        currentPage === page - 1 
-                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 transform scale-105' 
-                          : 'border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50'
-                      ]"
-                    >
-                      <svg v-if="paginationLoading && currentPage === page - 1" class="animate-spin h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      {{ page }}
-                    </button>
-                    <span v-else class="px-2 text-gray-400">
-                      ...
-                    </span>
-                  </template>
-                  
-                  <button 
-                    @click="changePage(currentPage + 1)"
-                    :disabled="currentPage >= totalPages - 1 || paginationLoading"
-                    class="p-3 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                  >
-                    <svg v-if="paginationLoading" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </nav>
-
-                <div class="flex items-center gap-2 text-sm text-gray-600">
-                  <span>Aller à:</span>
-                  <select 
-                    v-model="quickPage"
-                    @change="goToQuickPage"
-                    :disabled="paginationLoading"
-                    class="px-2 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
-                  >
-                    <option v-for="page in totalPages" :key="page" :value="page - 1">
-                      Page {{ page }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Pagination
+            v-if="!loading && totalPages > 1"
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :total-elements="totalElements"
+            :loading="paginationLoading"
+            @change="changePage"
+          />
         </div>
       </div>
+      </div>
     </main>
-
-
     </div>
   </transition>
   <Footer />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useToast } from 'vue-toast-notification';
+import { useNotif } from '@/composables/useNotif';
+import PageHero from '@/components/shared/PageHero.vue';
+import Pagination from '@/components/shared/Pagination.vue';
 //@ts-ignore
 import SearchFilters from '@/components/filter/SearchFilters.vue';
 //@ts-ignore
@@ -309,7 +227,7 @@ import { JobType, ExperienceLevel } from '@/utils/interface/IJobOffers'
 import { getToken } from '@/stores/authStorage';
 
 // Services
-const toast = useToast();
+const { notifyError } = useNotif();
 const route = useRoute();
 const jobService = useJobService();
 const companyService = useCompanyService();
@@ -422,42 +340,7 @@ const handleSortChange = () => {
   console.log('🔄 Sorting by:', sortBy.value);
 };
 
-// Pages visibles pour la pagination
-const visiblePages = computed(() => {
-  const pages = [];
-  const total = totalPages.value;
-  const current = currentPage.value + 1;
-  
-  if (total <= 7) {
-    for (let i = 1; i <= total; i++) {
-      pages.push(i);
-    }
-  } else {
-    if (current <= 4) {
-      for (let i = 1; i <= 5; i++) {
-        pages.push(i);
-      }
-      pages.push('...');
-      pages.push(total);
-    } else if (current >= total - 3) {
-      pages.push(1);
-      pages.push('...');
-      for (let i = total - 4; i <= total; i++) {
-        pages.push(i);
-      }
-    } else {
-      pages.push(1);
-      pages.push('...');
-      for (let i = current - 1; i <= current + 1; i++) {
-        pages.push(i);
-      }
-      pages.push('...');
-      pages.push(total);
-    }
-  }
-  
-  return pages;
-});
+// Pagination handled by component
 
 
 const sortedOffres = computed(() => {
@@ -603,12 +486,7 @@ const fetchJobs = async (page: number = currentPage.value) => {
   } catch (error: any) {
     console.error('❌ Erreur API:', error);
     
-    toast.open({
-      message: error.response?.data?.message || 'Erreur lors du chargement des offres',
-      type: 'error',
-      position: 'bottom',
-      duration: 5000
-    });
+    notifyError(error.response?.data?.message || 'Erreur lors du chargement des offres');
     
     offres.value = [];
     totalPages.value = 0;
