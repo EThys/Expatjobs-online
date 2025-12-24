@@ -13,9 +13,7 @@
           </div>
 
           <h3 class="cta-title">
-            {{ $t('cta.title').split('ExpatJobs')[0] }}
-            <span class="cta-gradient">ExpatJobs</span>
-            {{ $t('cta.title').split('ExpatJobs')[1] }}
+            {{ $t('cta.title').replace('ExpatJobs', '').trim() }} <span class="cta-gradient">EXPAT JOBS Go</span>
           </h3>
 
           <p class="cta-subtitle">
@@ -79,7 +77,7 @@
 
 <style scoped>
 .cta-section {
-  padding: 5rem 0;
+  padding: 3rem 0;
   background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 50%, #a7f3d0 100%);
   position: relative;
   overflow: hidden;
