@@ -244,6 +244,7 @@ const startTypingEffect = () => {
     const texts = allTexts.value
     if (texts.length === 0) return
     
+    currentSlide.value = currentTextIndex.value // Sync slide with text
     const currentText = texts[currentTextIndex.value]
     currentAnimationType.value = currentText.animationType
     
@@ -303,6 +304,24 @@ const stopTypingEffect = () => {
     currentAnimationType.value = allTexts.value[0].animationType
   }
 }
+
+// Watch pour réagir aux changements de slide (synchroniser le texte avec l'image)
+watch(
+  () => currentSlide.value,
+  (newSlide) => {
+    // Mettre à jour le texte affiché selon le slide actuel
+    if (allTexts.value.length > newSlide) {
+      currentTextIndex.value = newSlide
+      displayedTitle.value = allTexts.value[newSlide].subtitle
+      displayedDescription.value = allTexts.value[newSlide].description
+      currentAnimationType.value = allTexts.value[newSlide].animationType
+      // Réinitialiser les animations pour afficher immédiatement
+      titleVisible.value = true
+      subtitleVisible.value = true
+    }
+  },
+  { immediate: true }
+)
 
 // Watch pour réagir aux changements de langue
 watch(
@@ -656,44 +675,6 @@ const limitedFeaturedJobs = computed(() => {
   return featuredJobs.value.slice(0, 6);
 });
 
-const nextSlide = () => {
-  if (isTransitioning.value) return
-  isTransitioning.value = true
-  currentSlide.value = (currentSlide.value + 1) % slides.value.length
-  resetTimer()
-  setTimeout(() => (isTransitioning.value = false), 1000)
-}
-
-const prevSlide = () => {
-  if (isTransitioning.value) return
-  isTransitioning.value = true
-  currentSlide.value = (currentSlide.value - 1 + slides.value.length) % slides.value.length
-  resetTimer()
-  setTimeout(() => (isTransitioning.value = false), 1000)
-}
-
-const goToSlide = (index: number) => {
-  if (isTransitioning.value || currentSlide.value === index) return
-  isTransitioning.value = true
-  currentSlide.value = index
-  resetTimer()
-  setTimeout(() => (isTransitioning.value = false), 1000)
-}
-
-const startAutoPlay = () => {
-  if (interval) clearInterval(interval)
-  interval = setInterval(nextSlide, 5000)
-}
-
-const stopAutoPlay = () => {
-  clearInterval(interval)
-}
-
-const resetTimer = () => {
-  stopAutoPlay()
-  if (!isHovering.value) startAutoPlay()
-}
-
 const handleSearch = () => {
   // Rediriger vers la page de recherche avec les paramètres
   const queryParams = new URLSearchParams({
@@ -718,7 +699,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  stopAutoPlay()
   stopTypingEffect()
 })
 </script>
@@ -774,29 +754,23 @@ onUnmounted(() => {
     <div
       id="carouselId"
       class="relative w-full h-full"
-      @mouseenter="
-        () => {
-          isHovering = true
-          stopAutoPlay()
-        }
-      "
-      @mouseleave="
-        () => {
-          isHovering = false
-          startAutoPlay()
-        }
-      "
     >
       <!-- Single Slide with Typing Effect -->
       <div class="relative w-full h-full">
         <!-- Background Image (only first slide) -->
+        <!-- Background Image (carousel) -->
         <div class="absolute inset-0">
-          <img
-            :src="slides[0].image"
-            class="w-full h-full object-cover"
-            :alt="`Hero background`"
-            loading="eager"
-          />
+          <transition-group name="slide-fade">
+            <template v-for="(slide, index) in slides" :key="index">
+              <img
+                v-show="currentSlide === index"
+                :src="slide.image"
+                class="absolute inset-0 w-full h-full object-cover animate-ken-burns"
+                :alt="slide.title"
+                loading="eager"
+              />
+            </template>
+          </transition-group>
           <!-- Gradient Overlay with reduced opacity -->
           <div class="absolute inset-0 bg-gradient-to-br from-black/50 via-black/40 to-black/50 z-10"></div>
           <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/40 z-10"></div>
@@ -856,10 +830,13 @@ onUnmounted(() => {
           
           <!-- White fog effect at bottom (no blur on image) -->
         </div>
+        
+        <!-- Three.js Canvas Container -->
+        <div ref="threeContainer" class="absolute inset-0 z-5 pointer-events-none"></div>
 
         <!-- Slide Content with Typing Effect -->
         <div class="relative z-20 flex items-center justify-center h-full px-4 sm:px-6 lg:px-8 pt-25 sm:pt-5 md:pt-5 pb-20">
-          <div class="w-full max-w-5xl mx-auto text-center">
+          <div class="w-full max-w-5xl mx-auto text-center hero-content">
             <!-- Main Title and Subtitle with sequential animations -->
             <div 
               class="mb-10"
@@ -871,7 +848,8 @@ onUnmounted(() => {
                 <h4 
                   v-if="titleVisible"
                   key="title"
-                  class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight tracking-tight px-4 text-center"
+                  class="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight px-4 text-center"
+                  style="font-family: 'Manrope', sans-serif;"
                 >
                   <span class="block bg-gradient-to-r from-white via-emerald-50/90 to-white bg-clip-text text-transparent drop-shadow-xl animate-gradient-shift">
                     {{ displayedTitle }}
@@ -884,7 +862,8 @@ onUnmounted(() => {
                 <p 
                   v-if="subtitleVisible"
                   key="description"
-                  class="text-base sm:text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed font-normal drop-shadow-lg px-4 text-center"
+                  class="text-lg sm:text-xl md:text-2xl text-gray-100 max-w-3xl mx-auto leading-relaxed font-medium drop-shadow-lg px-4 text-center"
+                  style="font-family: 'Manrope', sans-serif;"
                 >
                   {{ displayedDescription }}
                 </p>
@@ -961,46 +940,54 @@ onUnmounted(() => {
     <div class="absolute bottom-0 left-0 right-0 z-15 pointer-events-none fog-overlay"></div>
     
     <!-- Statistics in fog area - Positioned at bottom left (hidden on mobile) -->
-  
-    <!-- Popular Searches / Quick Links - Centered bottom area (hidden on mobile) -->
-    <div class="hidden md:block absolute bottom-0 left-1/2 transform -translate-x-1/2 z-20 py-5 lg:py-11">
-      <div class="flex flex-col items-center gap-2">
-        <span class="text-xs lg:text-sm text-white/70 font-medium mb-1">Recherches populaires</span>
-        <div class="flex items-center gap-2 lg:gap-3 flex-wrap justify-center max-w-2xl px-4">
-          <router-link 
-            to="/jobs?q=Développeur"
-            class="px-3 py-1.5 lg:px-4 lg:py-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs lg:text-sm font-medium rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-          >
-            Développeur
-          </router-link>
-          <router-link 
-            to="/jobs?q=Marketing"
-            class="px-3 py-1.5 lg:px-4 lg:py-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs lg:text-sm font-medium rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-          >
-            Marketing
-          </router-link>
-          <router-link 
-            to="/jobs?q=Finance"
-            class="px-3 py-1.5 lg:px-4 lg:py-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs lg:text-sm font-medium rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-          >
-            Finance
-          </router-link>
-          <router-link 
-            to="/jobs?q=Designer"
-            class="px-3 py-1.5 lg:px-4 lg:py-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs lg:text-sm font-medium rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-          >
-            Designer
-          </router-link>
-          <router-link 
-            to="/jobs?q=Remote"
-            class="px-3 py-1.5 lg:px-4 lg:py-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs lg:text-sm font-medium rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-          >
-            Remote
-          </router-link>
-         
+    <!-- Statistics in fog area - Centered at bottom (hidden on mobile) -->
+    <div class="hidden sm:block absolute bottom-0 left-0 w-full z-20 px-6 lg:px-8 py-5 lg:py-6">
+      <div class="flex items-center justify-center gap-4 lg:gap-8 flex-wrap max-w-7xl mx-auto">
+        <!-- Stat 1 -->
+        <div class="flex flex-col items-center">
+          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">1.7M+</div>
+          <div class="text-[10px] lg:text-xs text-white/90 font-medium uppercase tracking-wider">Applications</div>
+        </div>
+        
+        <!-- Vertical Separator -->
+        <div class="h-8 lg:h-12 w-px bg-white/20"></div>
+        
+        <!-- Stat 2 -->
+        <div class="flex flex-col items-center">
+          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">3.8M+</div>
+          <div class="text-[10px] lg:text-xs text-white/90 font-medium uppercase tracking-wider">Postes vacants</div>
+        </div>
+        
+        <!-- Vertical Separator -->
+        <div class="h-8 lg:h-12 w-px bg-white/20"></div>
+        
+        <!-- Stat 3 -->
+        <div class="flex flex-col items-center">
+          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">736K+</div>
+          <div class="text-[10px] lg:text-xs text-white/90 font-medium uppercase tracking-wider">Demandes CV</div>
+        </div>
+        
+        <!-- Vertical Separator -->
+        <div class="h-8 lg:h-12 w-px bg-white/20"></div>
+        
+        <!-- Stat 4 -->
+        <div class="flex flex-col items-center">
+          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">82K+</div>
+          <div class="text-[10px] lg:text-xs text-white/90 font-medium uppercase tracking-wider">Entreprises</div>
+        </div>
+        
+        <!-- Vertical Separator -->
+        <div class="h-8 lg:h-12 w-px bg-white/20"></div>
+        
+        <!-- Stat 5 -->
+        <div class="flex flex-col items-center">
+          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">670M+</div>
+          <div class="text-[10px] lg:text-xs text-white/90 font-medium uppercase tracking-wider">Visiteurs/an</div>
         </div>
       </div>
     </div>
+  
+
     
     <!-- Transition Spacer -->
     <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none z-10"></div>
@@ -1383,6 +1370,19 @@ onUnmounted(() => {
   animation-delay: 2s;
 }
 
+@keyframes ken-burns {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.15);
+  }
+}
+
+.animate-ken-burns {
+  animation: ken-burns 15s ease-out forwards;
+}
+
 /* ===== ZOOM ANIMATIONS ===== */
 .text-zoom-title-enter-active {
   transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -1537,6 +1537,49 @@ onUnmounted(() => {
 .text-slide-subtitle-leave-to {
   opacity: 0;
   transform: translateX(-100px);
+}
+
+/* Image Carousel Transitions */
+.hero-slide {
+  width: 100%;
+  height: 100%;
+}
+
+.slide-fade-enter-active {
+  transition: opacity 1s ease-in-out;
+}
+
+.slide-fade-leave-active {
+  transition: opacity 0.8s ease-in-out;
+}
+
+.slide-fade-enter-from {
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  opacity: 0;
+}
+
+.slide-fade-enter-to,
+.slide-fade-leave-from {
+  opacity: 1;
+}
+
+.hero-bg-image {
+  will-change: transform;
+  image-rendering: auto;
+}
+
+/* Three.js Canvas Styling */
+#threeContainer {
+  pointer-events: none;
+}
+
+#threeContainer canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Smooth fog effect at bottom - no blur on image */
