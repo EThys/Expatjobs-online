@@ -19,7 +19,7 @@ const testimonials = ref<Testimonial[]>([
     role: 'Product Manager',
     company: 'Google',
     avatar: 'https://randomuser.me/api/portraits/women/32.jpg',
-    content: "ExpatJobs m'a permis de décrocher mon poste de rêve chez Google à Dublin. Le processus était fluide, les recruteurs très réactifs. En 3 semaines, j'ai signé mon contrat !",
+    content: "EXPAT JOBS Go m'a permis de décrocher mon poste de rêve chez Google à Dublin. Le processus était fluide, les recruteurs très réactifs. En 3 semaines, j'ai signé mon contrat !",
     rating: 5,
     location: 'Paris → Dublin'
   },
@@ -29,7 +29,7 @@ const testimonials = ref<Testimonial[]>([
     role: 'Senior Developer',
     company: 'Spotify',
     avatar: 'https://randomuser.me/api/portraits/men/44.jpg',
-    content: "Après 5 ans en France, je cherchais une opportunité en Suède. ExpatJobs m'a connecté avec Spotify en moins de 2 semaines. L'accompagnement à la relocation était top !",
+    content: "Après 5 ans en France, je cherchais une opportunité en Suède. EXPAT JOBS Go m'a connecté avec Spotify en moins de 2 semaines. L'accompagnement à la relocation était top !",
     rating: 5,
     location: 'Lyon → Stockholm'
   },
@@ -39,7 +39,7 @@ const testimonials = ref<Testimonial[]>([
     role: 'UX Designer',
     company: 'Airbnb',
     avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
-    content: "La qualité des offres sur ExpatJobs est incomparable. J'ai reçu 4 propositions d'entretien en une semaine, et j'ai finalement choisi Airbnb à San Francisco !",
+    content: "La qualité des offres sur EXPAT JOBS Go est incomparable. J'ai reçu 4 propositions d'entretien en une semaine, et j'ai finalement choisi Airbnb à San Francisco !",
     rating: 5,
     location: 'Bordeaux → San Francisco'
   },
@@ -49,7 +49,7 @@ const testimonials = ref<Testimonial[]>([
     role: 'Data Scientist',
     company: 'Netflix',
     avatar: 'https://randomuser.me/api/portraits/men/22.jpg',
-    content: "Grâce à ExpatJobs, j'ai pu négocier un salaire 40% supérieur à mon ancien poste. Le matching IA est vraiment impressionnant, les offres correspondaient parfaitement à mon profil.",
+    content: "Grâce à EXPAT JOBS Go, j'ai pu négocier un salaire 40% supérieur à mon ancien poste. Le matching IA est vraiment impressionnant, les offres correspondaient parfaitement à mon profil.",
     rating: 4,
     location: 'Toulouse → Amsterdam'
   },
@@ -59,7 +59,7 @@ const testimonials = ref<Testimonial[]>([
     role: 'Marketing Director',
     company: 'Meta',
     avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
-    content: "J'étais sceptique au début, mais ExpatJobs a dépassé toutes mes attentes. L'équipe m'a guidée tout au long du processus de visa et d'installation à Londres.",
+    content: "J'étais sceptique au début, mais EXPAT JOBS Go a dépassé toutes mes attentes. L'équipe m'a guidée tout au long du processus de visa et d'installation à Londres.",
     rating: 5,
     location: 'Nice → Londres'
   }
