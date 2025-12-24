@@ -13,7 +13,7 @@
               </svg>
             </div>
             <h2 class="text-2xl font-bold">
-              Expat<span class="font-light">Jobs</span>
+              EXPAT JOBS <span class="font-light">Go</span>
             </h2>
           </div>
           <p class="text-emerald-100/90 text-sm leading-relaxed mb-5">
@@ -90,8 +90,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z"/>
                 </svg>
               </div>
-              <a href="mailto:contact@expatjobs.com" class="text-emerald-100/80 hover:text-white text-sm transition-colors">
-                contact@expatjobs.com
+              <a href="mailto:contact@expatjobsgo.com" class="text-emerald-100/80 hover:text-white text-sm transition-colors">
+                contact@expatjobsgo.com
               </a>
             </li>
             <li class="flex items-start">
@@ -146,7 +146,7 @@
       <div class="container mx-auto px-4 sm:px-6 py-5">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p class="text-emerald-100/70 text-xs sm:text-sm text-center sm:text-left">
-            © {{ new Date().getFullYear() }} ExpatJobs. Tous droits réservés.
+            © {{ new Date().getFullYear() }} EXPAT JOBS Go. Tous droits réservés.
           </p>
           <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <a href="#" class="text-emerald-100/70 hover:text-white text-xs sm:text-sm transition-colors">
