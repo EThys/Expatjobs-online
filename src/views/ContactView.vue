@@ -18,9 +18,9 @@ const form = ref({
 });
 
 const contactInfo = computed(() => [
-  { icon: EnvelopeIcon, title: t('footer.email'), value: 'contact@expatjobs.com', link: 'mailto:contact@expatjobs.com' },
-  { icon: PhoneIcon, title: t('footer.phone'), value: '+243 97 000 0000', link: 'tel:+243970000000' },
-  { icon: MapPinIcon, title: t('footer.address'), value: '123 Av. de la Justice, Kinshasa, RDC', link: '#' },
+  { icon: EnvelopeIcon, title: t('footer.email'), value: 'contact@expatjobsgo.com', link: 'mailto:contact@expatjobsgo.com' },
+  { icon: PhoneIcon, title: t('footer.phone'), value: '+243 854 434 602', link: 'tel:+243854434602' },
+  { icon: MapPinIcon, title: t('footer.address'), value: '123 Rue des Opportunités, 75000 Paris, France', link: '#' },
 ]);
 
 const submitForm = () => {
