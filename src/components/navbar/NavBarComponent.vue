@@ -252,7 +252,7 @@
                 </div>
                 <div class="flex flex-col">
                   <span class="text-xl font-bold bg-gradient-to-r from-emerald-700 to-green-700 bg-clip-text text-transparent group-hover:from-emerald-600 group-hover:to-green-600 transition-all duration-300">
-                    ExpatJobs
+                    EXPAT JOBS Go
                   </span>
                   <span class="text-xs text-emerald-600 font-medium -mt-1 opacity-80">International</span>
                 </div>
@@ -762,7 +762,7 @@
                     </div>
                     <div class="flex flex-col">
                       <span class="text-lg font-bold bg-gradient-to-r from-emerald-700 to-green-700 bg-clip-text text-transparent">
-                        ExpatJobs
+                        EXPAT JOBS Go
                       </span>
                       <span class="text-xs text-emerald-600 font-medium">International</span>
                     </div>
