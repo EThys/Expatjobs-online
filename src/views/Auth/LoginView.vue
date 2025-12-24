@@ -194,7 +194,7 @@ const loginValidate = async () => {
     
       <!-- Footer Text -->
       <div class="absolute bottom-6 text-center w-full">
-        <p class="text-xs text-gray-400">&copy; {{ new Date().getFullYear() }} ExpatJobs. All rights reserved.</p>
+        <p class="text-xs text-gray-400">&copy; {{ new Date().getFullYear() }} EXPAT JOBS Go. All rights reserved.</p>
       </div>
     </div>
 
