@@ -16,14 +16,17 @@
       <div class="text-center max-w-4xl mx-auto mb-20 sm:mb-28 animate-fade-in-up">
       
         <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 mb-8 leading-tight">
-          {{ t('about.title') }}
-          <span class="relative inline-block">
+          <span class="relative inline-block mr-3">
             <span class="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 animate-gradient-x">
-              ExpatJobs
+              EXPAT JOBS Go
             </span>
             <span class="absolute -bottom-2 left-0 w-full h-3 bg-emerald-200/30 -rotate-2 rounded-full blur-sm"></span>
           </span>
+          {{ t('about.title') }}
         </h1>
+        <p class="text-2xl sm:text-3xl font-bold text-emerald-600/80 mb-8 -mt-6">
+          {{ t('about.subtitle') }}
+        </p>
 
         <p class="text-xl sm:text-2xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
           {{ t('about.description') }}
