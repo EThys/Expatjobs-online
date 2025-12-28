@@ -196,6 +196,26 @@ const generateBenefits = (jobData: IJob): string => {
   `
 }
 
+// Générateur de SVG pour logo
+const generateSVGLogo = (letter: string, color: string): string => {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+      <rect width="40" height="40" fill="#${color}" rx="8"/>
+      <text x="20" y="27" text-anchor="middle" font-size="20" font-weight="bold" fill="#ffffff" font-family="Arial, sans-serif">
+        ${letter}
+      </text>
+    </svg>
+  `.trim();
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
+};
+
+const getCompanyLogoForSimilarJob = (companyName: string, companyId: number): string => {
+    const firstLetter = companyName ? companyName.charAt(0).toUpperCase() : '?';
+    const colors = ['3b82f6', 'ef4444', '10b981', 'f59e0b', '8b5cf6', 'ec4899', 'f97316'];
+    const color = colors[Math.abs(companyId) % colors.length] || '6b7280';
+    return generateSVGLogo(firstLetter, color);
+};
+
 const fetchSimilarJobs = async () => {
   try {
     const response = await jobService.getAllJobs(0, 3)
@@ -204,15 +224,18 @@ const fetchSimilarJobs = async () => {
       similarJobs.value = response.content
         .filter(similarJob => similarJob.id !== jobId.value) 
         .slice(0, 3) 
-        .map(similarJob => ({
-          id: similarJob.id,
-          title: similarJob.title,
-          company: `Entreprise #${similarJob.companyId}`,
-          location: similarJob.location,
-          salary: formatSalary(similarJob.salaryMin, similarJob.salaryMax),
-          type: similarJob.jobType?.toLowerCase() || 'full-time',
-          logo: 'https://via.placeholder.com/40'
-        }))
+        .map(similarJob => {
+            const companyName = `Entreprise #${similarJob.companyId}`;
+            return {
+              id: similarJob.id,
+              title: similarJob.title,
+              company: companyName,
+              location: similarJob.location,
+              salary: formatSalary(similarJob.salaryMin, similarJob.salaryMax),
+              type: similarJob.jobType?.toLowerCase() || 'full-time',
+              logo: getCompanyLogoForSimilarJob(companyName, similarJob.companyId)
+            };
+        })
     }
   } catch (err) {
     console.warn('Erreur lors du chargement des offres similaires:', err)

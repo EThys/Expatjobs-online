@@ -468,11 +468,38 @@ const getCompanyLogo = (company: ICompany): string => {
   return getFallbackLogo(company)
 }
 
-// Fallback logo avec placeholder
-const getFallbackLogo = (company: ICompany): string => {
-  if (!company) return 'https://via.placeholder.com/60x60/6b7280/ffffff?text=?&font-size=14'
+// Cache pour les logos fallback générés
+const fallbackLogoCache = new Map<string, string>();
+
+// Générateur de SVG pour fallback logo
+const generateSVGLogo = (letter: string, color: string): string => {
+  const cacheKey = `${letter}-${color}`;
   
-  const firstLetter = company.name ? company.name.charAt(0).toUpperCase() : '?'
+  if (fallbackLogoCache.has(cacheKey)) {
+    return fallbackLogoCache.get(cacheKey)!;
+  }
+  
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+      <rect width="60" height="60" fill="#${color}" rx="8"/>
+      <text x="30" y="40" text-anchor="middle" font-size="24" font-weight="bold" fill="#ffffff" font-family="Arial, sans-serif">
+        ${letter}
+      </text>
+    </svg>
+  `.trim();
+  
+  const dataUrl = `data:image/svg+xml;base64,${btoa(svg)}`;
+  fallbackLogoCache.set(cacheKey, dataUrl);
+  return dataUrl;
+};
+
+// Fallback logo avec SVG inline (pas de requête externe)
+const getFallbackLogo = (company: ICompany): string => {
+  if (!company || !company.name) {
+    return generateSVGLogo('?', '6b7280');
+  }
+  
+  const firstLetter = company.name.charAt(0).toUpperCase();
   const colors = [
     '10b981', // emerald
     '3b82f6', // blue
@@ -481,15 +508,21 @@ const getFallbackLogo = (company: ICompany): string => {
     '8b5cf6', // violet
     '06b6d4', // cyan
     'f97316', // orange
-  ]
-  const color = colors[Math.abs(company.id) % colors.length] || '6b7280'
-  return `https://via.placeholder.com/60x60/${color}/ffffff?text=${firstLetter}&font-size=16&font-weight=bold`
+  ];
+  const color = colors[Math.abs(company.id) % colors.length] || '6b7280';
+  
+  return generateSVGLogo(firstLetter, color);
 }
 
 // Gestion des erreurs de chargement d'image
 const handleImageError = (event: Event, company: ICompany) => {
-  const target = event.target as HTMLImageElement
-  target.src = getFallbackLogo(company)
+  const target = event.target as HTMLImageElement;
+  // Éviter les boucles infinies en marquant l'image comme traitée
+  if (target.dataset.fallbackApplied === 'true') {
+    return;
+  }
+  target.dataset.fallbackApplied = 'true';
+  target.src = getFallbackLogo(company);
 }
 
 // Enrichir les jobs avec les données des entreprises

@@ -12,6 +12,19 @@ import {
   DevicePhoneMobileIcon,
 } from '@heroicons/vue/24/outline'
 
+// Générateur de SVG pour logo (version 40x40)
+const generateSVGLogo = (letter: string, color: string): string => {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+      <rect width="40" height="40" fill="#${color}" rx="8"/>
+      <text x="20" y="27" text-anchor="middle" font-size="20" font-weight="bold" fill="#ffffff" font-family="Arial, sans-serif">
+        ${letter}
+      </text>
+    </svg>
+  `.trim();
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
+};
+
 const featuredJobs = ref([
   {
     title: 'Développeur Full Stack',
@@ -23,7 +36,7 @@ const featuredJobs = ref([
     excerpt:
       'Nous recherchons un développeur full stack expérimenté pour rejoindre notre équipe produit.',
     skills: ['React', 'Node.js', 'TypeScript', 'MongoDB'],
-    logo: 'https://via.placeholder.com/40',
+    logo: generateSVGLogo('T', '3b82f6'),
   },
   {
     title: 'Designer UX/UI',
@@ -34,7 +47,7 @@ const featuredJobs = ref([
     typeLabel: 'Temps plein',
     excerpt: 'Créez des expériences utilisateur exceptionnelles pour nos clients internationaux.',
     skills: ['Figma', 'Sketch', 'Prototypage', 'User Research'],
-    logo: 'https://via.placeholder.com/40',
+    logo: generateSVGLogo('C', 'ec4899'),
   },
   {
     title: 'Data Scientist',
@@ -45,7 +58,7 @@ const featuredJobs = ref([
     typeLabel: 'Contrat',
     excerpt: 'Analyse de données complexes et création de modèles prédictifs pour nos clients.',
     skills: ['Python', 'Machine Learning', 'SQL', 'TensorFlow'],
-    logo: 'https://via.placeholder.com/40',
+    logo: generateSVGLogo('D', '8b5cf6'),
   },
   {
     title: 'Responsable Marketing Digital',
@@ -56,7 +69,7 @@ const featuredJobs = ref([
     typeLabel: 'Temps plein',
     excerpt: 'Gérez nos campagnes digitales et optimisez notre présence en ligne.',
     skills: ['SEO', 'Google Ads', 'Réseaux sociaux', 'Analytics'],
-    logo: 'https://via.placeholder.com/40',
+    logo: generateSVGLogo('G', 'f97316'),
   },
 ])
 
