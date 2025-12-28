@@ -39,8 +39,8 @@ export const debounceApiCall = <T extends any[], R>(
 
 export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
   // Forcer l'URL locale demandée par l'utilisateur
-  const baseURL = 'http://localhost:8080/api/'
-  
+  const baseURL = 'https://expat-jobs-api-928b.onrender.com/api/'
+
   const useAxios: AxiosInstance = axios.create({
     baseURL: baseURL,
     headers: {
@@ -70,7 +70,7 @@ export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
         }
         console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${sanitizedConfig.url}`, sanitizedConfig)
       }
-      
+
       return config
     },
     (error) => {
@@ -101,7 +101,7 @@ export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
         }
         console.log(`✅ API Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, sanitizedResponse)
       }
-      
+
       return response
     },
     (error) => {
@@ -132,7 +132,7 @@ export const useAxiosRequestWithToken = (token: string = ''): AxiosInstance => {
 export const useAxiosRequestWithTokenForCsv = (token: string = ''): AxiosInstance => {
   // Forcer l'URL locale demandée par l'utilisateur
   const baseURL = 'http://localhost:8080/api/'
-  
+
   const useAxios: AxiosInstance = axios.create({
     baseURL: baseURL,
     headers: {
