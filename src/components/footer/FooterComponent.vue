@@ -13,7 +13,7 @@
               </svg>
             </div>
             <h2 class="text-2xl font-bold">
-              EXPAT JOBS <span class="font-light">Go</span>
+              EXPAT JOBS Go
             </h2>
           </div>
           <p class="text-emerald-100/90 text-sm leading-relaxed mb-5">
@@ -100,7 +100,16 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                 </svg>
               </div>
-              <span class="text-emerald-100/80 text-sm">+243 854 434 602</span>
+              <div class="text-emerald-100/80 text-sm">
+                <div class="mb-1">
+                  <span class="text-emerald-300 font-medium">Mobile:</span> 
+                  <a href="tel:+79268022202" class="hover:text-white transition-colors">+7 926 802 2202</a>
+                </div>
+                <div>
+                  <span class="text-emerald-300 font-medium">Bureau:</span> 
+                  <a href="tel:+74952032022" class="hover:text-white transition-colors">+7 495 203 2022</a>
+                </div>
+              </div>
             </li>
             <li class="flex items-start">
               <div class="bg-white/10 p-1.5 rounded mr-3 mt-0.5">
@@ -109,9 +118,12 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
               </div>
-              <span class="text-emerald-100/80 text-sm">
-                123 Rue des Opportunités<br/>75000 Paris, France
-              </span>
+              <div class="text-emerald-100/80 text-sm leading-relaxed">
+                <div>Index 109542, Russie</div>
+                <div>Ville Moscou</div>
+                <div>Рязанский проспект, 68к1</div>
+                <div class="mt-1 text-emerald-300/80 text-xs">ИНН: 772142451327</div>
+              </div>
             </li>
           </ul>
         </div>
