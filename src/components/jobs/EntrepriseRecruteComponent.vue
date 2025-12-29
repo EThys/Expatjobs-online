@@ -5,7 +5,7 @@
       <div class="absolute top-0 right-1/2 translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-50/50 via-transparent to-transparent"></div>
       <div class="absolute -top-[10%] -left-[10%] w-[600px] h-[600px] bg-emerald-200/20 rounded-full blur-3xl animate-blob-slow mix-blend-multiply"></div>
       <div class="absolute top-[20%] -right-[10%] w-[500px] h-[500px] bg-cyan-200/20 rounded-full blur-3xl animate-blob-fast mix-blend-multiply"></div>
-      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiMxMGI5ODEiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50"></div>
+      <div class="absolute inset-0 bg-pattern-dots opacity-50"></div>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -91,7 +91,7 @@
                         :src="getCompanyLogo(company)" 
                         :alt="company.name" 
                         class="w-full h-full object-contain mix-blend-multiply"
-                        @error="(e: any) => e.target.src = getFallbackLogo(company)" 
+                        @error="handleImageError($event, company)" 
                       />
                     </div>
                     <div v-if="company.isFavorite" class="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1 rounded-full shadow-md border-2 border-white">
@@ -284,6 +284,15 @@ const getCompanyLogo = (company: ICompany): string => {
   return getFallbackLogo(company)
 }
 
+const handleImageError = (event: Event, company: ICompany) => {
+  const target = event.target as HTMLImageElement
+  if (target.dataset.fallbackApplied === 'true') {
+    return
+  }
+  target.dataset.fallbackApplied = 'true'
+  target.src = getFallbackLogo(company)
+}
+
 const getFallbackLogo = (company: ICompany): string => {
   const letter = company.name.charAt(0).toUpperCase()
   return `https://ui-avatars.com/api/?name=${letter}&background=10b981&color=fff&size=128`
@@ -410,5 +419,9 @@ onUnmounted(() => {
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.bg-pattern-dots {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiMxMGI5ODEiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==');
 }
 </style>
