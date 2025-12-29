@@ -2,8 +2,8 @@
   <div class="min-h-screen flex flex-col">
     <Navbar/>
     
-    <!-- Écran d'accueil pour les nouveaux utilisateurs -->
-  <div v-if="!profile.candidateProfileId && !showCreationWizard" class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center px-4 py-8">
+    <!-- Écran d'accueil pour les nouveaux utilisateurs - seulement si le chargement est terminé et qu'il n'y a pas de profil complet -->
+  <div v-if="!isLoading && !isProfileComplete && !showCreationWizard" class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center px-4 py-8">
     <div class="max-w-lg w-full bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden">
       <div class="p-8 text-center">
         <div class="w-24 h-24 mx-auto bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-6">
@@ -33,7 +33,7 @@
   </div>
 
   <!-- Assistant de création de profil -->
-  <div v-if="showCreationWizard" class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center p-2 sm:p-4">
+  <div v-if="showCreationWizard" class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center p-2 sm:p-4 pt-20 sm:pt-24 md:pt-28">
     <div class="w-full max-w-4xl bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden">
       <!-- En-tête avec progression -->
       <div class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white p-4 sm:p-6">
@@ -111,15 +111,7 @@
             </div>
           </div>
           
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Titre professionnel *</label>
-            <input 
-              v-model="step1Form.title" 
-              type="text" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-              placeholder="Ex: Développeur Full-Stack Senior"
-            />
-          </div>
+
           
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Localisation *</label>
@@ -133,13 +125,13 @@
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Salaire minimum (k€) *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Salaire minimum (€) *</label>
               <input 
                 v-model="step1Form.salaryExpectationMin" 
                 type="number" 
                 min="10"
                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-                placeholder="40"
+                placeholder="40000"
               />
             </div>
             <div>
@@ -149,20 +141,12 @@
                 type="number" 
                 min="10"
                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-                placeholder="65"
+                placeholder="65000"
               />
             </div>
           </div>
           
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Biographie</label>
-            <textarea 
-              v-model="step1Form.bio" 
-              rows="4" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all resize-none"
-              placeholder="Décrivez votre parcours, vos compétences et vos objectifs professionnels..."
-            ></textarea>
-          </div>
+
           
           <div class="flex justify-between pt-6 border-t border-gray-200">
             <button 
@@ -173,7 +157,7 @@
             </button>
             <button 
               @click="saveStep1"
-              :disabled="!step1Form.firstName || !step1Form.lastName || !step1Form.location || !step1Form.title"
+              :disabled="!step1Form.firstName || !step1Form.lastName || !step1Form.location"
               class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               <span>Sauvegarder et continuer</span>
@@ -403,15 +387,7 @@
               </div>
             </div>
             
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-              <textarea 
-                v-model="edu.description" 
-                rows="3" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
-                placeholder="Informations supplémentaires sur cette formation..."
-              ></textarea>
-            </div>
+
           </div>
           
           <div class="flex justify-between pt-6 border-t border-gray-200">
@@ -537,7 +513,61 @@
   </div>
 
   <!-- Profil complet (une fois créé) -->
-  <div v-if="profile.candidateProfileId && !showCreationWizard" class="min-h-screen bg-gray-50/30 pb-12 mt-10 sm:mt-10 md:mt-10">
+  <!-- Loading State with Shimmer - pendant le chargement initial -->
+  <div v-if="isLoading" class="min-h-screen bg-gray-50/30 pb-12 mt-10 sm:mt-10 md:mt-10">
+    <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white pt-6 pb-8 sm:pt-8 sm:pb-10 md:py-12">
+      <div class="container mx-auto px-3 sm:px-4 md:px-6">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-white/20 rounded-2xl shimmer"></div>
+          <div class="flex-1 space-y-3">
+            <div class="h-8 bg-white/20 rounded shimmer w-3/4"></div>
+            <div class="h-5 bg-white/20 rounded shimmer w-1/2"></div>
+            <div class="flex gap-4">
+              <div class="h-4 bg-white/20 rounded shimmer w-32"></div>
+              <div class="h-4 bg-white/20 rounded shimmer w-32"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 lg:py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-8">
+        <div class="lg:col-span-1 space-y-4 sm:space-y-6">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 shimmer-container">
+            <div class="h-6 bg-gray-200 rounded shimmer w-40 mb-4"></div>
+            <div class="h-16 bg-gray-200 rounded-xl shimmer"></div>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 shimmer-container">
+            <div class="h-6 bg-gray-200 rounded shimmer w-32 mb-4"></div>
+            <div class="space-y-3">
+              <div class="h-8 bg-gray-200 rounded shimmer"></div>
+              <div class="h-8 bg-gray-200 rounded shimmer"></div>
+              <div class="h-8 bg-gray-200 rounded shimmer"></div>
+            </div>
+          </div>
+        </div>
+        <div class="lg:col-span-2 space-y-4 sm:space-y-6">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 shimmer-container">
+            <div class="h-6 bg-gray-200 rounded shimmer w-48 mb-4"></div>
+            <div class="space-y-4">
+              <div class="h-20 bg-gray-200 rounded shimmer"></div>
+              <div class="h-20 bg-gray-200 rounded shimmer"></div>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 shimmer-container">
+            <div class="h-6 bg-gray-200 rounded shimmer w-40 mb-4"></div>
+            <div class="flex gap-2">
+              <div class="h-8 bg-gray-200 rounded-full shimmer w-24"></div>
+              <div class="h-8 bg-gray-200 rounded-full shimmer w-28"></div>
+              <div class="h-8 bg-gray-200 rounded-full shimmer w-20"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-else-if="isProfileComplete && !showCreationWizard" class="min-h-screen bg-gray-50/30 pb-12 mt-10 sm:mt-10 md:mt-10">
     <!-- Header du profil avec gradient -->
     <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white pt-6 pb-8 sm:pt-8 sm:pb-10 md:py-12">
       <div class="container mx-auto px-3 sm:px-4 md:px-6">
@@ -571,7 +601,7 @@
                 <span class="bg-white/20 text-[10px] sm:text-xs px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap">Profil complet</span>
               </div>
               <p class="text-emerald-100 text-base sm:text-lg lg:text-xl mb-2 sm:mb-3 truncate">
-                {{ profile.title || 'Professional Candidate' }}
+                Candidate
               </p>
               <!-- Contact info - responsive grid -->
               <div class="flex flex-col sm:flex-row flex-wrap items-center sm:items-start justify-center sm:justify-start gap-2 sm:gap-4 text-emerald-100/90 text-sm sm:text-base">
@@ -599,17 +629,7 @@
           </div>
           
           <!-- Bouton Modifier - full width on mobile, auto on larger -->
-          <div class="flex items-center justify-center lg:justify-end w-full lg:w-auto">
-            <button 
-              @click="openEditSection('all')"
-              class="w-full sm:w-auto bg-white text-emerald-700 hover:bg-emerald-50 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-              </svg>
-              <span>Modifier le profil</span>
-            </button>
-          </div>
+
         </div>
       </div>
     </div>
@@ -712,27 +732,7 @@
         <!-- Colonne droite - shown first on mobile for better UX -->
         <div class="lg:col-span-2 space-y-4 sm:space-y-6 order-1 lg:order-2">
           <!-- À propos -->
-          <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 relative group">
-            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <button 
-                @click="openEditSection('about')"
-                class="w-8 h-8 bg-gray-100 hover:bg-emerald-100 rounded-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 transition-all duration-200 hover:scale-110"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-              </button>
-            </div>
-            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <svg class="w-5 h-5 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-              </svg>
-              À propos
-            </h2>
-            <p class="text-gray-700 leading-relaxed whitespace-pre-line">
-              {{ profile.bio || 'Aucune biographie ajoutée.' }}
-            </p>
-          </div>
+
 
           <!-- Expériences -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative group">
@@ -851,7 +851,7 @@
                     </svg>
                     <span class="font-medium text-emerald-700">{{ edu.institutionName }}</span>
                   </div>
-                  <p v-if="edu.description" class="text-gray-700 leading-relaxed mt-2">{{ edu.description }}</p>
+
                 </div>
               </div>
               <div v-if="educations.length === 0" class="text-center py-8 text-gray-500">
@@ -883,7 +883,8 @@
             </div>
             <button 
               @click="showEditModal = null"
-              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
+              :disabled="isLoadingModal"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all disabled:opacity-50"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -892,7 +893,15 @@
           </div>
         </div>
 
-        <div class="p-6 overflow-y-auto max-h-[70vh]">
+        <!-- Loading indicator -->
+        <div v-if="isLoadingModal" class="p-6 flex items-center justify-center">
+          <div class="flex flex-col items-center space-y-3">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
+            <p class="text-gray-600 text-sm">Chargement des données...</p>
+          </div>
+        </div>
+
+        <div v-else class="p-6 overflow-y-auto max-h-[70vh]">
           <div class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -905,10 +914,7 @@
               </div>
             </div>
             
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Titre professionnel *</label>
-              <input v-model="editForm.title" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
-            </div>
+
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Localisation *</label>
@@ -933,47 +939,7 @@
     </div>
 
     <!-- Modal: À propos -->
-    <div v-if="showEditModal === 'about'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-4">
-      <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
-        <div class="p-4 sm:p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-xl sm:text-2xl font-bold">Modifier la biographie</h3>
-            </div>
-            <button 
-              @click="showEditModal = null"
-              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-        </div>
 
-        <div class="p-6 overflow-y-auto max-h-[70vh]">
-          <div class="space-y-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Biographie</label>
-              <textarea v-model="editForm.bio" rows="8" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"></textarea>
-            </div>
-
-            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-              <button @click="showEditModal = null" class="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all">
-                Annuler
-              </button>
-              <button @click="saveAbout" :disabled="isSaving" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 flex items-center space-x-2">
-                <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Sauvegarder</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Modal: Salaire -->
     <div v-if="showEditModal === 'salary'" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-4">
@@ -985,7 +951,8 @@
             </div>
             <button 
               @click="showEditModal = null"
-              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
+              :disabled="isLoadingModal"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all disabled:opacity-50"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -994,7 +961,15 @@
           </div>
         </div>
 
-        <div class="p-6 overflow-y-auto max-h-[70vh]">
+        <!-- Loading indicator -->
+        <div v-if="isLoadingModal" class="p-6 flex items-center justify-center">
+          <div class="flex flex-col items-center space-y-3">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
+            <p class="text-gray-600 text-sm">Chargement des données...</p>
+          </div>
+        </div>
+
+        <div v-else class="p-6 overflow-y-auto max-h-[70vh]">
           <div class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -1034,7 +1009,8 @@
             </div>
             <button 
               @click="showEditModal = null"
-              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
+              :disabled="isLoadingModal"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all disabled:opacity-50"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -1043,7 +1019,15 @@
           </div>
         </div>
 
-        <div class="p-6 overflow-y-auto max-h-[70vh]">
+        <!-- Loading indicator -->
+        <div v-if="isLoadingModal" class="p-6 flex items-center justify-center">
+          <div class="flex flex-col items-center space-y-3">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
+            <p class="text-gray-600 text-sm">Chargement des données...</p>
+          </div>
+        </div>
+
+        <div v-else class="p-6 overflow-y-auto max-h-[70vh]">
           <div class="space-y-6">
             <div class="flex items-center justify-between">
               <h4 class="text-lg font-semibold text-gray-900">Vos compétences</h4>
@@ -1100,7 +1084,8 @@
             </div>
             <button 
               @click="showEditModal = null"
-              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
+              :disabled="isLoadingModal"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all disabled:opacity-50"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -1109,7 +1094,15 @@
           </div>
         </div>
 
-        <div class="p-6 overflow-y-auto max-h-[70vh]">
+        <!-- Loading indicator -->
+        <div v-if="isLoadingModal" class="p-6 flex items-center justify-center">
+          <div class="flex flex-col items-center space-y-3">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
+            <p class="text-gray-600 text-sm">Chargement des données...</p>
+          </div>
+        </div>
+
+        <div v-else class="p-6 overflow-y-auto max-h-[70vh]">
           <div class="space-y-6">
             <div class="flex items-center justify-between">
               <h4 class="text-lg font-semibold text-gray-900">Vos expériences</h4>
@@ -1188,9 +1181,10 @@
             <div>
               <h3 class="text-xl sm:text-2xl font-bold">Gérer les formations</h3>
             </div>
-            <button 
+            <button
+              :disabled="isLoadingModal"
               @click="showEditModal = null"
-              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all disabled:opacity-50"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -1199,7 +1193,15 @@
           </div>
         </div>
 
-        <div class="p-6 overflow-y-auto max-h-[70vh]">
+        <!-- Loading indicator -->
+        <div v-if="isLoadingModal" class="p-6 flex items-center justify-center">
+          <div class="flex flex-col items-center space-y-3">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
+            <p class="text-gray-600 text-sm">Chargement des données...</p>
+          </div>
+        </div>
+
+        <div v-else class="p-6 overflow-y-auto max-h-[70vh]">
           <div class="space-y-6">
             <div class="flex items-center justify-between">
               <h4 class="text-lg font-semibold text-gray-900">Vos formations</h4>
@@ -1246,10 +1248,7 @@
                 </div>
               </div>
               
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                <textarea v-model="edu.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"></textarea>
-              </div>
+
               
               <div class="flex justify-end">
                 <button @click="removeEditEducation(index)" class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2">
@@ -1326,11 +1325,27 @@ const experiences = ref<any[]>([])
 const educations = ref<any[]>([])
 const skills = ref<any[]>([])
 
+// Vérifier si le profil est complet (toutes les étapes de base sont remplies)
+const isProfileComplete = computed(() => {
+  // Le profil est complet si :
+  // 1. Le profil existe (candidateProfileId > 0)
+  // 2. Les informations de base sont remplies (firstName, lastName, location)
+  const hasProfileId = profile.value.candidateProfileId > 0
+  const hasBasicInfo = !!(
+    profile.value.firstName && 
+    profile.value.lastName && 
+    profile.value.location
+  )
+  
+  return hasProfileId && hasBasicInfo
+})
+
 // État de l'interface
 const showCreationWizard = ref(false)
 const showEditModal = ref<string | null>(null)
 const currentStepIndex = ref(0)
-const isLoading = ref(false)
+const isLoading = ref(true)
+const isLoadingModal = ref(false)
 const isSaving = ref(false)
 const isSavingStep2 = ref(false)
 const isSavingStep3 = ref(false)
@@ -1350,11 +1365,9 @@ const currentStep = computed(() => creationSteps[currentStepIndex.value])
 const step1Form = reactive({
   firstName: '',
   lastName: '',
-  title: '',
   location: '',
   salaryExpectationMin: 40,
-  salaryExpectationMax: 60,
-  bio: ''
+  salaryExpectationMax: 60
 })
 
 const step2Form = reactive({
@@ -1373,9 +1386,7 @@ const step4Form = reactive({
 const editForm = reactive({
   firstName: '',
   lastName: '',
-  title: '',
   location: '',
-  bio: '',
   salaryExpectationMin: 10,
   salaryExpectationMax: 10,
   skills: [] as any[],
@@ -1452,11 +1463,9 @@ const startProfileCreation = () => {
   Object.assign(step1Form, {
     firstName: '',
     lastName: '',
-    title: '',
     location: '',
     salaryExpectationMin: 40,
-    salaryExpectationMax: 60,
-    bio: ''
+    salaryExpectationMax: 60
   })
   step2Form.experiences = []
   step3Form.educations = []
@@ -1497,17 +1506,13 @@ const saveStep1 = async () => {
       location: step1Form.location,
       salaryExpectationMin: step1Form.salaryExpectationMin,
       salaryExpectationMax: step1Form.salaryExpectationMax,
-      resumeUrl: '',
-      title: step1Form.title,
-      bio: step1Form.bio
+      resumeUrl: ''
     })
     
     // Mettre à jour les données locales
     candidateData.value.profile = {
       ...candidateData.value.profile,
-      ...profileData,
-      title: step1Form.title,
-      bio: step1Form.bio
+      ...profileData
     }
     
     // Passer à l'étape suivante
@@ -1584,8 +1589,7 @@ const addEducation = () => {
     degree: 'Bachelor',
     fieldStudy: '',
     startDate: '',
-    endDate: '',
-    description: ''
+    endDate: ''
   })
 }
 
@@ -1616,8 +1620,7 @@ const saveStep3 = async () => {
         degree: edu.degree,
         fieldStudy: edu.fieldStudy,
         startDate: edu.startDate,
-        endDate: edu.endDate,
-        description: edu.description || ''
+        endDate: edu.endDate
       })
       
       // Ajouter à la liste locale
@@ -1686,48 +1689,51 @@ const saveStep4 = async () => {
 
 // Édition des sections
 const openEditSection = async (section: string) => {
-  // Charger les données fraîches depuis l'API
-  await loadCandidateProfile()
-  
-  // Pré-remplir le formulaire d'édition avec les données actuelles
-  Object.assign(editForm, {
-    firstName: profile.value.firstName,
-    lastName: profile.value.lastName,
-    title: profile.value.title || '',
-    location: profile.value.location,
-    bio: profile.value.bio || '',
-    salaryExpectationMin: profile.value.salaryExpectationMin || 10,
-    salaryExpectationMax: profile.value.salaryExpectationMax || 10,
-    skills: [...skills.value].map(skill => ({
-      id: skill.id,
-      skillName: skill.skillName,
-      experienceYears: skill.experienceYears,
-      profileId: skill.profileId
-    })),
-    experiences: [...experiences.value].map(exp => ({
-      id: exp.id,
-      jobTitle: exp.jobTitle,
-      companyName: exp.companyName,
-      description: exp.description,
-      startDate: exp.startDate,
-      endDate: exp.endDate,
-      currentExperienceStatus: exp.currentExperienceStatus,
-      location: exp.location || '',
-      profileId: exp.profileId
-    })),
-    educations: [...educations.value].map(edu => ({
-      id: edu.id,
-      institutionName: edu.institutionName,
-      degree: edu.degree,
-      fieldStudy: edu.fieldStudy,
-      startDate: edu.startDate,
-      endDate: edu.endDate,
-      description: edu.description || '',
-      profileId: edu.profileId
-    }))
-  })
+  try {
+    isLoadingModal.value = true
+    
+    // Charger les données fraîches depuis l'API
+    await loadCandidateProfile()
+    
+    // Pré-remplir le formulaire d'édition avec les données actuelles
+    Object.assign(editForm, {
+      firstName: profile.value.firstName,
+      lastName: profile.value.lastName,
+      location: profile.value.location,
+      salaryExpectationMin: profile.value.salaryExpectationMin || 10,
+      salaryExpectationMax: profile.value.salaryExpectationMax || 10,
+      skills: [...skills.value].map(skill => ({
+        id: skill.id,
+        skillName: skill.skillName,
+        experienceYears: skill.experienceYears,
+        profileId: skill.profileId
+      })),
+      experiences: [...experiences.value].map(exp => ({
+        id: exp.id,
+        jobTitle: exp.jobTitle,
+        companyName: exp.companyName,
+        description: exp.description,
+        startDate: exp.startDate,
+        endDate: exp.endDate,
+        currentExperienceStatus: exp.currentExperienceStatus,
+        location: exp.location || '',
+        profileId: exp.profileId
+      })),
+      educations: [...educations.value].map(edu => ({
+        id: edu.id,
+        institutionName: edu.institutionName,
+        degree: edu.degree,
+        fieldStudy: edu.fieldStudy,
+        startDate: edu.startDate,
+        endDate: edu.endDate,
+        profileId: edu.profileId
+      }))
+    })
 
-  showEditModal.value = section
+    showEditModal.value = section
+  } finally {
+    isLoadingModal.value = false
+  }
 }
 
 // Sauvegarde des sections
@@ -1740,9 +1746,7 @@ const saveBasics = async () => {
       location: editForm.location,
       salaryExpectationMin: profile.value.salaryExpectationMin,
       salaryExpectationMax: profile.value.salaryExpectationMax,
-      resumeUrl: profile.value.resumeUrl || '',
-      title: editForm.title,
-      bio: profile.value.bio
+      resumeUrl: profile.value.resumeUrl || ''
     })
     
     await loadCandidateProfile()
@@ -1755,29 +1759,7 @@ const saveBasics = async () => {
   }
 }
 
-const saveAbout = async () => {
-  try {
-    isSaving.value = true
-    await candidateService.updateCandidateProfile(userId, {
-      firstName: profile.value.firstName,
-      lastName: profile.value.lastName,
-      location: profile.value.location,
-      salaryExpectationMin: profile.value.salaryExpectationMin,
-      salaryExpectationMax: profile.value.salaryExpectationMax,
-      resumeUrl: profile.value.resumeUrl || '',
-      title: profile.value.title,
-      bio: editForm.bio
-    })
-    
-    await loadCandidateProfile()
-    showEditModal.value = null
-    
-  } catch (error) {
-    console.error('Erreur lors de la mise à jour:', error)
-  } finally {
-    isSaving.value = false
-  }
-}
+
 
 const saveSalary = async () => {
   try {
@@ -1788,9 +1770,7 @@ const saveSalary = async () => {
       location: profile.value.location,
       salaryExpectationMin: editForm.salaryExpectationMin,
       salaryExpectationMax: editForm.salaryExpectationMax,
-      resumeUrl: profile.value.resumeUrl || '',
-      title: profile.value.title,
-      bio: profile.value.bio
+      resumeUrl: profile.value.resumeUrl || ''
     })
     
     await loadCandidateProfile()
@@ -2005,7 +1985,6 @@ const addEditEducation = () => {
     fieldStudy: '',
     startDate: '',
     endDate: '',
-    description: '',
     profileId: profile.value.candidateProfileId
     // Pas d'id = nouvel item
   })
@@ -2055,8 +2034,7 @@ const saveEducations = async () => {
         degree: edu.degree,
         fieldStudy: edu.fieldStudy,
         startDate: edu.startDate,
-        endDate: edu.endDate,
-        description: edu.description || ''
+        endDate: edu.endDate
       })
     }
     
@@ -2079,7 +2057,6 @@ const saveEducations = async () => {
           fieldStudy: edu.fieldStudy,
           startDate: edu.startDate,
           endDate: edu.endDate,
-          description: edu.description || '',
           id: edu.id
         })
       }
@@ -2166,5 +2143,42 @@ onMounted(() => {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
+}
+
+/* Shimmer Effect */
+.shimmer-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #e5e7eb;
+}
+
+.shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 </style>
