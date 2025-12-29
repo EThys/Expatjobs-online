@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { PaperAirplaneIcon, PhoneIcon, MapPinIcon, EnvelopeIcon } from '@heroicons/vue/24/outline';
 import { useNotif } from '@/composables/useNotif';
@@ -16,12 +16,6 @@ const form = ref({
   subject: '',
   message: '',
 });
-
-const contactInfo = computed(() => [
-  { icon: EnvelopeIcon, title: t('footer.email'), value: 'contact@expatjobsgo.com', link: 'mailto:contact@expatjobsgo.com' },
-  { icon: PhoneIcon, title: t('footer.phone'), value: '+243 854 434 602', link: 'tel:+243854434602' },
-  { icon: MapPinIcon, title: t('footer.address'), value: '123 Rue des Opportunités, 75000 Paris, France', link: '#' },
-]);
 
 const submitForm = () => {
   notifySuccess(t('contactPage.successMessage'));
@@ -170,21 +164,65 @@ const submitForm = () => {
           <div class="py-10 px-6 sm:px-10 lg:px-12 bg-green-50">
             <h2 class="text-lg font-semibold text-gray-900 mb-8">{{ t('contactPage.contactInfoTitle') }}</h2>
             <div class="space-y-6">
-              <div v-for="(info, index) in contactInfo" :key="index" class="flex items-start">
+              <!-- Email -->
+              <div class="flex items-start">
                 <div class="flex-shrink-0 bg-green-100 p-3 rounded-lg">
-                  <component
-                    :is="info.icon"
-                    class="w-6 h-6 text-green-600"
-                  />
+                  <EnvelopeIcon class="w-6 h-6 text-green-600" />
                 </div>
                 <div class="ml-4">
-                  <h3 class="text-sm font-medium text-gray-900">{{ info.title }}</h3>
+                  <h3 class="text-sm font-medium text-gray-900">{{ t('footer.email') }}</h3>
                   <a
-                    :href="info.link"
+                    :href="`mailto:${t('contactPage.emailValue')}`"
                     class="mt-1 text-gray-600 hover:text-green-600 transition-colors duration-200"
                   >
-                    {{ info.value }}
+                    {{ t('contactPage.emailValue') }}
                   </a>
+                </div>
+              </div>
+              
+              <!-- Téléphones -->
+              <div class="flex items-start">
+                <div class="flex-shrink-0 bg-green-100 p-3 rounded-lg">
+                  <PhoneIcon class="w-6 h-6 text-green-600" />
+                </div>
+                <div class="ml-4">
+                  <h3 class="text-sm font-medium text-gray-900">{{ t('footer.phone') }}</h3>
+                  <div class="mt-1 space-y-1">
+                    <div>
+                      <span class="text-gray-700 font-medium">{{ t('contactPage.mobile') }}:</span>
+                      <a
+                        :href="`tel:${t('contactPage.mobileValue').replace(/\s/g, '')}`"
+                        class="ml-2 text-gray-600 hover:text-green-600 transition-colors duration-200"
+                      >
+                        {{ t('contactPage.mobileValue') }}
+                      </a>
+                    </div>
+                    <div>
+                      <span class="text-gray-700 font-medium">{{ t('contactPage.office') }}:</span>
+                      <a
+                        :href="`tel:${t('contactPage.officeValue').replace(/\s/g, '')}`"
+                        class="ml-2 text-gray-600 hover:text-green-600 transition-colors duration-200"
+                      >
+                        {{ t('contactPage.officeValue') }}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Adresse -->
+              <div class="flex items-start">
+                <div class="flex-shrink-0 bg-green-100 p-3 rounded-lg">
+                  <MapPinIcon class="w-6 h-6 text-green-600" />
+                </div>
+                <div class="ml-4">
+                  <h3 class="text-sm font-medium text-gray-900">{{ t('footer.address') }}</h3>
+                  <div class="mt-1 text-gray-600 leading-relaxed">
+                    <div>{{ t('contactPage.postalIndex') }}</div>
+                    <div>{{ t('contactPage.city') }}</div>
+                    <div>{{ t('contactPage.street') }}</div>
+                    <div class="mt-1 text-gray-500 text-xs">{{ t('contactPage.inn') }}</div>
+                  </div>
                 </div>
               </div>
             </div>
