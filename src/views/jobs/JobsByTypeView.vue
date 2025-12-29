@@ -1,148 +1,138 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden page-fade-in">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50/30">
     <Navbar />
 
-    <main class="flex-grow">
-    <PageHero>
-      <template #title>
-        {{ $t('hero.jobsByTypeView.title').split($t('hero.jobsByTypeView.titleHighlight'))[0] }} <span class="text-emerald-400">{{ $t('hero.jobsByTypeView.titleHighlight') }}</span>
-      </template>
-      <template #subtitle>
-        {{ $t('hero.jobsByTypeView.subtitle') }}
-      </template>
-
-      <div class="flex justify-center">
-        <div class="inline-flex flex-wrap justify-center gap-2 bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-xl">
-          <button
-            v-for="type in jobTypeOptions"
-            :key="type.value"
-            @click="changeType(type.value)"
-            :class="[
-              'px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all duration-300',
-              selectedType === type.value
-                ? 'bg-white text-emerald-700 shadow-lg shadow-emerald-500/20 scale-105'
-                : 'bg-white/5 text-emerald-50 hover:bg-white/20 hover:text-white'
-            ]"
-          >
-            <span class="inline-block w-2 h-2 rounded-full transition-colors duration-300"
-                  :class="selectedType === type.value ? 'bg-emerald-500' : 'bg-emerald-200/50'"></span>
-            {{ type.label }}
-          </button>
-        </div>
-      </div>
-    </PageHero>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <!-- Filters Section - Horizontal Chips -->
-      <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-gray-200/80">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">
-          Types de contrat
-        </h3>
-        <div class="flex flex-wrap gap-3">
-          <button
-            v-for="type in jobTypeOptions"
-            :key="type.value"
-            @click="changeType(type.value)"
-            :class="[
-              'px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2',
-              selectedType === type.value
-                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-105'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
-            ]"
-          >
-            <span class="inline-block w-2 h-2 rounded-full transition-colors duration-300"
-                  :class="selectedType === type.value ? 'bg-white' : 'bg-emerald-500'"></span>
-            <span>{{ type.label }}</span>
-            <span v-if="counts[type.value] !== undefined" 
-                  :class="[
-                    'text-xs px-2 py-0.5 rounded-full',
-                    selectedType === type.value ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'
-                  ]">
-              {{ counts[type.value] }}
-            </span>
-          </button>
+    <main class="pt-20 pb-16">
+      <!-- Hero Section -->
+      <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+          <h1 class="text-3xl md:text-4xl font-bold mb-3">
+            {{ $t('hero.jobsByTypeView.title').split($t('hero.jobsByTypeView.titleHighlight'))[0] }}
+            <span class="text-emerald-200">{{ $t('hero.jobsByTypeView.titleHighlight') }}</span>
+          </h1>
+          <p class="text-emerald-100 text-lg">{{ $t('hero.jobsByTypeView.subtitle') }}</p>
         </div>
       </div>
 
-      <!-- Job Cards Section -->
-      <div class="space-y-8">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-              <h2 class="text-xl font-bold text-gray-800">
-                Offres en {{ currentTypeLabel }}
-              </h2>
-              <p class="text-sm text-gray-600 mt-1">
-                {{ totalElements }} offre{{ totalElements !== 1 ? 's' : '' }} trouvée{{ totalElements !== 1 ? 's' : '' }}
-                pour ce type de contrat
-              </p>
-            </div>
-          </div>
-
-          <div v-if="loading" class="space-y-6">
-            <div v-for="n in 6" :key="n" class="bg-white rounded-2xl border border-gray-200/80 p-6 shimmer-container">
-              <div class="flex items-start gap-4">
-                <div class="w-16 h-16 bg-gray-200 rounded-2xl shimmer"></div>
-                <div class="flex-1 space-y-3">
-                  <div class="h-6 bg-gray-200 rounded shimmer"></div>
-                  <div class="h-4 bg-gray-200 rounded shimmer w-1/2"></div>
-                  <div class="flex gap-4">
-                    <div class="h-4 bg-gray-200 rounded shimmer w-20"></div>
-                    <div class="h-4 bg-gray-200 rounded shimmer w-24"></div>
-                  </div>
-                  <div class="flex gap-2 mt-4">
-                    <div class="h-6 bg-gray-200 rounded-full shimmer w-16"></div>
-                    <div class="h-6 bg-gray-200 rounded-full shimmer w-20"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div v-else-if="formattedOffres.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <OffreCard
-              v-for="offre in formattedOffres"
-              :key="offre.id"
-              :offre="offre"
-              class="transform hover:scale-[1.02] transition-transform duration-300"
-            />
-          </div>
-
-          <div v-else class="bg-white rounded-2xl border border-gray-200/80 p-12 text-center">
-            <div class="max-w-md mx-auto">
-              <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-3xl flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 class="text-xl font-semibold text-gray-800 mb-3">Aucune offre trouvée</h3>
-              <p class="text-gray-500 mb-4">
-                Aucune offre n'est actuellement disponible pour ce type de contrat.
-              </p>
-              <button
-                @click="goToAllJobs"
-                class="px-6 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors font-medium"
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <!-- Filter Chips -->
+        <div class="mb-8">
+          <div class="flex flex-wrap gap-3 justify-center">
+            <button
+              v-for="type in jobTypeOptions"
+              :key="type.value"
+              @click="changeType(type.value)"
+              :class="[
+                'px-6 py-3 rounded-full text-sm font-semibold transition-all duration-200',
+                selectedType === type.value
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 scale-105'
+                  : 'bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border border-gray-200'
+              ]"
+            >
+              {{ type.label }}
+              <span
+                v-if="counts[type.value] !== undefined"
+                :class="[
+                  'ml-2 px-2 py-0.5 rounded-full text-xs',
+                  selectedType === type.value
+                    ? 'bg-white/20 text-white'
+                    : 'bg-emerald-100 text-emerald-700'
+                ]"
               >
-                Voir toutes les offres
-              </button>
-            </div>
+                {{ counts[type.value] }}
+              </span>
+            </button>
           </div>
+        </div>
 
-          <div v-if="!loading && totalPages > 1" class="mt-10">
+        <!-- Results Header -->
+        <div class="mb-6 flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">
+              {{ currentTypeLabel }}
+            </h2>
+            <p class="text-gray-600 mt-1">
+              {{ totalElements }} {{ totalElements !== 1 ? 'offres trouvées' : 'offre trouvée' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            v-for="n in 6"
+            :key="n"
+            class="bg-white rounded-xl border border-gray-200 p-6 animate-pulse"
+          >
+            <div class="h-6 bg-gray-200 rounded mb-4"></div>
+            <div class="h-4 bg-gray-200 rounded mb-2 w-2/3"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+
+        <!-- Jobs Grid -->
+        <div
+          v-else-if="formattedOffres.length > 0"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <OffreCard
+            v-for="offre in formattedOffres"
+            :key="offre.id"
+            :offre="offre"
+            class="transform hover:scale-[1.02] transition-transform duration-200"
+          />
+        </div>
+
+        <!-- Empty State -->
+        <div
+          v-else
+          class="bg-white rounded-2xl border border-gray-200 p-12 text-center"
+        >
+          <div class="max-w-md mx-auto">
+            <div
+              class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-10 w-10 text-emerald-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Aucune offre trouvée</h3>
+            <p class="text-gray-600 mb-6">
+              Aucune offre n'est actuellement disponible pour ce type de contrat.
+            </p>
+            <button
+              @click="goToAllJobs"
+              class="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+            >
+              Voir toutes les offres
+            </button>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="!loading && totalPages > 1" class="mt-10">
           <Pagination
-            v-if="!loading && totalPages > 1"
             :current-page="currentPage"
             :total-pages="totalPages"
             :total-elements="totalElements"
             :loading="paginationLoading"
             @change="changePage"
           />
-          </div>
         </div>
       </div>
-      </div>
     </main>
+
     <Footer />
   </div>
 </template>
@@ -152,12 +142,11 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 //@ts-ignore
 import Navbar from '@/components/navbar/NavBarComponent.vue';
-import PageHero from '@/components/shared/PageHero.vue';
-import Pagination from '@/components/shared/Pagination.vue';
 //@ts-ignore
 import Footer from '@/components/footer/FooterComponent.vue';
 //@ts-ignore
 import OffreCard from '@/components/cards/OffreCard.vue';
+import Pagination from '@/components/shared/Pagination.vue';
 //@ts-ignore
 import { useJobService } from '@/utils/service/jobService';
 //@ts-ignore
@@ -174,6 +163,7 @@ const loading = ref(false);
 const currentPage = ref(0);
 const totalPages = ref(0);
 const totalElements = ref(0);
+const paginationLoading = ref(false);
 
 const jobTypeOptions = [
   { value: JobType.FULL_TIME, label: 'CDI (Temps plein)' },
@@ -195,22 +185,18 @@ const currentTypeLabel = computed(() => {
   return jobTypeOptions.find(t => t.value === selectedType.value)?.label || 'CDI';
 });
 
-// Pagination handled by component
-
-const paginationLoading = ref(false);
-
 const fetchJobsByType = async (page = 0) => {
   try {
     if (page === currentPage.value && jobs.value.length === 0) {
-       loading.value = true;
+      loading.value = true;
     } else {
-       paginationLoading.value = true;
+      paginationLoading.value = true;
     }
 
     const response: IJobResponse = await jobService.searchJobs({
       jobType: selectedType.value,
       page,
-      size: 10,
+      size: 12,
       status: 'PUBLISHED',
     });
 
@@ -273,7 +259,7 @@ const goToAllJobs = () => {
   router.push({ name: 'jobs' });
 };
 
-// Format helpers (recyclés depuis AllJobsView)
+// Format helpers - utiliser uniquement les données de l'API
 const formatSalary = (min: number | null, max: number | null): string => {
   if (!min && !max) return 'Salaire à négocier';
   if (!min) return `Jusqu'à ${max?.toLocaleString()} €`;
@@ -292,7 +278,7 @@ const formatJobType = (jobType: JobType | string): string => {
   return types[jobType] || jobType || 'Non spécifié';
 };
 
-const formatDate = (dateString: string): string => {
+const formatDate = (dateString: string | undefined): string => {
   if (!dateString) return 'Date inconnue';
   try {
     const date = new Date(dateString.replace(' ', 'T'));
@@ -310,28 +296,28 @@ const formatDate = (dateString: string): string => {
   }
 };
 
+// Formater les offres en utilisant uniquement les données de l'API
 const formatOffreForCard = (job: IJobOffers) => {
   return {
     id: job.id,
     titre: job.title || 'Titre non spécifié',
-    entreprise: job.company?.name || `Entreprise #${job.companyId}`,
+    entreprise: job.company?.name || (job.companyId ? `Entreprise #${job.companyId}` : 'Entreprise inconnue'),
     localisation: job.location || 'Non spécifié',
     typeContrat: formatJobType(job.jobType),
     salaire: formatSalary(job.salaryMin, job.salaryMax),
-    competences:
-      job.skills?.map((skill) => skill.skillName) ||
-      ([job.sector, job.experienceLevel].filter(Boolean) as string[]),
+    competences: job.skills?.map((skill: any) => skill.skillName || skill.name) || [],
     datePublication: formatDate(job.createdAt),
     urgent: job.status === 'URGENT',
     remote: job.location ? job.location.toLowerCase().includes('remote') : false,
-    featured: job.experienceLevel === 'SENIOR' || job.status === 'FEATURED',
-    description: job.description,
-    experienceLevel: job.experienceLevel,
-    sector: job.sector,
+    featured: false,
+    description: job.description || '',
+    experienceLevel: job.experienceLevel || '',
+    sector: job.sector || '',
     companyInfo: job.company || {
       id: job.companyId,
-      name: `Entreprise #${job.companyId}`,
-      location: job.location,
+      name: job.companyId ? `Entreprise #${job.companyId}` : 'Entreprise inconnue',
+      location: job.location || '',
+      webSiteUrl: (job.company as any)?.webSiteUrl || '',
     },
   };
 };
@@ -351,57 +337,19 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.shimmer-container {
-  position: relative;
-  overflow: hidden;
-}
-
-.shimmer {
-  position: relative;
-  overflow: hidden;
-  background-color: #e5e7eb;
-}
-
-.shimmer::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
-  );
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-/* Effet d'apparition simple de la page */
-.page-fade-in {
-  animation: pageFadeIn 0.35s ease-out;
-}
-
-@keyframes pageFadeIn {
-  0% {
+/* Animations simples et modernes */
+@keyframes fadeIn {
+  from {
     opacity: 0;
     transform: translateY(10px);
   }
-  100% {
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
+main {
+  animation: fadeIn 0.3s ease-out;
+}
 </style>
-
-
