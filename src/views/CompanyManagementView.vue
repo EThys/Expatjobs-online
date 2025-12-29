@@ -230,12 +230,11 @@ onMounted(() => {
               </div>
 
               <div v-else class="space-y-2">
-                <button
+                <div
                   v-for="c in companies"
                   :key="c.id"
-                  type="button"
                   @click="selectCompany(c)"
-                  class="w-full text-left px-3 py-3 rounded-xl border transition-all duration-150 flex items-start gap-3"
+                  class="w-full text-left px-3 py-3 rounded-xl border transition-all duration-150 flex items-start gap-3 cursor-pointer"
                   :class="selectedCompanyId === c.id
                     ? 'border-emerald-500 bg-emerald-50/70 shadow-sm'
                     : 'border-gray-100 bg-white hover:border-emerald-200 hover:bg-emerald-50/40'"
@@ -295,7 +294,7 @@ onMounted(() => {
                       />
                     </svg>
                   </button>
-                </button>
+                </div>
               </div>
             </div>
           </div>
