@@ -57,8 +57,8 @@
                 {{ $t('footer.jobs') }}
               </router-link>
             </li>
-            <li v-if="isRecruiter">
-              <router-link to="/company" class="text-emerald-100/80 hover:text-white text-sm transition-colors duration-200 flex items-center group">
+            <li>
+              <router-link to="/companies" class="text-emerald-100/80 hover:text-white text-sm transition-colors duration-200 flex items-center group">
                 <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
                 {{ $t('footer.companies') }}
               </router-link>
@@ -72,7 +72,7 @@
             <li v-if="isRecruiter">
               <router-link to="/my-jobs" class="text-emerald-100/80 hover:text-white text-sm transition-colors duration-200 flex items-center group">
                 <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                Gérer mes offres
+                {{ $t('footer.manageMyOffers') }}
               </router-link>
             </li>
           </ul>
@@ -90,11 +90,11 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z"/>
                 </svg>
               </div>
-              <a href="mailto:contact@expatjobsgo.com" class="text-emerald-100/80 hover:text-white text-sm transition-colors">
-                contact@expatjobsgo.com
+              <a :href="`mailto:${$t('footer.emailValue')}`" class="text-emerald-100/80 hover:text-white text-sm transition-colors">
+                {{ $t('footer.emailValue') }}
               </a>
             </li>
-            <li class="flex items-start">
+            <li class="flex items-start"> 
               <div class="bg-white/10 p-1.5 rounded mr-3 mt-0.5">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
@@ -102,12 +102,12 @@
               </div>
               <div class="text-emerald-100/80 text-sm">
                 <div class="mb-1">
-                  <span class="text-emerald-300 font-medium">Mobile:</span> 
-                  <a href="tel:+79268022202" class="hover:text-white transition-colors">+7 926 802 2202</a>
+                  <span class="text-emerald-300 font-medium">{{ $t('footer.mobile') }}:</span> 
+                  <a :href="`tel:${$t('footer.mobileValue').replace(/\s/g, '')}`" class="hover:text-white transition-colors">{{ $t('footer.mobileValue') }}</a>
                 </div>
                 <div>
-                  <span class="text-emerald-300 font-medium">Bureau:</span> 
-                  <a href="tel:+74952032022" class="hover:text-white transition-colors">+7 495 203 2022</a>
+                  <span class="text-emerald-300 font-medium">{{ $t('footer.office') }}:</span> 
+                  <a :href="`tel:${$t('footer.officeValue').replace(/\s/g, '')}`" class="hover:text-white transition-colors">{{ $t('footer.officeValue') }}</a>
                 </div>
               </div>
             </li>
@@ -119,10 +119,10 @@
                 </svg>
               </div>
               <div class="text-emerald-100/80 text-sm leading-relaxed">
-                <div>Index 109542, Russie</div>
-                <div>Ville Moscou</div>
-                <div>Рязанский проспект, 68к1</div>
-                <div class="mt-1 text-emerald-300/80 text-xs">ИНН: 772142451327</div>
+                <div>{{ $t('footer.postalIndex') }}</div>
+                <div>{{ $t('footer.city') }}</div>
+                <div>{{ $t('footer.street') }}</div>
+                <div class="mt-1 text-emerald-300/80 text-xs">{{ $t('footer.inn') }}</div>
               </div>
             </li>
           </ul>
@@ -131,22 +131,22 @@
         <!-- Newsletter -->
         <div>
           <h3 class="text-lg font-semibold mb-4 pb-2 border-b border-white/20">
-            Newsletter
+            {{ $t('footer.newsletter') }}
           </h3>
           <p class="text-emerald-100/80 text-sm mb-4">
-            Recevez les dernières offres d'emploi directement dans votre boîte mail.
+            {{ $t('footer.newsletterDescription') }}
           </p>
           <form @submit.prevent class="flex flex-col gap-2">
             <input 
               type="email" 
-              placeholder="Votre email"
+              :placeholder="$t('footer.newsletterPlaceholder')"
               class="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-transparent transition-all"
             />
             <button 
               type="submit"
               class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white font-medium rounded-lg text-sm transition-all duration-300 hover:shadow-lg"
             >
-              S'abonner
+              {{ $t('footer.newsletterSubscribe') }}
             </button>
           </form>
         </div>
@@ -158,17 +158,17 @@
       <div class="container mx-auto px-4 sm:px-6 py-5">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p class="text-emerald-100/70 text-xs sm:text-sm text-center sm:text-left">
-            © {{ new Date().getFullYear() }} EXPAT JOBS Go. Tous droits réservés.
+            © {{ new Date().getFullYear() }} EXPAT JOBS Go. {{ $t('footer.rights') }}.
           </p>
           <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <a href="#" class="text-emerald-100/70 hover:text-white text-xs sm:text-sm transition-colors">
-              Mentions légales
+              {{ $t('footer.legal') }}
             </a>
             <a href="#" class="text-emerald-100/70 hover:text-white text-xs sm:text-sm transition-colors">
-              Confidentialité
+              {{ $t('footer.confidentiality') }}
             </a>
             <a href="#" class="text-emerald-100/70 hover:text-white text-xs sm:text-sm transition-colors">
-              CGU
+              {{ $t('footer.termsShort') }}
             </a>
           </div>
         </div>
@@ -178,9 +178,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getUser } from '@/stores/authStorage'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const isRecruiter = ref(false)
 
 onMounted(() => {
