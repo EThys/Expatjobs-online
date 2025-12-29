@@ -13,8 +13,10 @@ export interface IJob {
   createdAt: string;
 }
 
+import type { ICompany } from "./ICompagny";
+
 export interface IJobOffers {
-  id:number;
+  id: number;
   companyId: number;
   title: string;
   description: string;
@@ -25,14 +27,9 @@ export interface IJobOffers {
   experienceLevel: string;
   status: string;
   sector: string;
-  createdAt:string;
+  createdAt: string;
   // Ajouter ces propriétés pour l'interface
-  company?: {
-    id: number;
-    name: string;
-    location?: string;
-    webSiteUrl?: string;
-  };
+  company?: ICompany;
   skills?: ISkillCreate[];
 }
 
