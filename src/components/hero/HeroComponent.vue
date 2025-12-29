@@ -978,7 +978,7 @@ onUnmounted(() => {
       <div class="flex items-center justify-center gap-4 lg:gap-8 flex-wrap max-w-7xl mx-auto">
         <!-- Stat 1 -->
         <div class="flex flex-col items-center">
-          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">1.7M+</div>
+          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">146M+</div>
           <div class="text-[10px] lg:text-xs text-white/90 font-medium uppercase tracking-wider">Applications</div>
         </div>
         
@@ -987,7 +987,7 @@ onUnmounted(() => {
         
         <!-- Stat 2 -->
         <div class="flex flex-col items-center">
-          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">3.8M+</div>
+          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">16.8M+</div>
           <div class="text-[10px] lg:text-xs text-white/90 font-medium uppercase tracking-wider">Postes vacants</div>
         </div>
         
@@ -996,7 +996,7 @@ onUnmounted(() => {
         
         <!-- Stat 3 -->
         <div class="flex flex-col items-center">
-          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">736K+</div>
+          <div class="text-xl lg:text-3xl font-bold text-white mb-1 drop-shadow-lg leading-tight whitespace-nowrap">736M+</div>
           <div class="text-[10px] lg:text-xs text-white/90 font-medium uppercase tracking-wider">Demandes CV</div>
         </div>
         
@@ -2454,6 +2454,12 @@ onUnmounted(() => {
   position: relative;
 }
 
+@media (max-width: 640px) {
+  .categories-grid {
+    gap: 0.5rem;
+  }
+}
+
 .categories-grid::after {
   content: '';
   position: absolute;
@@ -3153,7 +3159,7 @@ onUnmounted(() => {
 
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.875rem;
+    gap: 0.5rem;
   }
 
   .category-card {
@@ -3390,7 +3396,7 @@ onUnmounted(() => {
 
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .category-card {
@@ -3771,6 +3777,7 @@ onUnmounted(() => {
 @media (max-width: 640px) {
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
     max-height: 350px;
   }
   
@@ -3781,7 +3788,7 @@ onUnmounted(() => {
   .category-card {
     flex-direction: column;
     text-align: center;
-    padding: 1.25rem 1rem;
+    padding: 1rem 0.75rem;
     min-height: 110px;
   }
   
@@ -3799,7 +3806,7 @@ onUnmounted(() => {
 @media (max-width: 480px) {
   .categories-grid {
     grid-template-columns: 1fr;
-    gap: 0.875rem;
+    gap: 0.5rem;
     max-height: 320px;
   }
   
