@@ -9,6 +9,7 @@ import i18n from '@/i18n'
 
 import ToastPlugin from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-sugar.css';
+import './assets/toast-modern.css';
 
 const app = createApp(App)
 
