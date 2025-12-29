@@ -1,15 +1,16 @@
 import { useAxiosRequestWithToken } from './axios_api';
 import { ApiRoutes } from './endpoints/api';
-import type { 
-  IJobResponse, 
-  IJob, 
-  IJobCreate, 
-  ISkillResponse, 
-  ISkill, 
-  ISkillCreate 
+import type {
+  IJobResponse,
+  IJob,
+  IJobCreate,
+  ISkillResponse,
+  ISkill,
+  ISkillCreate
 } from '@/utils/interface/IJobOffers';
 import { getToken } from '@/stores/token';
 import { useCompanyService } from './CompagnyService';
+import axios from 'axios';
 
 export const useJobService = () => {
   const token = getToken() as string;
@@ -59,7 +60,7 @@ export const useJobService = () => {
     try {
       const companyService = useCompanyService();
       const company = await companyService.getCompanyById(job.companyId);
-      
+
       return {
         ...job,
         company: {
@@ -135,18 +136,18 @@ export const useJobService = () => {
     searchOrParams:
       | string
       | {
-          title?: string;
-          sector?: string;
-          salaryMin?: number;
-          salaryMax?: number;
-          jobType?: string;
-          status?: string;
-          location?: string;
-          companyId?: number;
-          experienceLevel?: string;
-          page?: number;
-          size?: number;
-        },
+        title?: string;
+        sector?: string;
+        salaryMin?: number;
+        salaryMax?: number;
+        jobType?: string;
+        status?: string;
+        location?: string;
+        companyId?: number;
+        experienceLevel?: string;
+        page?: number;
+        size?: number;
+      },
     location?: string,
     jobType?: string,
     experienceLevel?: string,
@@ -211,10 +212,17 @@ export const useJobService = () => {
     }
   };
 
-  const getJobsByCompany = async (companyId: number): Promise<IJob[]> => {
+  const getJobsByCompany = async (
+    companyId: number,
+    page: number = 0,
+    size: number = 20
+  ): Promise<IJobResponse> => {
     try {
       const response = await useAxiosRequestWithToken(token).get(
-        `${ApiRoutes.searchJobOffers}/company/${companyId}`
+        `${ApiRoutes.searchJobOffers}/by-company/${companyId}`,
+        {
+          params: { page, size }
+        }
       );
       return response.data;
     } catch (error) {
@@ -223,11 +231,72 @@ export const useJobService = () => {
     }
   };
 
+  const getJobsByJobType = async (
+    jobType: string,
+    page: number = 0,
+    size: number = 10
+  ): Promise<IJobResponse> => {
+    try {
+      const mappedJobType = mapUiJobTypeToApi(jobType);
+      const response = await useAxiosRequestWithToken(token).get(
+        `${ApiRoutes.getJobsByJobType}/${mappedJobType}`,
+        {
+          params: { page, size }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`❌ Erreur lors de la récupération des offres par type ${jobType}:`, error);
+      throw error;
+    }
+  };
+
+  const getJobsBySalaryMax = async (
+    salaryMax: number,
+    page: number = 0,
+    size: number = 10
+  ): Promise<IJobResponse> => {
+    try {
+      const response = await useAxiosRequestWithToken(token).get(
+        `${ApiRoutes.getJobsBySalaryMax}/${salaryMax}`,
+        {
+          params: { page, size }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`❌ Erreur lors de la récupération des offres par salaire max ${salaryMax}:`, error);
+      throw error;
+    }
+  };
+
   const updateJob = async (id: number, jobData: Partial<IJobCreate>): Promise<IJob> => {
     try {
-      const response = await useAxiosRequestWithToken(token).put(
-        `${ApiRoutes.updatejobOffers}/${id}`,
-        jobData
+      // Utiliser l'endpoint direct avec le payload complet incluant l'id et companyId
+      const payload = {
+        id: id,
+        companyId: jobData.companyId,
+        title: jobData.title || '',
+        description: jobData.description || '',
+        location: jobData.location || '',
+        salaryMin: jobData.salaryMin || 0,
+        salaryMax: jobData.salaryMax || 0,
+        jobType: jobData.jobType || 'FULL_TIME',
+        experienceLevel: jobData.experienceLevel || 'MID',
+        status: jobData.status || 'PUBLISHED',
+        sector: jobData.sector || 'IT'
+      };
+      
+      // Utiliser axios directement avec l'URL complète pour cet endpoint spécifique
+      const response = await axios.put(
+        `https://expat-jobs-api-928b.onrender.com/api/job-offers`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
       );
       return response.data;
     } catch (error) {
@@ -238,29 +307,40 @@ export const useJobService = () => {
 
   const deleteJob = async (id: number): Promise<void> => {
     try {
-      await useAxiosRequestWithToken(token).delete(
-        `${ApiRoutes.deletejobOffers}/${id}`
+      // Utiliser l'endpoint DELETE officiel de l'API (aucun body en retour)
+      const response = await useAxiosRequestWithToken(token).delete(
+        `${ApiRoutes.deletejobOffers}/${id}`,
+        {
+          validateStatus: (status) =>
+            // le backend renvoie typiquement 200 ou 204, on les accepte comme succès
+            (status >= 200 && status < 300) || status === 204,
+        }
       );
+
+      if (response.status !== 200 && response.status !== 204) {
+        throw new Error(`Erreur lors de la suppression: status ${response.status}`);
+      }
     } catch (error) {
       console.error(`❌ Erreur lors de la suppression de l'offre ${id}:`, error);
       throw error;
     }
   };
 
+
   // ==================== SKILLS ====================
 
   const getSkillsByJob = async (jobId: number): Promise<ISkillResponse> => {
-  try {
-    const response = await useAxiosRequestWithToken().get(
-      `${ApiRoutes.getJobSkillsByJobOffer}?jobOfferId=${jobId}`
+    try {
+      const response = await useAxiosRequestWithToken().get(
+        `${ApiRoutes.getJobSkillsByJobOffer}?jobOfferId=${jobId}`
 
-    );
-    return response.data;
-  } catch (error) {
-    console.error(`❌ Erreur lors de la récupération des compétences pour l'offre ${jobId}:`, error);
-    throw error;
-  }
-};
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`❌ Erreur lors de la récupération des compétences pour l'offre ${jobId}:`, error);
+      throw error;
+    }
+  };
 
 
   const createSkill = async (skillData: ISkillCreate): Promise<ISkill> => {
@@ -311,13 +391,21 @@ export const useJobService = () => {
 
   const updateSkill = async (id: number, skillData: Partial<ISkillCreate>): Promise<ISkill> => {
     try {
+      // Utiliser le payload complet avec l'id
+      const payload = {
+        id: id,
+        skillName: skillData.skillName || '',
+        jobOfferId: skillData.jobOfferId || 0,
+        experienceYear: skillData.experienceYear || 0
+      };
+      
       const response = await useAxiosRequestWithToken(token).put(
-        `${ApiRoutes.updatejobSkills}/${id}`,
-        skillData
+        `${ApiRoutes.updatejobSkills}`,
+        payload
       );
       return response.data;
     } catch (error) {
-      console.error(`❌ Erreur lors de la mise à jour de la compétence ${id}:`, error);
+      console.error(`Erreur lors de la mise à jour de la compétence ${id}:`, error);
       throw error;
     }
   };
@@ -325,10 +413,10 @@ export const useJobService = () => {
   const deleteSkill = async (id: number): Promise<void> => {
     try {
       await useAxiosRequestWithToken(token).delete(
-        `${ApiRoutes.deletejobSkills}/${id}`
+        `${ApiRoutes.deletejobSkills.replace('{id}', id.toString())}`
       );
     } catch (error) {
-      console.error(`❌ Erreur lors de la suppression de la compétence ${id}:`, error);
+      console.error(`Erreur lors de la suppression de la compétence ${id}:`, error);
       throw error;
     }
   };
@@ -340,9 +428,11 @@ export const useJobService = () => {
     getJobById,
     searchJobs,
     getJobsByCompany,
+    getJobsByJobType,
+    getJobsBySalaryMax,
     updateJob,
     deleteJob,
-    
+
     // Skills
     getSkillsByJob,
     createSkill,
