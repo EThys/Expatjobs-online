@@ -562,6 +562,7 @@
                     <!-- Menu d'actions -->
                     <div class="p-3 space-y-1">
                       <router-link
+                        v-if="!canPostJob"
                         to="/profile"
                         class="flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200 group"
                         @click="closeAllDropdowns"
