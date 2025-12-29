@@ -7,6 +7,7 @@ export interface ICompany {
   webSiteUrl: string;
   createdAt?: string;
   updatedAt?: string;
+  logoUrl?: string;
 }
 
 export interface ICompanyCreate {
