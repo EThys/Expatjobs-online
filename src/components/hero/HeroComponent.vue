@@ -882,7 +882,7 @@ onUnmounted(() => {
                   v-if="titleVisible"
                   key="title"
                   class="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight px-4 text-center"
-                  style="font-family: 'Manrope', sans-serif;"
+                  style="font-family: 'Outfit', sans-serif;"
                 >
                   <span class="block bg-gradient-to-r from-white via-emerald-50/90 to-white bg-clip-text text-transparent drop-shadow-xl animate-gradient-shift">
                     {{ displayedTitle }}
@@ -896,7 +896,7 @@ onUnmounted(() => {
                   v-if="subtitleVisible"
                   key="description"
                   class="text-lg sm:text-xl md:text-2xl text-gray-100 max-w-3xl mx-auto leading-relaxed font-medium drop-shadow-lg px-4 text-center"
-                  style="font-family: 'Manrope', sans-serif;"
+                  style="font-family: 'Outfit', sans-serif;"
                 >
                   {{ displayedDescription }}
                 </p>
@@ -1245,7 +1245,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+/* Font Poppins removed - using global Outfit */
 
 :root {
   --primary-color: #10b981;
@@ -1257,7 +1257,7 @@ onUnmounted(() => {
 }
 
 .hero-landing {
-  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* Custom Tailwind animations */
