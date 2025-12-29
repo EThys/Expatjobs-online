@@ -57,7 +57,7 @@
                 {{ $t('footer.jobs') }}
               </router-link>
             </li>
-            <li>
+            <li v-if="isRecruiter">
               <router-link to="/company" class="text-emerald-100/80 hover:text-white text-sm transition-colors duration-200 flex items-center group">
                 <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
                 {{ $t('footer.companies') }}
@@ -69,7 +69,7 @@
                 {{ $t('footer.blog') }}
               </router-link>
             </li>
-            <li>
+            <li v-if="isRecruiter">
               <router-link to="/my-jobs" class="text-emerald-100/80 hover:text-white text-sm transition-colors duration-200 flex items-center group">
                 <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
                 Gérer mes offres
@@ -178,7 +178,17 @@
 </template>
 
 <script setup lang="ts">
-// Composant Footer simplifié et optimisé
+import { ref, onMounted, computed } from 'vue'
+import { getUser } from '@/stores/authStorage'
+
+const isRecruiter = ref(false)
+
+onMounted(() => {
+  const user = getUser()
+  if (user && (user.role === 'RECRUITER' || user.role === 'ADMIN')) {
+    isRecruiter.value = true
+  }
+})
 </script>
 
 <style scoped>
