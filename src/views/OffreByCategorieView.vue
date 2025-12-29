@@ -884,7 +884,7 @@ const jobCategories = ref([
   --accent-color: #34d399;
   --text-color: #ffffff;
   --dark-text: #1f2937;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Outfit', sans-serif;
   background-color: #f9fafb;
   min-height: 100vh;
 }
