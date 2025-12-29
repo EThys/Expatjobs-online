@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toast-notification';
+import { useI18n } from 'vue-i18n';
 //@ts-ignore
 import Navbar from '../../components/navbar/NavBarComponent.vue'
 //@ts-ignore
@@ -15,6 +16,7 @@ import {getUser} from '@/stores/authStorage'
 // @ts-ignore
 import Footer from '../../components/footer/FooterComponent.vue';
 
+const { t } = useI18n();
 const toast = useToast();
 const router = useRouter();
 const jobService = useJobService();
@@ -52,76 +54,76 @@ const newCompany = ref({
   webSiteUrl: ''
 });
 
-const jobTypes = [
-  { value: JobType.FULL_TIME, label: 'Temps plein' },
-  { value: JobType.PART_TIME, label: 'Temps partiel' },
-  { value: JobType.CONTRACT, label: 'Contrat' },
-  { value: JobType.INTERNSHIP, label: 'Stage' },
-  { value: JobType.FREELANCE, label: 'Freelance' },
-];
+const jobTypes = computed(() => [
+  { value: JobType.FULL_TIME, label: t('postJob.jobTypeFullTime') },
+  { value: JobType.PART_TIME, label: t('postJob.jobTypePartTime') },
+  { value: JobType.CONTRACT, label: t('postJob.jobTypeContract') },
+  { value: JobType.INTERNSHIP, label: t('postJob.jobTypeInternship') },
+  { value: JobType.FREELANCE, label: t('postJob.jobTypeFreelance') },
+]);
 
-const experienceLevels = [
-  { value: ExperienceLevel.JUNIOR, label: 'Junior' },
-  { value: ExperienceLevel.MID, label: 'Confirmé' },
-  { value: ExperienceLevel.SENIOR, label: 'Senior' },
-  { value: ExperienceLevel.LEAD, label: 'Lead' },
-  { value: ExperienceLevel.EXPERT, label: 'Expert' },
-];
+const experienceLevels = computed(() => [
+  { value: ExperienceLevel.JUNIOR, label: t('postJob.experienceJunior') },
+  { value: ExperienceLevel.MID, label: t('postJob.experienceMid') },
+  { value: ExperienceLevel.SENIOR, label: t('postJob.experienceSenior') },
+  { value: ExperienceLevel.LEAD, label: t('postJob.experienceLead') },
+  { value: ExperienceLevel.EXPERT, label: t('postJob.experienceExpert') },
+]);
 
-const sectors = [
-  { value: 'IT', label: 'Technologie' },
-  { value: 'MARKETING', label: 'Marketing' },
-  { value: 'FINANCE', label: 'Finance' },
-  { value: 'HEALTH', label: 'Santé' },
-  { value: 'EDUCATION', label: 'Éducation' },
-  { value: 'DESIGN', label: 'Design' },
-  { value: 'SALES', label: 'Ventes' },
-  { value: 'ENGINEERING', label: 'Ingénierie' },
-  { value: 'CONSULTING', label: 'Consulting' },
-  { value: 'RETAIL', label: 'Commerce' },
-  { value: 'BUSINESS', label: 'Business' },
-  { value: 'ACCOUNTING', label: 'Comptabilité' },
-  { value: 'BANKING', label: 'Banque' },
-  { value: 'COMMUNICATION', label: 'Communication' },
-  { value: 'ADVERTISING', label: 'Publicité' },
-  { value: 'CREATIVE', label: 'Créatif' },
-  { value: 'ARTS', label: 'Arts' },
-  { value: 'MEDICAL', label: 'Médical' },
-  { value: 'SOCIAL', label: 'Social' },
-  { value: 'CARE', label: 'Soins' },
-  { value: 'TRAINING', label: 'Formation' },
-  { value: 'TEACHING', label: 'Enseignement' },
-  { value: 'CONSTRUCTION', label: 'Construction' },
-  { value: 'BUILDING', label: 'Bâtiment' },
-  { value: 'LOGISTICS', label: 'Logistique' },
-  { value: 'TRANSPORT', label: 'Transport' },
-  { value: 'SUPPLY_CHAIN', label: 'Chaîne d\'approvisionnement' },
-  { value: 'COMMERCE', label: 'Commerce' },
-  { value: 'HOSPITALITY', label: 'Hôtellerie' },
-  { value: 'RESTAURANT', label: 'Restauration' },
-  { value: 'TOURISM', label: 'Tourisme' },
-  { value: 'ADMINISTRATION', label: 'Administration' },
-  { value: 'SECRETARIAL', label: 'Secrétariat' },
-  { value: 'OFFICE', label: 'Bureau' },
-  { value: 'PRODUCTION', label: 'Production' },
-  { value: 'MANUFACTURING', label: 'Fabrication' },
-  { value: 'INDUSTRY', label: 'Industrie' },
-  { value: 'MAINTENANCE', label: 'Maintenance' },
-  { value: 'REPAIR', label: 'Réparation' },
-  { value: 'TECHNICAL', label: 'Technique' },
-  { value: 'CLEANING', label: 'Nettoyage' },
-  { value: 'DOMESTIC', label: 'Domestique' },
-  { value: 'SERVICES', label: 'Services' },
-  { value: 'SECURITY', label: 'Sécurité' },
-  { value: 'SURVEILLANCE', label: 'Surveillance' },
-  { value: 'PROTECTION', label: 'Protection' }
-];
+const sectors = computed(() => [
+  { value: 'IT', label: t('postJob.sectorIT') },
+  { value: 'MARKETING', label: t('postJob.sectorMarketing') },
+  { value: 'FINANCE', label: t('postJob.sectorFinance') },
+  { value: 'HEALTH', label: t('postJob.sectorHealth') },
+  { value: 'EDUCATION', label: t('postJob.sectorEducation') },
+  { value: 'DESIGN', label: t('postJob.sectorDesign') },
+  { value: 'SALES', label: t('postJob.sectorSales') },
+  { value: 'ENGINEERING', label: t('postJob.sectorEngineering') },
+  { value: 'CONSULTING', label: t('postJob.sectorConsulting') },
+  { value: 'RETAIL', label: t('postJob.sectorRetail') },
+  { value: 'BUSINESS', label: t('postJob.sectorBusiness') },
+  { value: 'ACCOUNTING', label: t('postJob.sectorAccounting') },
+  { value: 'BANKING', label: t('postJob.sectorBanking') },
+  { value: 'COMMUNICATION', label: t('postJob.sectorCommunication') },
+  { value: 'ADVERTISING', label: t('postJob.sectorAdvertising') },
+  { value: 'CREATIVE', label: t('postJob.sectorCreative') },
+  { value: 'ARTS', label: t('postJob.sectorArts') },
+  { value: 'MEDICAL', label: t('postJob.sectorMedical') },
+  { value: 'SOCIAL', label: t('postJob.sectorSocial') },
+  { value: 'CARE', label: t('postJob.sectorCare') },
+  { value: 'TRAINING', label: t('postJob.sectorTraining') },
+  { value: 'TEACHING', label: t('postJob.sectorTeaching') },
+  { value: 'CONSTRUCTION', label: t('postJob.sectorConstruction') },
+  { value: 'BUILDING', label: t('postJob.sectorBuilding') },
+  { value: 'LOGISTICS', label: t('postJob.sectorLogistics') },
+  { value: 'TRANSPORT', label: t('postJob.sectorTransport') },
+  { value: 'SUPPLY_CHAIN', label: t('postJob.sectorSupplyChain') },
+  { value: 'COMMERCE', label: t('postJob.sectorCommerce') },
+  { value: 'HOSPITALITY', label: t('postJob.sectorHospitality') },
+  { value: 'RESTAURANT', label: t('postJob.sectorRestaurant') },
+  { value: 'TOURISM', label: t('postJob.sectorTourism') },
+  { value: 'ADMINISTRATION', label: t('postJob.sectorAdministration') },
+  { value: 'SECRETARIAL', label: t('postJob.sectorSecretarial') },
+  { value: 'OFFICE', label: t('postJob.sectorOffice') },
+  { value: 'PRODUCTION', label: t('postJob.sectorProduction') },
+  { value: 'MANUFACTURING', label: t('postJob.sectorManufacturing') },
+  { value: 'INDUSTRY', label: t('postJob.sectorIndustry') },
+  { value: 'MAINTENANCE', label: t('postJob.sectorMaintenance') },
+  { value: 'REPAIR', label: t('postJob.sectorRepair') },
+  { value: 'TECHNICAL', label: t('postJob.sectorTechnical') },
+  { value: 'CLEANING', label: t('postJob.sectorCleaning') },
+  { value: 'DOMESTIC', label: t('postJob.sectorDomestic') },
+  { value: 'SERVICES', label: t('postJob.sectorServices') },
+  { value: 'SECURITY', label: t('postJob.sectorSecurity') },
+  { value: 'SURVEILLANCE', label: t('postJob.sectorSurveillance') },
+  { value: 'PROTECTION', label: t('postJob.sectorProtection') }
+]);
 
-const jobStatuses = [
-  { value: JobStatus.DRAFT, label: 'Brouillon' },
-  { value: JobStatus.PUBLISHED, label: 'Publié' },
-  { value: JobStatus.CLOSED, label: 'Fermé' },
-];
+const jobStatuses = computed(() => [
+  { value: JobStatus.DRAFT, label: t('postJob.statusDraft') },
+  { value: JobStatus.PUBLISHED, label: t('postJob.statusPublished') },
+  { value: JobStatus.CLOSED, label: t('postJob.statusClosed') },
+]);
 
 const selectedCompany = computed(() => {
   return companies.value.find((company: any) => company.id === job.value.companyId);
@@ -160,7 +162,7 @@ const loadUserCompanies = async () => {
     console.error('❌ Erreur complète lors du chargement des entreprises:', error);
     // Informer clairement l'utilisateur qu'il doit d'abord créer une entreprise
     toast.open({
-      message: 'Veuillez d\'abord créer une entreprise avant de publier une offre.',
+      message: t('postJob.mustCreateCompany'),
       type: 'warning',
       position: 'top-right',
       duration: 5000,
@@ -253,7 +255,7 @@ const submitJob = async () => {
     }
 
     toast.open({
-      message: 'Offre d\'emploi publiée avec succès !',
+      message: t('postJob.publishSuccess'),
       type: 'success',
       position: 'top-right',
       duration: 5000,
@@ -264,7 +266,7 @@ const submitJob = async () => {
   } catch (error: any) {
     console.error('Erreur complète:', error);
     toast.open({
-      message: error.response?.data?.message || 'Erreur lors de la publication de l\'offre',
+      message: error.response?.data?.message || t('postJob.publishError'),
       type: 'error',
       position: 'top-right',
       duration: 5000,
@@ -277,7 +279,7 @@ const submitJob = async () => {
 const validateForm = (): boolean => {
   if (!job.value.companyId) {
     toast.open({
-      message: 'Veuillez sélectionner ou créer une entreprise',
+      message: t('postJob.selectCompanyError'),
       type: 'error',
       position: 'top-right',
       duration: 3000,
@@ -287,7 +289,7 @@ const validateForm = (): boolean => {
 
   if (!job.value.title.trim()) {
     toast.open({
-      message: 'Le titre du poste est requis',
+      message: t('postJob.titleRequired'),
       type: 'error',
       position: 'top-right',
       duration: 3000,
@@ -297,7 +299,7 @@ const validateForm = (): boolean => {
 
   if (!job.value.description.trim()) {
     toast.open({
-      message: 'La description du poste est requise',
+      message: t('postJob.descriptionRequired'),
       type: 'error',
       position: 'top-right',
       duration: 3000,
@@ -307,7 +309,7 @@ const validateForm = (): boolean => {
 
   if (!job.value.location.trim()) {
     toast.open({
-      message: 'La localisation est requise',
+      message: t('postJob.locationRequired'),
       type: 'error',
       position: 'top-right',
       duration: 3000,
@@ -317,7 +319,7 @@ const validateForm = (): boolean => {
 
   if (job.value.salaryMin >= job.value.salaryMax) {
     toast.open({
-      message: 'Le salaire minimum doit être inférieur au salaire maximum',
+      message: t('postJob.salaryValidationError'),
       type: 'error',
       position: 'top-right',
       duration: 3000,
@@ -364,16 +366,16 @@ onMounted(() => {
         <svg class="w-5 h-5 mr-2 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span class="text-sm font-medium text-white">Publication rapide</span>
+        <span class="text-sm font-medium text-white">{{ t('postJob.quickPublish') }}</span>
       </div>
 
       <h1 class="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-emerald-100 animate-gradient-text">
-        <span class="block">Publiez une <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-400">offre d'emploi</span></span>
-        <span class="block mt-2">en seulement 2 minutes</span>
+        <span class="block">{{ t('postJob.heroTitle') }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-400">{{ t('postJob.heroTitleHighlight') }}</span></span>
+        <span class="block mt-2">{{ t('postJob.heroSubtitle') }}</span>
       </h1>
 
       <p class="text-xl text-emerald-50 max-w-2xl mx-auto mb-10 animate-fade-in">
-        Attirez les <strong class="text-white">meilleurs talents</strong> avec notre outil ultra-rapide et notre réseau international.
+        {{ t('postJob.heroDescription') }} <strong class="text-white">{{ t('postJob.heroDescriptionHighlight') }}</strong> {{ t('postJob.heroDescriptionEnd') }}
       </p>
     </div>
 
@@ -395,8 +397,8 @@ onMounted(() => {
                   </svg>
                 </div>
                 <div class="ml-3">
-                  <h3 class="text-lg font-semibold text-white">Informations de l'offre</h3>
-                  <p class="text-emerald-100 text-sm">Tous les champs marqués d'un * sont obligatoires</p>
+                  <h3 class="text-lg font-semibold text-white">{{ t('postJob.offerInformation') }}</h3>
+                  <p class="text-emerald-100 text-sm">{{ t('postJob.requiredFields') }}</p>
                 </div>
               </div>
             </div>
@@ -407,22 +409,22 @@ onMounted(() => {
                 <div class="job-step job-step-active">
                   <div class="job-step-index">1</div>
                   <div>
-                    <p class="job-step-title">Entreprise</p>
-                    <p class="job-step-subtitle">Sélectionnez votre société</p>
+                    <p class="job-step-title">{{ t('postJob.step1Title') }}</p>
+                    <p class="job-step-subtitle">{{ t('postJob.step1Subtitle') }}</p>
                   </div>
                 </div>
                 <div class="job-step">
                   <div class="job-step-index">2</div>
                   <div>
-                    <p class="job-step-title">Poste</p>
-                    <p class="job-step-subtitle">Détails & rémunération</p>
+                    <p class="job-step-title">{{ t('postJob.step2Title') }}</p>
+                    <p class="job-step-subtitle">{{ t('postJob.step2Subtitle') }}</p>
                   </div>
                 </div>
                 <div class="job-step">
                   <div class="job-step-index">3</div>
                   <div>
-                    <p class="job-step-title">Compétences & description</p>
-                    <p class="job-step-subtitle">Profil recherché</p>
+                    <p class="job-step-title">{{ t('postJob.step3Title') }}</p>
+                    <p class="job-step-subtitle">{{ t('postJob.step3Subtitle') }}</p>
                   </div>
                 </div>
               </div>
@@ -435,7 +437,7 @@ onMounted(() => {
                     <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
-                    Entreprise <span class="text-red-500 ml-1">*</span>
+                    {{ t('postJob.company') }} <span class="text-red-500 ml-1">*</span>
                   </label>
                   <div class="flex flex-col sm:flex-row gap-4">
                     <div class="flex-1">
@@ -445,13 +447,13 @@ onMounted(() => {
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm"
                         required
                       >
-                        <option value="0" disabled>Sélectionnez une entreprise</option>
+                        <option value="0" disabled>{{ t('postJob.selectCompany') }}</option>
                         <option v-for="company in companies" :key="company.id" :value="company.id">
                           {{ company.name }} - {{ company.location }}
                         </option>
                       </select>
                       <p class="mt-2 text-sm text-gray-600">
-                        {{ companies.length === 0 ? 'Aucune entreprise trouvée. Créez-en une nouvelle.' : `${companies.length} entreprise(s) disponible(s)` }}
+                        {{ companies.length === 0 ? t('postJob.noCompanyFound') : t('postJob.companiesAvailable', { count: companies.length }) }}
                       </p>
                     </div>
                   </div>
@@ -463,12 +465,12 @@ onMounted(() => {
                       <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                       </svg>
-                      Titre du poste <span class="text-red-500 ml-1">*</span>
+                      {{ t('postJob.jobTitle') }} <span class="text-red-500 ml-1">*</span>
                     </label>
                     <input
                       v-model="job.title"
                       type="text"
-                      placeholder="Ex: Développeur Full Stack Vue.js Senior"
+                      :placeholder="t('postJob.jobTitlePlaceholder')"
                       class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-lg bg-white shadow-sm"
                       required
                     />
@@ -476,13 +478,13 @@ onMounted(() => {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        Localisation <span class="text-red-500">*</span>
+                        {{ t('postJob.location') }} <span class="text-red-500">*</span>
                       </label>
                       <div class="relative">
                         <input
                           v-model="job.location"
                           type="text"
-                          placeholder="Ex: Kinshasa, RDC ou Remote"
+                          :placeholder="t('postJob.locationPlaceholder')"
                           class="w-full px-4 py-3 pl-11 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm"
                           required
                         />
@@ -494,7 +496,7 @@ onMounted(() => {
                     </div>
                     <div>
                       <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        Secteur <span class="text-red-500">*</span>
+                        {{ t('postJob.sector') }} <span class="text-red-500">*</span>
                       </label>
                       <select
                         v-model="job.sector"
@@ -509,7 +511,7 @@ onMounted(() => {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        Type de contrat <span class="text-red-500">*</span>
+                        {{ t('postJob.contractType') }} <span class="text-red-500">*</span>
                       </label>
                       <select
                         v-model="job.jobType"
@@ -522,7 +524,7 @@ onMounted(() => {
                     </div>
                     <div>
                       <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        Niveau d'expérience <span class="text-red-500">*</span>
+                        {{ t('postJob.experienceLevel') }} <span class="text-red-500">*</span>
                       </label>
                       <select
                         v-model="job.experienceLevel"
@@ -538,7 +540,7 @@ onMounted(() => {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        Salaire minimum (USD) <span class="text-red-500">*</span>
+                        {{ t('postJob.salaryMin') }} <span class="text-red-500">*</span>
                       </label>
                       <div class="relative">
                         <input
@@ -555,7 +557,7 @@ onMounted(() => {
                     </div>
                     <div>
                       <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        Salaire maximum (USD) <span class="text-red-500">*</span>
+                        {{ t('postJob.salaryMax') }} <span class="text-red-500">*</span>
                       </label>
                       <div class="relative">
                         <input
@@ -574,7 +576,7 @@ onMounted(() => {
 
                   <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-3">
-                      Statut de l'offre <span class="text-red-500">*</span>
+                      {{ t('postJob.offerStatus') }} <span class="text-red-500">*</span>
                     </label>
                     <select
                       v-model="job.status"
@@ -592,18 +594,18 @@ onMounted(() => {
                     <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
                     </svg>
-                    Compétences requises
+                    {{ t('postJob.requiredSkills') }}
                   </label>
                   
                   <div class="mb-6">
-                    <p class="text-sm font-medium text-gray-700 mb-3">Compétences sélectionnées :</p>
+                    <p class="text-sm font-medium text-gray-700 mb-3">{{ t('postJob.selectedSkills') }}</p>
                     <div class="flex flex-wrap gap-3">
                       <span
                         v-for="skill in skills"
                         :key="skill.skillName"
                         class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/25"
                       >
-                        {{ skill.skillName }} ({{ skill.experienceYear }} an{{ skill.experienceYear > 1 ? 's' : '' }})
+                        {{ skill.skillName }} ({{ skill.experienceYear }} {{ skill.experienceYear > 1 ? t('postJob.years') : t('postJob.year') }})
                         <button
                           type="button"
                           @click="removeSkill(skill.skillName)"
@@ -617,23 +619,25 @@ onMounted(() => {
                       </span>
                     </div>
                     <p v-if="skills.length === 0" class="text-sm text-gray-500 italic">
-                      Aucune compétence sélectionnée. Ajoutez des compétences pour mieux cibler vos candidats.
+                      {{ t('postJob.noSkillsSelected') }}
                     </p>
                   </div>
                   
                   <div class="mb-6">
-                    <p class="text-sm font-medium text-gray-700 mb-3">Compétences populaires :</p>
+                    <p class="text-sm font-medium text-gray-700 mb-3">{{ t('postJob.popularSkills') }}</p>
                     <div class="flex flex-wrap gap-2">
                       <button
                         v-for="skill in availableSkills"
                         :key="skill"
                         type="button"
                         @click="addSkill(skill, 1)"
-                        :class="{
-                          'bg-white text-gray-700 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50': !skills.find(s => s.skillName === skill),
-                          'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-2 border-transparent shadow-lg shadow-emerald-500/25': skills.find(s => s.skillName === skill)
-                        }"
-                        class="px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 transform hover:scale-105"
+                        :class="[
+                          {
+                            'bg-white text-gray-700 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50': !skills.find(s => s.skillName === skill),
+                            'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-2 border-transparent shadow-lg shadow-emerald-500/25': skills.find(s => s.skillName === skill)
+                          },
+                          'px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 transform hover:scale-105'
+                        ]"
                       >
                         {{ skill }}
                       </button>
@@ -641,14 +645,14 @@ onMounted(() => {
                   </div>
                   
                   <div>
-                    <p class="text-sm font-medium text-gray-700 mb-3">Ajouter une compétence personnalisée :</p>
+                    <p class="text-sm font-medium text-gray-700 mb-3">{{ t('postJob.addCustomSkill') }}</p>
                     <div class="flex flex-col sm:flex-row gap-3">
                       <div class="flex-1">
                         <input
                           v-model="customSkill"
                           @keyup.enter="addCustomSkill"
                           type="text"
-                          placeholder="Ex: Machine Learning, Blockchain, DevOps..."
+                          :placeholder="t('postJob.customSkillPlaceholder')"
                           class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm"
                         />
                       </div>
@@ -657,10 +661,10 @@ onMounted(() => {
                           v-model.number="customExperience"
                           class="w-full px-3 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm"
                         >
-                          <option value="1">1 an</option>
-                          <option value="2">2 ans</option>
-                          <option value="3">3 ans</option>
-                          <option value="5">5+ ans</option>
+                          <option value="1">1 {{ t('postJob.year') }}</option>
+                          <option value="2">2 {{ t('postJob.years') }}</option>
+                          <option value="3">3 {{ t('postJob.years') }}</option>
+                          <option value="5">5+ {{ t('postJob.years') }}</option>
                         </select>
                       </div>
                       <button
@@ -668,7 +672,7 @@ onMounted(() => {
                         @click="addCustomSkill"
                         class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-xl hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 shadow-lg shadow-emerald-500/25 transform hover:scale-105"
                       >
-                        Ajouter
+                        {{ t('postJob.add') }}
                       </button>
                     </div>
                   </div>
@@ -680,22 +684,17 @@ onMounted(() => {
                     <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
                     </svg>
-                    Description du poste <span class="text-red-500 ml-1">*</span>
+                    {{ t('postJob.jobDescription') }} <span class="text-red-500 ml-1">*</span>
                   </label>
                   <textarea
                     v-model="job.description"
                     rows="8"
-                    placeholder="Décrivez en détail :
-  • Les responsabilités du poste
-  • Les qualifications requises
-  • Les avantages offerts
-  • La culture d'entreprise
-  • Les perspectives d'évolution..."
+                    :placeholder="t('postJob.descriptionPlaceholder')"
                     class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm resize-vertical"
                     required
                   ></textarea>
                   <p class="mt-2 text-sm text-gray-600">
-                    Une description détaillée augmente de 40% les chances de trouver le bon candidat.
+                    {{ t('postJob.descriptionHint') }}
                   </p>
                 </div>
 
@@ -703,29 +702,31 @@ onMounted(() => {
                   <button
                     type="submit"
                     :disabled="isSubmitting || !job.companyId"
-                    :class="{
-                      'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/25 transform hover:scale-105': !isSubmitting && job.companyId,
-                      'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed shadow-lg shadow-gray-400/25': isSubmitting || !job.companyId
-                    }"
-                    class="w-full md:w-auto px-12 py-4 border border-transparent text-lg font-bold rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200"
+                    :class="[
+                      {
+                        'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/25 transform hover:scale-105': !isSubmitting && job.companyId,
+                        'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed shadow-lg shadow-gray-400/25': isSubmitting || !job.companyId
+                      },
+                      'w-full md:w-auto px-12 py-4 border border-transparent text-lg font-bold rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200'
+                    ]"
                   >
                     <span v-if="!isSubmitting" class="flex items-center justify-center">
                       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
                       </svg>
-                      Publier l'offre d'emploi
+                      {{ t('postJob.publishJob') }}
                     </span>
                     <span v-else class="flex items-center justify-center">
                       <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Publication en cours...
+                      {{ t('postJob.publishing') }}
                     </span>
                   </button>
                   
                   <p v-if="!job.companyId" class="mt-3 text-sm text-red-600 text-center">
-                    ⚠️ Veuillez sélectionner ou créer une entreprise avant de publier l'offre.
+                    {{ t('postJob.selectCompanyWarning') }}
                   </p>
                 </div>
               </form>
@@ -740,7 +741,7 @@ onMounted(() => {
                 <svg class="w-6 h-6 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                <h3 class="text-lg font-semibold text-white">Aperçu de votre offre</h3>
+                <h3 class="text-lg font-semibold text-white">{{ t('postJob.offerPreview') }}</h3>
               </div>
             </div>
 
@@ -752,43 +753,43 @@ onMounted(() => {
                   </svg>
                 </div>
                 <h3 class="text-xl font-bold text-gray-900 leading-tight mb-2">
-                  {{ job.title || 'Titre du poste' }}
+                  {{ job.title || t('postJob.jobTitleDefault') }}
                 </h3>
                 <p class="text-emerald-600 font-semibold text-lg">
-                  {{ selectedCompany?.name || 'Nom de l\'entreprise' }}
+                  {{ selectedCompany?.name || t('postJob.companyNameDefault') }}
                 </p>
                 <p class="text-gray-600 mt-2 flex items-center justify-center">
                   <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                   </svg>
-                  {{ job.location || 'Localisation' }}
+                  {{ job.location || t('postJob.location') }}
                 </p>
               </div>
               
               <div class="mb-6">
-                <h4 class="text-sm font-semibold text-gray-700 mb-3">Détails du poste :</h4>
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">{{ t('postJob.jobDetails') }}</h4>
                 <div class="grid grid-cols-2 gap-3">
                   <div class="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
-                    <p class="text-xs text-gray-500 mb-1">Type</p>
+                    <p class="text-xs text-gray-500 mb-1">{{ t('postJob.type') }}</p>
                     <p class="text-sm font-medium text-gray-900">
                       {{ jobTypes.find(t => t.value === job.jobType)?.label || '---' }}
                     </p>
                   </div>
                   <div class="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
-                    <p class="text-xs text-gray-500 mb-1">Niveau</p>
+                    <p class="text-xs text-gray-500 mb-1">{{ t('postJob.level') }}</p>
                     <p class="text-sm font-medium text-gray-900">
                       {{ experienceLevels.find(l => l.value === job.experienceLevel)?.label || '---' }}
                     </p>
                   </div>
                   <div class="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
-                    <p class="text-xs text-gray-500 mb-1">Secteur</p>
+                    <p class="text-xs text-gray-500 mb-1">{{ t('postJob.sector') }}</p>
                     <p class="text-sm font-medium text-gray-900">
                       {{ sectors.find(s => s.value === job.sector)?.label || '---' }}
                     </p>
                   </div>
                   <div class="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
-                    <p class="text-xs text-gray-500 mb-1">Salaire</p>
+                    <p class="text-xs text-gray-500 mb-1">{{ t('postJob.salary') }}</p>
                     <p class="text-sm font-medium text-gray-900">
                       {{ job.salaryMin > 0 ? `${job.salaryMin} - ${job.salaryMax} USD` : '---' }}
                     </p>
@@ -797,7 +798,7 @@ onMounted(() => {
               </div>
               
               <div v-if="skills.length > 0" class="mb-6">
-                <h4 class="text-sm font-semibold text-gray-700 mb-3">Compétences requises :</h4>
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">{{ t('postJob.requiredSkillsPreview') }}</h4>
                 <div class="flex flex-wrap gap-2">
                   <span
                     v-for="skill in skills"
@@ -810,10 +811,10 @@ onMounted(() => {
               </div>
               
               <div>
-                <h4 class="text-sm font-semibold text-gray-700 mb-3">Description :</h4>
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">{{ t('postJob.description') }}</h4>
                 <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm max-h-48 overflow-y-auto">
                   <p class="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
-                    {{ job.description || 'Votre description apparaîtra ici. Une bonne description attire les meilleurs candidats.' }}
+                    {{ job.description || t('postJob.descriptionDefault') }}
                   </p>
                 </div>
               </div>
@@ -825,14 +826,16 @@ onMounted(() => {
                   <svg class="w-5 h-5 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
-                  <span class="text-sm font-medium text-gray-700">Statut :</span>
+                  <span class="text-sm font-medium text-gray-700">{{ t('postJob.status') }}</span>
                 </div>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold" 
-                      :class="{
+                <span :class="[
+                      'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold',
+                      {
                         'bg-yellow-100 text-yellow-800': job.status === JobStatus.DRAFT,
                         'bg-emerald-100 text-emerald-800': job.status === JobStatus.PUBLISHED,
                         'bg-red-100 text-red-800': job.status === JobStatus.CLOSED
-                      }">
+                      }
+                    ]">
                   {{ jobStatuses.find(s => s.value === job.status)?.label }}
                 </span>
               </div>
@@ -840,23 +843,23 @@ onMounted(() => {
           </div>
 
           <div class="mt-6 bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-            <h4 class="text-lg font-semibold text-gray-800 mb-4">Progression de création</h4>
+            <h4 class="text-lg font-semibold text-gray-800 mb-4">{{ t('postJob.creationProgress') }}</h4>
             <div class="space-y-4">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-700">Informations de base</span>
+                <span class="text-sm font-medium text-gray-700">{{ t('postJob.basicInfo') }}</span>
                 <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-700">Détails du poste</span>
+                <span class="text-sm font-medium text-gray-700">{{ t('postJob.jobDetailsProgress') }}</span>
                 <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium" :class="skills.length > 0 ? 'text-emerald-700' : 'text-gray-500'">
-                  Compétences
+                <span :class="['text-sm font-medium', skills.length > 0 ? 'text-emerald-700' : 'text-gray-500']">
+                  {{ t('postJob.skills') }}
                 </span>
                 <svg v-if="skills.length > 0" class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -866,8 +869,8 @@ onMounted(() => {
                 </svg>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium" :class="job.description ? 'text-emerald-700' : 'text-gray-500'">
-                  Description
+                <span :class="['text-sm font-medium', job.description ? 'text-emerald-700' : 'text-gray-500']">
+                  {{ t('postJob.description') }}
                 </span>
                 <svg v-if="job.description" class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
