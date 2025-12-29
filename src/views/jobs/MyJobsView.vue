@@ -1,30 +1,51 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 // @ts-ignore
 import Navbar from '../../components/navbar/NavBarComponent.vue';
-import { useToast } from 'vue-toast-notification';
+import { useModernToast } from '@/composables/useModernToast';
+import { useJobStore } from '@/stores/jobs';
+import { useCompanyStore } from '@/stores/companies';
 import { useJobService } from '@/utils/service/jobService';
-import { useCompanyService } from '@/utils/service/CompagnyService';
-import type { IJob } from '@/utils/interface/IJobOffers';
+import { storeToRefs } from 'pinia';
+import type { IJob, ISkill, ISkillCreate } from '@/utils/interface/IJobOffers';
 import { JobType, ExperienceLevel, JobStatus } from '@/utils/interface/IJobOffers';
 import { getUser } from '@/stores/authStorage';
 // @ts-ignore
 import Footer from '../../components/footer/FooterComponent.vue';
 
 
-const toast = useToast();
+const { t } = useI18n();
+const toast = useModernToast();
 const router = useRouter();
+const jobStore = useJobStore();
+const companyStore = useCompanyStore();
 const jobService = useJobService();
-const companyService = useCompanyService();
+
+const { myJobs: jobs } = storeToRefs(jobStore);
+// We use local loading/saving state for UI feedback or store loading state
+// Ideally use store loading state, but here we might want specific local control
+const loading = ref(false); 
+const saving = ref(false);
+const deletingId = ref<number | null>(null);
+const skills = ref<ISkill[]>([]);
+const editingSkillId = ref<number | null>(null);
+const newSkill = ref<ISkillCreate>({
+  skillName: '',
+  jobOfferId: 0,
+  experienceYear: 0
+});
+const editingSkill = ref<ISkillCreate>({
+  skillName: '',
+  jobOfferId: 0,
+  experienceYear: 0
+});
+const loadingSkills = ref(false);
 
 const user = getUser();
 const userId = user?.id;
 
-const loading = ref(false);
-const saving = ref(false);
-const deletingId = ref<number | null>(null);
-const jobs = ref<IJob[]>([]);
 const selectedJobId = ref<number | null>(null);
 
 const editForm = ref({
@@ -78,58 +99,6 @@ const sectors = [
   { value: 'CONSULTING', label: 'Consulting' }
 ];
 
-const loadJobs = async () => {
-  if (!userId) {
-    toast.open({
-      message: 'Vous devez être connecté pour voir vos publications.',
-      type: 'warning',
-      position: 'top-right'
-    });
-    router.push('/login');
-    return;
-  }
-
-  try {
-    loading.value = true;
-    // 1. Récupérer toutes les compagnies (paged) et garder celles du user connecté
-    const companiesPage: any = await companyService.getAllCompanies(0, 100);
-    const allCompanies: any[] = Array.isArray(companiesPage?.content) ? companiesPage.content : [];
-    const myCompanyIds = allCompanies
-      .filter((c: any) => c.userId === userId)
-      .map((c: any) => c.id);
-
-    if (myCompanyIds.length === 0) {
-      jobs.value = [];
-      selectedJobId.value = null;
-      return;
-    }
-
-    // 2. Récupérer les offres (paged) et filtrer celles dont la companyId est dans myCompanyIds
-    const jobsPage: any = await jobService.getAllJobs(0, 200);
-    const allJobs: any[] = Array.isArray(jobsPage?.content) ? jobsPage.content : [];
-    const userJobs = allJobs.filter((j: any) => myCompanyIds.includes(j.companyId));
-
-    jobs.value = userJobs as IJob[];
-
-    if (jobs.value.length > 0) {
-      selectedJobId.value = jobs.value[0].id;
-      applyJobToForm(jobs.value[0]);
-    } else {
-      selectedJobId.value = null;
-    }
-  } catch (error: any) {
-    console.error('❌ Erreur lors du chargement des offres:', error);
-    // En cas d'erreur réseau ou serveur, on affiche un message générique
-    toast.open({
-      message: 'Impossible de charger vos publications. Réessayez plus tard.',
-      type: 'error',
-      position: 'top-right'
-    });
-  } finally {
-    loading.value = false;
-  }
-};
-
 const applyJobToForm = (job: IJob | any) => {
   editForm.value = {
     title: job.title ?? '',
@@ -144,34 +113,161 @@ const applyJobToForm = (job: IJob | any) => {
   };
 };
 
-const selectJob = (job: IJob) => {
+const loadJobs = async () => {
+  if (!userId) {
+    toast.warning(t('myJobs.mustLogin'));
+    router.push('/login');
+    return;
+  }
+
+  try {
+    loading.value = true;
+    
+    // Charger les offres via le store
+    // Le store gère déjà la récupération des compagnies de l'utilisateur pour filtrer
+    await jobStore.fetchMyJobs(userId);
+    
+    if (jobs.value.length > 0) {
+        // Sélectionner le premier job s'il n'y en a pas de sélectionné
+        if (!selectedJobId.value) {
+            selectedJobId.value = jobs.value[0].id;
+            applyJobToForm(jobs.value[0]);
+            await loadSkills(jobs.value[0].id);
+        }
+    } else {
+      selectedJobId.value = null;
+      skills.value = [];
+    }
+
+  } catch (error: any) {
+    console.error('Erreur lors du chargement des offres:', error);
+    toast.error(t('myJobs.loadError'));
+  } finally {
+    loading.value = false;
+  }
+};
+
+const selectJob = async (job: IJob) => {
   selectedJobId.value = job.id;
   applyJobToForm(job);
+  await loadSkills(job.id);
+};
+
+const loadSkills = async (jobId: number) => {
+  try {
+    loadingSkills.value = true;
+    const response = await jobService.getSkillsByJob(jobId);
+    skills.value = response.content || [];
+  } catch (error) {
+    console.error('Erreur lors du chargement des skills:', error);
+    skills.value = [];
+  } finally {
+    loadingSkills.value = false;
+  }
+};
+
+const addSkill = async () => {
+  if (!selectedJob.value || !newSkill.value.skillName.trim()) {
+    toast.warning('Veuillez entrer un nom de compétence');
+    return;
+  }
+
+  try {
+    const skillData: ISkillCreate = {
+      skillName: newSkill.value.skillName.trim(),
+      jobOfferId: selectedJob.value.id,
+      experienceYear: newSkill.value.experienceYear || 0
+    };
+    
+    await jobService.createSkill(skillData);
+    await loadSkills(selectedJob.value.id);
+    
+    newSkill.value = {
+      skillName: '',
+      jobOfferId: selectedJob.value.id,
+      experienceYear: 0
+    };
+    
+    toast.success('Compétence ajoutée avec succès');
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout de la compétence:', error);
+    toast.error('Erreur lors de l\'ajout de la compétence');
+  }
+};
+
+const startEditSkill = (skill: ISkill) => {
+  editingSkillId.value = skill.id;
+  editingSkill.value = {
+    skillName: skill.skillName,
+    jobOfferId: skill.jobOfferId,
+    experienceYear: skill.experienceYear
+  };
+};
+
+const cancelEditSkill = () => {
+  editingSkillId.value = null;
+  editingSkill.value = {
+    skillName: '',
+    jobOfferId: 0,
+    experienceYear: 0
+  };
+};
+
+const updateSkill = async (skillId: number) => {
+  if (!editingSkill.value.skillName.trim()) {
+    toast.warning('Veuillez entrer un nom de compétence');
+    return;
+  }
+
+  try {
+    // Préparer le payload avec l'id
+    const payload = {
+      ...editingSkill.value,
+      id: skillId,
+      jobOfferId: selectedJob.value!.id
+    };
+    
+    await jobService.updateSkill(skillId, payload);
+    await loadSkills(selectedJob.value!.id);
+    editingSkillId.value = null;
+    toast.success('Compétence mise à jour avec succès');
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la compétence:', error);
+    toast.error('Erreur lors de la mise à jour de la compétence');
+  }
+};
+
+const deleteSkill = async (skillId: number) => {
+  if (!confirm('Supprimer cette compétence ?')) {
+    return;
+  }
+
+  try {
+    await jobService.deleteSkill(skillId);
+    await loadSkills(selectedJob.value!.id);
+    toast.success('Compétence supprimée avec succès');
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la compétence:', error);
+    toast.error('Erreur lors de la suppression de la compétence');
+  }
 };
 
 const saveJob = async () => {
   if (!selectedJob.value) return;
 
   if (!editForm.value.title.trim() || !editForm.value.location.trim()) {
-    toast.open({
-      message: 'Le titre et la localisation sont obligatoires.',
-      type: 'warning',
-      position: 'top-right'
-    });
+    toast.warning(t('myJobs.validationError'));
     return;
   }
 
   if (editForm.value.salaryMin >= editForm.value.salaryMax) {
-    toast.open({
-      message: 'Le salaire minimum doit être inférieur au salaire maximum.',
-      type: 'warning',
-      position: 'top-right'
-    });
+    toast.warning(t('myJobs.salaryValidationError'));
     return;
   }
 
   try {
     saving.value = true;
+    
     const payload = {
       companyId: (selectedJob.value as any).companyId,
       title: editForm.value.title.trim(),
@@ -185,53 +281,35 @@ const saveJob = async () => {
       sector: editForm.value.sector
     };
 
-    const updated = await jobService.updateJob(selectedJob.value.id, payload);
-    jobs.value = jobs.value.map(j => (j.id === updated.id ? updated : j));
+    await jobStore.updateJob(selectedJob.value.id, payload);
 
-    toast.open({
-      message: 'Offre mise à jour avec succès.',
-      type: 'success',
-      position: 'top-right'
-    });
+    toast.success(t('myJobs.updateSuccess'));
   } catch (error) {
-    console.error('❌ Erreur lors de la mise à jour de l\'offre:', error);
-    toast.open({
-      message: 'Erreur lors de la mise à jour de l\'offre.',
-      type: 'error',
-      position: 'top-right'
-    });
+    console.error('Erreur lors de la mise à jour de l\'offre:', error);
+    toast.error(t('myJobs.updateError'));
   } finally {
     saving.value = false;
   }
 };
 
 const removeJob = async (job: IJob) => {
-  if (!confirm(`Supprimer définitivement l'offre "${job.title}" ?`)) {
+  if (!confirm(`${t('myJobs.deleteConfirm')} "${job.title}" ?`)) {
     return;
   }
 
   try {
     deletingId.value = job.id;
-    await jobService.deleteJob(job.id);
-    jobs.value = jobs.value.filter(j => j.id !== job.id);
+    await jobStore.deleteJob(job.id);
 
     if (selectedJobId.value === job.id) {
       selectedJobId.value = jobs.value[0]?.id ?? null;
       if (jobs.value[0]) applyJobToForm(jobs.value[0]);
     }
 
-    toast.open({
-      message: 'Offre supprimée avec succès.',
-      type: 'success',
-      position: 'top-right'
-    });
+    toast.success(t('myJobs.deleteSuccess'));
   } catch (error) {
-    console.error('❌ Erreur lors de la suppression de l\'offre:', error);
-    toast.open({
-      message: 'Erreur lors de la suppression de l\'offre.',
-      type: 'error',
-      position: 'top-right'
-    });
+    console.error('Erreur lors de la suppression de l\'offre:', error);
+    toast.error(t('myJobs.deleteError'));
   } finally {
     deletingId.value = null;
   }
@@ -255,10 +333,11 @@ onMounted(() => {
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
           <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
-            Mes <span class="text-emerald-600">offres publiées</span>
+            {{ t('myJobs.title').split(t('myJobs.titleHighlight'))[0] }}
+            <span class="text-emerald-600">{{ t('myJobs.titleHighlight') }}</span>
           </h1>
           <p class="mt-2 text-gray-600 text-sm md:text-base">
-            Gérez les offres d'emploi que vous avez publiées : modifiez-les ou supprimez-les facilement.
+            {{ t('myJobs.subtitle') }}
           </p>
         </div>
         <button
@@ -269,7 +348,7 @@ onMounted(() => {
           <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          Publier une nouvelle offre
+          {{ t('myJobs.postNewJob') }}
         </button>
       </div>
 
@@ -280,12 +359,12 @@ onMounted(() => {
           <div class="border-b lg:border-b-0 lg:border-r border-gray-100">
             <div class="px-5 py-4 flex items-center justify-between border-b border-gray-100">
               <h2 class="text-sm font-semibold text-gray-800 uppercase tracking-wide">
-                Mes offres
+                {{ t('myJobs.myOffers') }}
               </h2>
               <span
                 class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700"
               >
-                {{ jobs.length }} publiée(s)
+                {{ jobs.length }} {{ t('myJobs.publishedCount') }}
               </span>
             </div>
 
@@ -296,10 +375,10 @@ onMounted(() => {
 
               <div v-else-if="!hasJobs" class="text-center text-gray-500 text-sm py-8 px-4">
                 <p class="mb-2 font-medium text-gray-700">
-                  Aucune offre publiée pour le moment.
+                  {{ t('myJobs.noJobs') }}
                 </p>
                 <p class="text-xs">
-                  Cliquez sur <span class="font-semibold text-emerald-600">"Publier une nouvelle offre"</span> pour commencer.
+                  {{ t('myJobs.noJobsHint') }}
                 </p>
               </div>
 
@@ -378,18 +457,29 @@ onMounted(() => {
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <div>
                 <h2 class="text-sm font-semibold text-gray-800 uppercase tracking-wide">
-                  Détails de l'offre
+                  {{ t('myJobs.jobDetails') }}
                 </h2>
                 <p class="text-xs text-gray-500 mt-1">
-                  Modifiez les informations de votre offre d'emploi.
+                  {{ t('myJobs.editHint') }}
                 </p>
               </div>
+              <router-link
+                v-if="selectedJob"
+                :to="`/detail/jobs/${selectedJob.id}`"
+                target="_blank"
+                class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-sm font-medium transition-colors"
+              >
+                <span>{{ t('myJobs.viewJob') }}</span>
+                <svg class="w-4 h-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </router-link>
             </div>
 
             <div class="p-6">
               <div v-if="!selectedJob">
                 <p class="text-sm text-gray-500">
-                  Sélectionnez une offre dans la colonne de gauche pour voir et modifier ses détails.
+                  {{ t('myJobs.selectJob') }}
                 </p>
               </div>
 
@@ -401,33 +491,33 @@ onMounted(() => {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Titre du poste <span class="text-red-500">*</span>
+                      {{ t('myJobs.jobTitle') }} <span class="text-red-500">*</span>
                     </label>
                     <input
                       v-model="editForm.title"
                       type="text"
                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white"
-                      placeholder="Ex: Développeur Backend Java Senior"
+                      :placeholder="t('myJobs.jobTitlePlaceholder')"
                       required
                     />
                   </div>
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Localisation <span class="text-red-500">*</span>
+                      {{ t('myJobs.location') }} <span class="text-red-500">*</span>
                     </label>
                     <input
                       v-model="editForm.location"
                       type="text"
                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white"
-                      placeholder="Ex: Kinshasa, RDC ou Remote"
+                      :placeholder="t('myJobs.locationPlaceholder')"
                       required
                     />
                   </div>
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Secteur
+                      {{ t('myJobs.sector') }}
                     </label>
                     <select
                       v-model="editForm.sector"
@@ -441,7 +531,7 @@ onMounted(() => {
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Type de contrat
+                      {{ t('myJobs.contractType') }}
                     </label>
                     <select
                       v-model="editForm.jobType"
@@ -455,7 +545,7 @@ onMounted(() => {
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Niveau d'expérience
+                      {{ t('myJobs.experienceLevel') }}
                     </label>
                     <select
                       v-model="editForm.experienceLevel"
@@ -469,33 +559,33 @@ onMounted(() => {
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Salaire minimum (USD)
+                      {{ t('myJobs.salaryMin') }}
                     </label>
                     <input
                       v-model.number="editForm.salaryMin"
                       type="number"
                       min="0"
                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white"
-                      placeholder="Ex: 3000"
+                      :placeholder="t('myJobs.salaryMinPlaceholder')"
                     />
                   </div>
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Salaire maximum (USD)
+                      {{ t('myJobs.salaryMax') }}
                     </label>
                     <input
                       v-model.number="editForm.salaryMax"
                       type="number"
                       min="0"
                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white"
-                      placeholder="Ex: 5000"
+                      :placeholder="t('myJobs.salaryMaxPlaceholder')"
                     />
                   </div>
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Statut
+                      {{ t('myJobs.status') }}
                     </label>
                     <select
                       v-model="editForm.status"
@@ -510,14 +600,135 @@ onMounted(() => {
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Description
+                    {{ t('myJobs.description') }}
                   </label>
                   <textarea
                     v-model="editForm.description"
                     rows="6"
                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white resize-vertical"
-                    placeholder="Mettez à jour la description de votre offre..."
+                    :placeholder="t('myJobs.descriptionPlaceholder')"
                   ></textarea>
+                </div>
+
+                <!-- Skills Section -->
+                <div class="pt-4 border-t border-gray-200">
+                  <div class="flex items-center justify-between mb-4">
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-800 mb-1">
+                        {{ t('myJobs.skillsTitle', 'Compétences requises') }}
+                      </label>
+                      <p class="text-xs text-gray-500">
+                        {{ t('myJobs.skillsSubtitle', 'Ajoutez, modifiez ou supprimez les compétences associées à cette offre') }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Add New Skill -->
+                  <div class="mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div class="md:col-span-2">
+                        <input
+                          v-model="newSkill.skillName"
+                          type="text"
+                          :placeholder="t('myJobs.skillNamePlaceholder', 'Nom de la compétence (ex: JavaScript, Python...)')"
+                          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-white text-sm"
+                          @keyup.enter="addSkill"
+                        />
+                      </div>
+                      <div class="flex gap-2">
+                        <input
+                          v-model.number="newSkill.experienceYear"
+                          type="number"
+                          min="0"
+                          :placeholder="t('myJobs.experienceYearsPlaceholder', 'Années')"
+                          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-white text-sm"
+                        />
+                        <button
+                          type="button"
+                          @click="addSkill"
+                          class="px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium whitespace-nowrap"
+                        >
+                          {{ t('myJobs.addSkill', 'Ajouter') }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Skills List -->
+                  <div v-if="loadingSkills" class="flex items-center justify-center py-4">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
+                  </div>
+
+                  <div v-else-if="skills.length === 0" class="text-center py-6 text-gray-500 text-sm">
+                    <p>{{ t('myJobs.noSkills', 'Aucune compétence ajoutée pour le moment') }}</p>
+                  </div>
+
+                  <div v-else class="space-y-2">
+                    <div
+                      v-for="skill in skills"
+                      :key="skill.id"
+                      class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:border-emerald-300 transition-colors"
+                    >
+                      <div v-if="editingSkillId !== skill.id" class="flex-1 flex items-center gap-3">
+                        <div class="flex-1">
+                          <p class="font-medium text-gray-900 text-sm">{{ skill.skillName }}</p>
+                          <p class="text-xs text-gray-500">
+                            {{ skill.experienceYear }}
+                            {{
+                              skill.experienceYear > 1
+                                ? t('myJobs.experienceYearsPlural', 'années')
+                                : t('myJobs.experienceYearsSingular', 'année')
+                            }}
+                            {{ t('myJobs.experienceSuffix') }}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          @click="startEditSkill(skill)"
+                          class="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors"
+                        >
+                          {{ t('myJobs.editSkill', 'Modifier') }}
+                        </button>
+                        <button
+                          type="button"
+                          @click="deleteSkill(skill.id)"
+                          class="px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                        >
+                          {{ t('myJobs.deleteSkill', 'Supprimer') }}
+                        </button>
+                      </div>
+
+                      <div v-else class="flex-1 flex items-center gap-2">
+                        <input
+                          v-model="editingSkill.skillName"
+                          type="text"
+                          class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+                          :placeholder="t('myJobs.skillNamePlaceholder', 'Nom de la compétence')"
+                        />
+                        <input
+                          v-model.number="editingSkill.experienceYear"
+                          type="number"
+                          min="0"
+                          class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+                          :placeholder="t('myJobs.experienceYearsPlaceholder', 'Années')"
+                        />
+                        <button
+                          type="button"
+                          @click="updateSkill(skill.id)"
+                          class="px-3 py-2 text-xs font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors"
+                        >
+                          {{ t('myJobs.saveSkill', 'Enregistrer') }}
+                        </button>
+                        <button
+                          type="button"
+                          @click="cancelEditSkill"
+                          class="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          {{ t('myJobs.cancelSkill', 'Annuler') }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row gap-3 justify-end">
@@ -526,7 +737,7 @@ onMounted(() => {
                     @click="selectedJob && applyJobToForm(selectedJob)"
                     class="px-5 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-medium transition-colors"
                   >
-                    Annuler les modifications
+                    {{ t('myJobs.cancel') }}
                   </button>
                   <button
                     type="submit"
@@ -554,7 +765,7 @@ onMounted(() => {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    <span>{{ saving ? 'Enregistrement...' : 'Enregistrer les modifications' }}</span>
+                    <span>{{ saving ? t('myJobs.saving') : t('myJobs.save') }}</span>
                   </button>
                 </div>
               </form>
