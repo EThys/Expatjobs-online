@@ -2,6 +2,7 @@ import { useAxiosRequestWithToken } from './axios_api';
 import { ApiRoutes } from './endpoints/api';
 import type { ICompany, ICompanyCreate, ICompanyResponse } from '@/utils/interface/ICompagny';
 import { getToken } from '@/stores/token';
+import axios from 'axios';
 
 export const useCompanyService = () => {
   const token = getToken() as string;
@@ -68,9 +69,26 @@ export const useCompanyService = () => {
 
   const updateCompany = async (id: number, companyData: Partial<ICompanyCreate>): Promise<ICompany> => {
     try {
-      const response = await useAxiosRequestWithToken(token).put(
-        `${ApiRoutes.getAllCompagny}/${id}`,
-        companyData
+      // Utiliser l'endpoint direct avec le payload complet incluant l'id et userId
+      const payload = {
+        id: id,
+        userId: companyData.userId,
+        name: companyData.name || '',
+        description: companyData.description || '',
+        location: companyData.location || '',
+        webSiteUrl: companyData.webSiteUrl || ''
+      };
+      
+      // Utiliser axios directement avec l'URL complète pour cet endpoint spécifique
+      const response = await axios.put(
+        `https://expat-jobs-api-928b.onrender.com/api/companies`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
       );
       return response.data;
     } catch (error) {
