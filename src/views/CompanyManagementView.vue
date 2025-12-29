@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 // @ts-ignore
 import Navbar from '../components/navbar/NavBarComponent.vue';
-import { useToast } from 'vue-toast-notification';
-import { useCompanyService } from '@/utils/service/CompagnyService';
+import { useModernToast } from '@/composables/useModernToast';
+import { useCompanyStore } from '@/stores/companies';
+import { storeToRefs } from 'pinia';
 import type { ICompany } from '@/utils/interface/ICompagny';
 import { getUser } from '@/stores/authStorage';
 // @ts-ignore
 import Footer from '../components/footer/FooterComponent.vue';
 
-const toast = useToast();
+
+const { t } = useI18n();
+const toast = useModernToast();
 const router = useRouter();
-const companyService = useCompanyService();
+const companyStore = useCompanyStore();
+const { myCompanies: companies } = storeToRefs(companyStore);
 
 const user = getUser();
 const userId = user?.id;
@@ -20,8 +25,8 @@ const userId = user?.id;
 const loading = ref(false);
 const saving = ref(false);
 const deletingId = ref<number | null>(null);
-const companies = ref<ICompany[]>([]);
 const selectedCompanyId = ref<number | null>(null);
+
 const editForm = ref({
   name: '',
   description: '',
@@ -36,28 +41,27 @@ const selectedCompany = computed(() =>
 
 const loadCompanies = async () => {
   if (!userId) {
-    toast.open({
-      message: 'Vous devez être connecté pour voir vos entreprises.',
-      type: 'warning',
-      position: 'top-right',
-    });
+    toast.warning(t('companyManagement.mustLogin'));
     router.push('/login');
     return;
   }
 
   try {
     loading.value = true;
-    const list = await companyService.getCompaniesByUser(userId);
-    companies.value = Array.isArray(list) ? list : (list ? [list] : []);
+    await companyStore.fetchMyCompanies(userId);
+    
     if (companies.value.length > 0) {
-      selectedCompanyId.value = companies.value[0].id;
-      const c = companies.value[0] as any;
-      editForm.value = {
-        name: c.name ?? c.companyName ?? '',
-        description: c.description ?? '',
-        location: c.location ?? '',
-        webSiteUrl: c.webSiteUrl ?? c.websiteUrl ?? ''
-      };
+      // Select first only if none selected
+      if (!selectedCompanyId.value) {
+          selectedCompanyId.value = companies.value[0].id;
+          const c = companies.value[0] as any;
+          editForm.value = {
+            name: c.name ?? c.companyName ?? '',
+            description: c.description ?? '',
+            location: c.location ?? '',
+            webSiteUrl: c.webSiteUrl ?? c.websiteUrl ?? ''
+          };
+      }
     } else {
       selectedCompanyId.value = null;
     }
@@ -65,16 +69,8 @@ const loadCompanies = async () => {
     console.error('❌ Erreur lors du chargement des entreprises:', error);
 
     const status = error?.response?.status;
-    // Si le backend renvoie 404 / 204 ou aucune donnée, on considère simplement qu'il n'y a pas d'entreprise
-    if (status === 404 || status === 204) {
-      companies.value = [];
-      selectedCompanyId.value = null;
-    } else {
-      toast.open({
-        message: 'Impossible de charger vos entreprises. Réessayez plus tard.',
-        type: 'error',
-        position: 'top-right',
-      });
+    if (status !== 404 && status !== 204) {
+      toast.error(t('companyManagement.loadError'));
     }
   } finally {
     loading.value = false;
@@ -95,69 +91,49 @@ const selectCompany = (company: ICompany) => {
 const saveCompany = async () => {
   if (!selectedCompany.value) return;
   if (!editForm.value.name.trim() || !editForm.value.location.trim()) {
-    toast.open({
-      message: 'Le nom et la localisation sont obligatoires.',
-      type: 'warning',
-      position: 'top-right',
-    });
+    toast.warning(t('companyManagement.validationError'));
     return;
   }
 
   try {
     saving.value = true;
     const payload = {
+      userId: userId!, // Ensure userId is passed if needed by API, though update usually just uses ID
       name: editForm.value.name.trim(),
       description: editForm.value.description?.trim() || '',
       location: editForm.value.location.trim(),
       webSiteUrl: editForm.value.webSiteUrl?.trim() || ''
     };
-    const updated = await companyService.updateCompany(selectedCompany.value.id, payload);
-    companies.value = companies.value.map(c =>
-      c.id === updated.id ? updated : c
-    );
-    toast.open({
-      message: 'Entreprise mise à jour avec succès.',
-      type: 'success',
-      position: 'top-right',
-    });
+    
+    await companyStore.updateCompany(selectedCompany.value.id, payload);
+
+    toast.success(t('companyManagement.updateSuccess'));
   } catch (error) {
-    console.error('❌ Erreur lors de la mise à jour de l\'entreprise:', error);
-    toast.open({
-      message: 'Erreur lors de la mise à jour de l\'entreprise.',
-      type: 'error',
-      position: 'top-right',
-    });
+    console.error('Erreur lors de la mise à jour de l\'entreprise:', error);
+    toast.error(t('companyManagement.updateError'));
   } finally {
     saving.value = false;
   }
 };
 
 const removeCompany = async (company: ICompany) => {
-  if (!confirm(`Supprimer définitivement l'entreprise "${(company as any).name ?? (company as any).companyName}" ?`)) {
+  if (!confirm(`${t('companyManagement.deleteConfirm')} "${(company as any).name ?? (company as any).companyName}" ?`)) {
     return;
   }
   try {
     deletingId.value = company.id;
-    await companyService.deleteCompany(company.id);
-    companies.value = companies.value.filter(c => c.id !== company.id);
+    await companyStore.deleteCompany(company.id);
+    
     if (selectedCompanyId.value === company.id) {
       selectedCompanyId.value = companies.value[0]?.id ?? null;
       if (companies.value[0]) {
         selectCompany(companies.value[0]);
       }
     }
-    toast.open({
-      message: 'Entreprise supprimée avec succès.',
-      type: 'success',
-      position: 'top-right',
-    });
+    toast.success(t('companyManagement.deleteSuccess'));
   } catch (error) {
-    console.error('❌ Erreur lors de la suppression de l\'entreprise:', error);
-    toast.open({
-      message: 'Erreur lors de la suppression de l\'entreprise.',
-      type: 'error',
-      position: 'top-right',
-    });
+    console.error('Erreur lors de la suppression de l\'entreprise:', error);
+    toast.error(t('companyManagement.deleteError'));
   } finally {
     deletingId.value = null;
   }
@@ -181,10 +157,11 @@ onMounted(() => {
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
           <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
-            Mes <span class="text-emerald-600">entreprises</span>
+            {{ t('companyManagement.title').split(t('companyManagement.titleHighlight'))[0] }}
+            <span class="text-emerald-600">{{ t('companyManagement.titleHighlight') }}</span>
           </h1>
           <p class="mt-2 text-gray-600 text-sm md:text-base">
-            Gérez les entreprises associées à votre compte pour publier et gérer vos offres d'emploi.
+            {{ t('companyManagement.subtitle') }}
           </p>
         </div>
         <button
@@ -195,7 +172,7 @@ onMounted(() => {
           <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          Créer une entreprise
+          {{ t('companyManagement.createCompany') }}
         </button>
       </div>
 
@@ -206,12 +183,12 @@ onMounted(() => {
           <div class="border-b lg:border-b-0 lg:border-r border-gray-100">
             <div class="px-5 py-4 flex items-center justify-between border-b border-gray-100">
               <h2 class="text-sm font-semibold text-gray-800 uppercase tracking-wide">
-                Mes entreprises
+                {{ t('companyManagement.myCompanies') }}
               </h2>
               <span
                 class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700"
               >
-                {{ companies.length }} enregistrée(s)
+                {{ companies.length }} {{ t('companyManagement.registeredCount') }}
               </span>
             </div>
 
@@ -222,10 +199,10 @@ onMounted(() => {
 
               <div v-else-if="!hasCompany" class="text-center text-gray-500 text-sm py-8 px-4">
                 <p class="mb-2 font-medium text-gray-700">
-                  Aucune entreprise créée pour le moment.
+                  {{ t('companyManagement.noCompanies') }}
                 </p>
                 <p class="text-xs">
-                  Cliquez sur <span class="font-semibold text-emerald-600">"Créer une entreprise"</span> pour commencer.
+                  {{ t('companyManagement.noCompaniesHint') }}
                 </p>
               </div>
 
@@ -304,10 +281,10 @@ onMounted(() => {
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <div>
                 <h2 class="text-sm font-semibold text-gray-800 uppercase tracking-wide">
-                  Détails de l'entreprise
+                  {{ t('companyManagement.companyDetails') }}
                 </h2>
                 <p class="text-xs text-gray-500 mt-1">
-                  Modifiez les informations de votre entreprise.
+                  {{ t('companyManagement.editHint') }}
                 </p>
               </div>
             </div>
@@ -315,7 +292,7 @@ onMounted(() => {
             <div class="p-6">
               <div v-if="!selectedCompany">
                 <p class="text-sm text-gray-500">
-                  Sélectionnez une entreprise dans la colonne de gauche pour voir et modifier ses détails.
+                  {{ t('companyManagement.selectCompany') }}
                 </p>
               </div>
 
@@ -327,52 +304,52 @@ onMounted(() => {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Nom de l'entreprise <span class="text-red-500">*</span>
+                      {{ t('companyManagement.companyName') }} <span class="text-red-500">{{ t('companyManagement.required') }}</span>
                     </label>
                     <input
                       v-model="editForm.name"
                       type="text"
                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white"
-                      placeholder="Nom de l'entreprise"
+                      :placeholder="t('companyManagement.companyName')"
                       required
                     />
                   </div>
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Localisation <span class="text-red-500">*</span>
+                      {{ t('companyManagement.location') }} <span class="text-red-500">{{ t('companyManagement.required') }}</span>
                     </label>
                     <input
                       v-model="editForm.location"
                       type="text"
                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white"
-                      placeholder="Ex: Kinshasa, RDC"
+                      :placeholder="t('companyManagement.locationPlaceholder')"
                       required
                     />
                   </div>
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Site web
+                      {{ t('companyManagement.website') }}
                     </label>
                     <input
                       v-model="editForm.webSiteUrl"
                       type="url"
                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white"
-                      placeholder="https://votre-entreprise.com"
+                      :placeholder="t('companyManagement.websitePlaceholder')"
                     />
                   </div>
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Description
+                    {{ t('companyManagement.description') }}
                   </label>
                   <textarea
                     v-model="editForm.description"
                     rows="5"
                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white resize-vertical"
-                    placeholder="Décrivez brièvement votre entreprise..."
+                    :placeholder="t('companyManagement.descriptionPlaceholder')"
                   ></textarea>
                 </div>
 
@@ -382,7 +359,7 @@ onMounted(() => {
                     @click="selectedCompany && selectCompany(selectedCompany)"
                     class="px-5 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-medium transition-colors"
                   >
-                    Annuler les modifications
+                    {{ t('companyManagement.cancel') }}
                   </button>
                   <button
                     type="submit"
@@ -410,7 +387,7 @@ onMounted(() => {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    <span>{{ saving ? 'Enregistrement...' : 'Enregistrer les modifications' }}</span>
+                    <span>{{ saving ? t('companyManagement.saving') : t('companyManagement.save') }}</span>
                   </button>
                 </div>
               </form>
