@@ -1,266 +1,212 @@
 <template>
-  <div class="company-details min-h-screen bg-slate-50 pt-20">
-    <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center h-[60vh]">
-      <div class="flex flex-col items-center">
-        <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-gray-500 font-medium">Chargement des informations...</p>
+  <div class="min-h-screen flex flex-col bg-gray-50">
+    <Navbar />
+
+    <!-- Hero Section -->
+    <PageHero v-if="company && !loading">
+      <template #title>
+        {{ company.name }}
+      </template>
+      <template #subtitle>
+        {{ company.description || t('companyDetails.discoverOpportunities') }}
+      </template>
+    </PageHero>
+
+    <!-- Loading State with Shimmer -->
+    <div v-if="loading" class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Company Info Shimmer -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 shimmer-container">
+          <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+            <div class="w-32 h-32 bg-gray-200 rounded-2xl shimmer"></div>
+            <div class="flex-1 space-y-4">
+              <div class="h-8 bg-gray-200 rounded shimmer w-1/3"></div>
+              <div class="h-4 bg-gray-200 rounded shimmer w-1/2"></div>
+              <div class="h-4 bg-gray-200 rounded shimmer w-2/3"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Jobs Shimmer -->
+        <div class="mb-8">
+          <div class="h-8 bg-gray-200 rounded shimmer w-64 mb-6"></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="i in 6" :key="i" class="bg-white rounded-xl border border-gray-200 p-6 shimmer-container">
+              <div class="flex items-start gap-4">
+                <div class="w-16 h-16 bg-gray-200 rounded-2xl shimmer"></div>
+                <div class="flex-1 space-y-3">
+                  <div class="h-6 bg-gray-200 rounded shimmer"></div>
+                  <div class="h-4 bg-gray-200 rounded shimmer w-1/2"></div>
+                  <div class="flex gap-4">
+                    <div class="h-4 bg-gray-200 rounded shimmer w-20"></div>
+                    <div class="h-4 bg-gray-200 rounded shimmer w-24"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="flex justify-center items-center h-[60vh]">
-      <div class="text-center p-8 bg-white rounded-3xl shadow-xl border border-gray-100 max-w-md">
-        <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-          <ExclamationTriangleIcon class="w-8 h-8 text-red-500" />
+    <div v-else-if="error" class="flex-1 flex justify-center items-center min-h-[60vh] px-4">
+      <div class="text-center max-w-md">
+        <div class="w-20 h-20 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <ExclamationTriangleIcon class="w-10 h-10 text-red-500" />
         </div>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">Une erreur est survenue</h3>
-        <p class="text-gray-500 mb-6">{{ error }}</p>
-        <router-link to="/" class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
-          Retour à l'accueil
+        <h3 class="text-2xl font-bold text-gray-900 mb-3">{{ t('companyDetails.errorOccurred') }}</h3>
+        <p class="text-gray-600 mb-8">{{ error }}</p>
+        <router-link 
+          to="/" 
+          class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+        >
+          {{ t('companyDetails.backToHome') }}
         </router-link>
       </div>
     </div>
 
-    <div v-else-if="company" class="pb-20 animate-fade-in">
-      <!-- Hero Header -->
-      <div class="relative h-[300px] md:h-[400px] w-full bg-slate-900 overflow-hidden">
-        <!-- Background Image/Gradient -->
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900"></div>
-        <div class="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-20" :style="{ backgroundImage: `url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')` }"></div>
-        
-        <!-- Decorative Shapes -->
-        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
-        <div class="absolute bottom-0 left-0 w-[300px] h-[300px] bg-cyan-500/10 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
-      </div>
-
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 -mt-32">
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-          <div class="p-6 md:p-10">
-            <div class="flex flex-col md:flex-row gap-8 items-start">
-              
-              <!-- Company Logo -->
-              <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-white p-2 shadow-lg border border-gray-100 flex-shrink-0 relative -mt-20 md:-mt-24 z-20">
-                <div class="w-full h-full bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden">
+    <!-- Main Content -->
+    <main v-else-if="company" class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Company Info Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
+          <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+            <!-- Company Logo -->
+            <div class="relative group">
+              <div class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
+              <div class="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-white p-3 shadow-xl border border-gray-100 relative z-10">
+                <div class="w-full h-full bg-gradient-to-br from-gray-50 to-white rounded-xl flex items-center justify-center overflow-hidden">
                   <img 
                     :src="getCompanyLogo(company)" 
                     :alt="company.name" 
-                    class="w-full h-full object-contain"
-                    @error="handleImageError($event, company!)" 
+                    class="w-16 h-16 md:w-20 md:h-20 object-contain"
+                    @error="handleImageError($event, company)" 
                   />
                 </div>
               </div>
-
-              <!-- Company Info -->
-              <div class="flex-grow pt-2 md:pt-0">
-                <div class="flex flex-wrap justify-between items-start gap-4">
-                  <div>
-                    <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">{{ company.name }}</h1>
-                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                      <div class="flex items-center gap-1.5">
-                        <MapPinIcon class="w-4 h-4 text-emerald-500" />
-                        {{ company.location || 'Localisation non spécifiée' }}
-                      </div>
-                      <div class="flex items-center gap-1.5">
-                        <GlobeAltIcon class="w-4 h-4 text-emerald-500" />
-                        <a :href="company.webSiteUrl" target="_blank" class="hover:text-emerald-600 transition-colors">{{ getDomainFromUrl(company.webSiteUrl) || 'Site web' }}</a>
-                      </div>
-                      <div class="flex items-center gap-1.5">
-                        <CalendarIcon class="w-4 h-4 text-emerald-500" />
-                        Membre depuis {{ formatDate(company.createdAt) }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="flex gap-3">
-                    <button class="px-5 py-2.5 bg-emerald-50 text-emerald-700 font-semibold rounded-xl border border-emerald-100 hover:bg-emerald-100 transition-colors flex items-center gap-2">
-                       <PlusIcon class="w-5 h-5" />
-                       Suivre
-                    </button>
-                    <a :href="company.webSiteUrl" target="_blank" class="px-5 py-2.5 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20 flex items-center gap-2">
-                       Visiter le site
-                       <ArrowTopRightOnSquareIcon class="w-4 h-4" />
-                    </a>
-                  </div>
-                </div>
-
-                <!-- Tags / Highlights -->
-                <div class="mt-6 flex flex-wrap gap-2">
-                  <span v-for="tag in ['Tech', 'International', 'Innovation']" :key="tag" class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium uppercase tracking-wider">
-                    {{ tag }}
-                  </span>
-                </div>
-              </div>
             </div>
 
-            <!-- Description & Stats Grid -->
-            <div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-10 border-t border-gray-100 pt-10">
+            <!-- Company Details -->
+            <div class="flex-1 text-center md:text-left">
+              <div class="inline-block px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg font-medium text-sm mb-4">
+                {{ t('companyDetails.company') }}
+              </div>
               
-              <!-- Left Column: About -->
-              <div class="lg:col-span-2">
-                <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <InformationCircleIcon class="w-6 h-6 text-emerald-500" />
-                  À propos de {{ company.name }}
-                </h2>
-                <div class="prose prose-slate max-w-none text-gray-600 leading-relaxed">
-                   <p>{{ company.description || "Aucune description fournie par l'entreprise pour le moment." }}</p>
+              <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-4">
+                <div v-if="company.location" class="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100">
+                  <MapPinIcon class="w-4 h-4 text-emerald-500" />
+                  <span class="font-medium text-gray-700">{{ company.location }}</span>
                 </div>
-
-                <!-- Gallery (Mockup) -->
-                <h3 class="text-lg font-bold text-gray-900 mt-10 mb-4">La vie chez {{ company.name }}</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div class="aspect-square rounded-xl bg-gray-100 overflow-hidden relative group cursor-pointer" v-for="i in 4" :key="i">
-                     <img :src="`https://source.unsplash.com/random/400x400?office,work&sig=${i}`" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Office life" />
-                     <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300"></div>
-                  </div>
+                
+                <div v-if="company.webSiteUrl" class="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100">
+                  <GlobeAltIcon class="w-4 h-4 text-emerald-500" />
+                  <a :href="company.webSiteUrl" target="_blank" class="font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
+                    {{ t('companyDetails.website') }}
+                  </a>
                 </div>
               </div>
 
-              <!-- Right Column: Stats & Contact -->
-              <div class="space-y-6">
-                <!-- Key Stats -->
-                <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                  <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Chiffres clés</h3>
-                  <div class="grid grid-cols-2 gap-4">
-                     <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
-                       <span class="block text-2xl font-black text-emerald-600">{{ jobs.length }}</span>
-                       <span class="text-xs text-gray-500 font-medium">Offres actives</span>
-                     </div>
-                     <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
-                       <span class="block text-2xl font-black text-blue-600">50+</span>
-                       <span class="text-xs text-gray-500 font-medium">Employés</span>
-                     </div>
-                     <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center col-span-2">
-                       <span class="block text-2xl font-black text-purple-600">4.5/5</span>
-                       <span class="text-xs text-gray-500 font-medium whitespace-nowrap">Satisfaction employés</span>
-                     </div>
-                  </div>
-                </div>
-
-                <!-- Contact Info -->
-                <div class="bg-white rounded-2xl p-6 border border-gray-200">
-                   <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Contact</h3>
-                   <ul class="space-y-3">
-                     <li class="flex items-center text-sm text-gray-600 gap-3">
-                       <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-                         <GlobeAltIcon class="w-4 h-4" />
-                       </div>
-                       {{ company.webSiteUrl }}
-                     </li>
-                     <li class="flex items-center text-sm text-gray-600 gap-3">
-                       <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-                         <MapPinIcon class="w-4 h-4" />
-                       </div>
-                       {{ company.location }}
-                     </li>
-                   </ul>
-                   <a :href="company.webSiteUrl" target="_blank" class="block w-full text-center mt-6 py-2 bg-emerald-50 text-emerald-700 font-semibold rounded-lg hover:bg-emerald-100 transition-colors">
-                     Contacter via le site
-                   </a>
-                </div>
-              </div>
-
+              <p v-if="company.description" class="text-gray-600 leading-relaxed">
+                {{ company.description }}
+              </p>
             </div>
           </div>
         </div>
 
-        <!-- Open Positions Section -->
-        <div class="py-16 md:py-24">
-          <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
-             <div>
-               <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Nos offres d'emploi</h2>
-               <p class="text-gray-600">Rejoignez-nous et participez à notre aventure</p>
-             </div>
-             <div class="bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm text-sm font-medium text-gray-600">
-               {{ jobs.length }} postes ouverts
-             </div>
-          </div>
-
-          <div v-if="loadingJobs" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div v-for="i in 4" :key="i" class="h-40 bg-white rounded-2xl animate-pulse"></div>
-          </div>
-
-          <div v-else-if="jobs.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div 
-              v-for="job in jobs" 
-              :key="job.id" 
-              class="group bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
-            >
-               <!-- Hover Gradient -->
-               <div class="absolute inset-0 bg-gradient-to-r from-emerald-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-
-               <div class="relative z-10">
-                 <div class="flex justify-between items-start mb-4">
-                   <div class="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wide">
-                     {{ job.jobType === 'FULL_TIME' ? 'CDI' : job.jobType }}
-                   </div>
-                   <span class="text-xs text-gray-400 font-medium">{{ formatDate(job.createdAt) }}</span>
-                 </div>
-
-                 <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">{{ job.title }}</h3>
-                 
-                 <div class="flex items-center gap-4 text-sm text-gray-500 mb-6">
-                   <div class="flex items-center gap-1.5">
-                     <MapPinIcon class="w-4 h-4" />
-                     {{ job.location }}
-                   </div>
-                   <div class="flex items-center gap-1.5" v-if="job.salaryMin">
-                     <CurrencyEuroIcon class="w-4 h-4" />
-                     {{ formatSalary(job.salaryMin, job.salaryMax) }}
-                   </div>
-                 </div>
-
-                 <div class="flex items-center justify-between border-t border-gray-50 pt-4">
-                    <div class="flex -space-x-2">
-                      <div class="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs font-bold text-gray-500">
-                        +3
-                      </div>
-                    </div>
-                    <router-link :to="`/detail/jobs/${job.id}`" class="text-sm font-bold text-gray-900 flex items-center gap-1 group/link">
-                      Voir l'offre
-                      <ArrowLongRightIcon class="w-4 h-4 text-emerald-500 group-hover/link:translate-x-1 transition-transform" />
-                    </router-link>
-                 </div>
-               </div>
+        <!-- Jobs Section -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="text-3xl font-bold text-gray-900">{{ t('companyDetails.availableOffers') }}</h2>
+              <p class="text-gray-600 mt-1">{{ t('companyDetails.positionsAvailable', { count: totalElements }) }}</p>
             </div>
           </div>
 
-          <div v-else class="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
-            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BriefcaseIcon class="w-8 h-8 text-gray-400" />
+          <!-- Loading Jobs with Shimmer -->
+          <div v-if="loadingJobs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="i in 6" :key="i" class="bg-white rounded-xl border border-gray-200 p-6 shimmer-container">
+              <div class="flex items-start gap-4">
+                <div class="w-16 h-16 bg-gray-200 rounded-2xl shimmer"></div>
+                <div class="flex-1 space-y-3">
+                  <div class="h-6 bg-gray-200 rounded shimmer"></div>
+                  <div class="h-4 bg-gray-200 rounded shimmer w-1/2"></div>
+                  <div class="flex gap-4">
+                    <div class="h-4 bg-gray-200 rounded shimmer w-20"></div>
+                    <div class="h-4 bg-gray-200 rounded shimmer w-24"></div>
+                  </div>
+                  <div class="flex gap-2 mt-4">
+                    <div class="h-6 bg-gray-200 rounded-full shimmer w-16"></div>
+                    <div class="h-6 bg-gray-200 rounded-full shimmer w-20"></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-1">Aucune offre disponible</h3>
-            <p class="text-gray-500">Cette entreprise n'a pas d'offres publiées pour le moment.</p>
+          </div>
+
+          <!-- Jobs Grid - 3 per row -->
+          <div v-else-if="formattedJobs.length > 0">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <OffreCard
+                v-for="job in formattedJobs"
+                :key="job.id"
+                :offre="job"
+                class="transform hover:scale-[1.02] transition-transform duration-200"
+              />
+            </div>
+
+            <!-- Pagination -->
+            <div v-if="totalPages > 1" class="mt-8">
+              <Pagination
+                :current-page="currentPage"
+                :total-pages="totalPages"
+                :total-elements="totalElements"
+                :loading="paginationLoading"
+                @change="changePage"
+              />
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div v-else class="bg-white rounded-2xl border border-gray-200 p-16 text-center">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-50 flex items-center justify-center">
+              <BriefcaseIcon class="w-10 h-10 text-gray-400" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ t('companyDetails.noOffersAvailable') }}</h3>
+            <p class="text-gray-600">{{ t('companyDetails.offersComingSoon') }}</p>
           </div>
         </div>
-
       </div>
-    </div>
+    </main>
+
+    <Footer />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useCompanyService } from '@/utils/service/CompagnyService'
 import { useJobService } from '@/utils/service/jobService'
 import type { ICompany } from '@/utils/interface/ICompagny'
-import type { IJob } from '@/utils/interface/IJobOffers'
+import type { IJob, IJobResponse, IJobOffers } from '@/utils/interface/IJobOffers'
 import {
   MapPinIcon,
   GlobeAltIcon,
-  CalendarIcon,
-  ArrowTopRightOnSquareIcon,
-  PlusIcon,
   ExclamationTriangleIcon,
-  InformationCircleIcon,
-  EnvelopeIcon,
-  PhoneIcon,
-  BriefcaseIcon,
-  CurrencyEuroIcon,
-  ArrowLongRightIcon
+  BriefcaseIcon
 } from '@heroicons/vue/24/outline'
+// @ts-ignore
+import Navbar from '@/components/navbar/NavBarComponent.vue'
+// @ts-ignore
+import Footer from '@/components/footer/FooterComponent.vue'
+import PageHero from '@/components/shared/PageHero.vue'
+// @ts-ignore
+import OffreCard from '@/components/cards/OffreCard.vue'
+import Pagination from '@/components/shared/Pagination.vue'
 
+const { t } = useI18n()
 const route = useRoute()
 const companyService = useCompanyService()
 const jobService = useJobService()
@@ -269,7 +215,12 @@ const company = ref<ICompany | null>(null)
 const jobs = ref<IJob[]>([])
 const loading = ref(true)
 const loadingJobs = ref(true)
+const paginationLoading = ref(false)
 const error = ref<string | null>(null)
+const currentPage = ref(0)
+const totalPages = ref(0)
+const totalElements = ref(0)
+const pageSize = 12
 
 const getCompanyLogo = (company: ICompany): string => {
   if (company?.webSiteUrl) {
@@ -294,59 +245,140 @@ const handleImageError = (event: Event, company: ICompany) => {
 
 const getFallbackLogo = (company: ICompany): string => {
   const letter = company?.name?.charAt(0).toUpperCase() || 'C'
-  return `https://ui-avatars.com/api/?name=${letter}&background=10b981&color=fff&size=128`
+  return `https://ui-avatars.com/api/?name=${letter}&background=10b981&color=fff&size=128&font-size=0.5`
 }
 
-const getDomainFromUrl = (url?: string): string => {
-  if (!url) return ''
+const formatSalary = (min: number | null, max: number | null): string => {
+  if (!min && !max) return t('common.salaryNegotiable')
+  if (!min) return t('common.salaryUpTo', { max: max?.toLocaleString() })
+  if (!max) return t('common.salaryFrom', { min: min?.toLocaleString() })
+  return `${min?.toLocaleString()} - ${max?.toLocaleString()} €`
+}
+
+const formatJobType = (jobType: string | undefined): string => {
+  const types: { [key: string]: string } = {
+    FULL_TIME: t('hero.jobTypeFullTime'),
+    PART_TIME: t('hero.jobTypePartTime'),
+    CONTRACT: t('hero.jobTypeContract'),
+    FREELANCE: t('hero.jobTypeContract'),
+    INTERNSHIP: t('hero.jobTypeInternship'),
+  }
+  return types[jobType || ''] || jobType || t('common.notSpecified')
+}
+
+const formatDate = (dateString: string | undefined): string => {
+  if (!dateString) return t('jobDetail.dateUnknown')
   try {
-    return new URL(url).hostname.replace('www.', '')
+    const date = new Date(dateString.replace(' ', 'T'))
+    const now = new Date()
+    const diffTime = Math.abs(now.getTime() - date.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    if (diffDays === 1) return t('jobDetail.today')
+    if (diffDays === 2) return t('jobDetail.yesterday')
+    if (diffDays < 7) return t('jobDetail.daysAgo', { count: diffDays })
+    if (diffDays < 30) return t('jobDetail.weeksAgo', { count: Math.floor(diffDays / 7) })
+    return t('jobDetail.monthsAgo', { count: Math.floor(diffDays / 30) })
   } catch {
-    return url
+    return t('jobDetail.dateUnknown')
   }
 }
 
-const formatDate = (dateString?: string): string => {
-  if (!dateString) return ''
-  return new Date(dateString).toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
+const formatOffreForCard = (job: IJob): any => {
+  return {
+    id: job.id,
+    titre: job.title || t('common.notSpecified'),
+    entreprise: company.value?.name || t('jobDetail.companyPrefix', { id: job.companyId }),
+    localisation: job.location || t('common.notSpecified'),
+    typeContrat: formatJobType(job.jobType),
+    salaire: formatSalary(job.salaryMin, job.salaryMax),
+    competences: [],
+    datePublication: formatDate(job.createdAt),
+    urgent: false,
+    remote: job.location ? job.location.toLowerCase().includes('remote') : false,
+    featured: false,
+    description: job.description || '',
+    experienceLevel: job.experienceLevel || '',
+    sector: job.sector || '',
+    companyInfo: company.value ? {
+      id: company.value.id,
+      name: company.value.name,
+      location: company.value.location || job.location || '',
+      webSiteUrl: company.value.webSiteUrl || '',
+    } : {
+      id: job.companyId,
+      name: `Entreprise #${job.companyId}`,
+      location: job.location || '',
+      webSiteUrl: '',
+    },
+  }
 }
 
-const formatSalary = (min?: number, max?: number): string => {
-  if (!min) return 'Non spécifié'
-  if (min && !max) return `${min / 1000}k€`
-  return `${min / 1000}k€ - ${max! / 1000}k€`
+const formattedJobs = computed(() => {
+  return jobs.value.map((job: IJob) => formatOffreForCard(job))
+})
+
+const loadJobs = async (page = 0) => {
+  if (!company.value) return
+
+  try {
+    if (page === currentPage.value && jobs.value.length === 0) {
+      loadingJobs.value = true
+    } else {
+      paginationLoading.value = true
+    }
+
+    const response: IJobResponse = await jobService.getJobsByCompany(
+      company.value.id,
+      page,
+      pageSize
+    )
+
+    if (response && Array.isArray(response.content)) {
+      jobs.value = response.content
+      currentPage.value = response.number ?? page
+      totalPages.value = response.totalPages ?? 1
+      totalElements.value = response.totalElements ?? jobs.value.length
+    } else {
+      jobs.value = []
+      currentPage.value = 0
+      totalPages.value = 0
+      totalElements.value = 0
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des offres:', error)
+    jobs.value = []
+  } finally {
+    loadingJobs.value = false
+    paginationLoading.value = false
+  }
+}
+
+const changePage = (page: number) => {
+  if (page < 0 || page >= totalPages.value) return
+  currentPage.value = page
+  loadJobs(page)
 }
 
 onMounted(async () => {
   const companyId = parseInt(route.params.id as string)
   if (isNaN(companyId)) {
-    error.value = "Identifiant d'entreprise invalide"
+    error.value = t('companyDetails.invalidCompanyId')
     loading.value = false
     return
   }
 
   try {
-    // 1. Fetch Company Details
+    // Charger les informations de l'entreprise
     company.value = await companyService.getCompanyById(companyId)
-    loading.value = false // Show content as soon as company is loaded
+    loading.value = false
 
-    // 2. Fetch Company Jobs (async in background)
-    try {
-      jobs.value = await jobService.getJobsByCompany(companyId)
-    } catch (err) {
-      console.error("Erreur lors du chargement des jobs", err)
-      // On ne bloque pas la page si les jobs échouent
-    } finally {
-      loadingJobs.value = false
-    }
+    // Charger les offres d'emploi
+    await loadJobs(0)
 
   } catch (err) {
     console.error("Erreur lors du chargement de l'entreprise", err)
-    error.value = "Impossible de charger les informations de l'entreprise."
+    error.value = t('companyDetails.loadError')
     loading.value = false
   }
 })
@@ -358,7 +390,50 @@ onMounted(async () => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Shimmer Effect */
+.shimmer-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #e5e7eb;
+}
+
+.shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 </style>
