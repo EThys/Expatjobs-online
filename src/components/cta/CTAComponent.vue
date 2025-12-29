@@ -49,12 +49,16 @@
             </div>
             <div class="cta-card-main">
               <div class="cta-stat">
-                <div class="cta-stat-value">2 357</div>
-                <div class="cta-stat-label">{{ $t('cta.activeOffers') }}</div>
+                <div class="cta-stat-value">16.8M+</div>
+                <div class="cta-stat-label">Postes vacants</div>
               </div>
               <div class="cta-stat">
-                <div class="cta-stat-value">78</div>
-                <div class="cta-stat-label">{{ $t('cta.connectedCountries') }}</div>
+                <div class="cta-stat-value">146 M+</div>
+                <div class="cta-stat-label">Applications</div>
+              </div>
+              <div class="cta-stat">
+                <div class="cta-stat-value">736M</div>
+                <div class="cta-stat-label">Demandes cv</div>
               </div>
             </div>
             <div class="cta-card-footer">
@@ -259,15 +263,15 @@
 
 .cta-card-main {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid #f3f4f6;
 }
 
 .cta-stat-value {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: #111827;
   line-height: 1;
@@ -362,6 +366,11 @@
 
   .cta-buttons {
     flex-direction: column;
+  }
+
+  .cta-card-main {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
   .cta-meta {
