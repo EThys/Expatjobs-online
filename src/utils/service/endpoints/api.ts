@@ -21,7 +21,10 @@ export const ApiRoutes = {
   updatejobOffers:'job-offers',
   addjobOffers:'job-offers',
   showjobOffers:'job-offers',
-  deletejobOffers:'job-offers/{id}',
+  // utiliser la même base que les autres et ajouter l'id dans le service
+  deletejobOffers:'job-offers',
+  getJobsByJobType: 'job-offers/by-job-type',
+  getJobsBySalaryMax: 'job-offers/by-salary-max',
 
   //route for compagy
 
