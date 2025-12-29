@@ -27,7 +27,7 @@
       <div class="relative h-[300px] md:h-[400px] w-full bg-slate-900 overflow-hidden">
         <!-- Background Image/Gradient -->
         <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900"></div>
-        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center mix-blend-overlay opacity-20"></div>
+        <div class="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-20" :style="{ backgroundImage: `url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')` }"></div>
         
         <!-- Decorative Shapes -->
         <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
@@ -46,7 +46,7 @@
                     :src="getCompanyLogo(company)" 
                     :alt="company.name" 
                     class="w-full h-full object-contain"
-                    @error="(e: any) => e.target.src = getFallbackLogo(company!)" 
+                    @error="handleImageError($event, company!)" 
                   />
                 </div>
               </div>
@@ -281,6 +281,15 @@ const getCompanyLogo = (company: ICompany): string => {
     }
   }
   return getFallbackLogo(company)
+}
+
+const handleImageError = (event: Event, company: ICompany) => {
+  const target = event.target as HTMLImageElement
+  if (target.dataset.fallbackApplied === 'true') {
+    return
+  }
+  target.dataset.fallbackApplied = 'true'
+  target.src = getFallbackLogo(company)
 }
 
 const getFallbackLogo = (company: ICompany): string => {
