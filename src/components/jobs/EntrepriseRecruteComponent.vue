@@ -41,11 +41,26 @@
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center py-20">
-        <div class="flex items-center space-x-3 bg-white px-6 py-3 rounded-full shadow-lg border border-emerald-100">
-          <div class="w-5 h-5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-          <span class="text-gray-600 font-medium">{{ t('companies.loading') }}</span>
+      <!-- Loading State with Shimmer -->
+      <div v-if="loading" class="py-20">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div v-for="i in 8" :key="i" class="bg-white rounded-2xl border border-gray-200 p-6 shimmer-container">
+            <div class="flex items-start gap-4 mb-4">
+              <div class="w-16 h-16 bg-gray-200 rounded-2xl shimmer"></div>
+              <div class="flex-1 space-y-2">
+                <div class="h-5 bg-gray-200 rounded shimmer"></div>
+                <div class="h-4 bg-gray-200 rounded shimmer w-2/3"></div>
+              </div>
+            </div>
+            <div class="space-y-2 mb-4">
+              <div class="h-3 bg-gray-200 rounded shimmer"></div>
+              <div class="h-3 bg-gray-200 rounded shimmer w-4/5"></div>
+            </div>
+            <div class="flex gap-2">
+              <div class="h-6 bg-gray-200 rounded-full shimmer w-20"></div>
+              <div class="h-6 bg-gray-200 rounded-full shimmer w-16"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -141,7 +156,7 @@
                 <div class="relative pt-6 border-t border-gray-100 flex items-center justify-between mt-auto">
                    <div class="flex items-center text-sm font-medium text-gray-600">
                       <span class="flex h-2 w-2 rounded-full bg-emerald-500 mr-2"></span>
-                      {{ getRandomJobsCount(company.id) }} postes
+                      {{ company.jobsCount }} postes
                    </div>
                    <router-link 
                      :to="{ name: 'companyDetails', params: { id: company.id } }"
@@ -200,10 +215,12 @@ import {
 } from '@heroicons/vue/24/outline'
 import { HeartIcon as HeartIconSolid } from '@heroicons/vue/24/solid'
 import { useCompanyService } from '@/utils/service/CompagnyService'
+import { useJobService } from '@/utils/service/jobService'
 import type { ICompany } from '@/utils/interface/ICompagny'
 
 const { t } = useI18n()
 const companyService = useCompanyService()
+const jobService = useJobService()
 
 // Types
 interface CompanyWithUI extends ICompany {
@@ -317,8 +334,6 @@ const getCompanyHighlights = (company: CompanyWithUI): string[] => {
   return ['Innovation', 'Croissance']
 }
 
-const getRandomJobsCount = (id: number): number => (id % 15) + 3
-
 const toggleFavorite = (id: number) => {
   const company = companies.value.find(c => c.id === id)
   if (company) company.isFavorite = !company.isFavorite
@@ -357,17 +372,47 @@ const loadCompanies = async () => {
 
   try {
     const response = await companyService.getAllCompanies(0, 20, 'name,asc')
-    const transformed = response.content.map(c => ({
+    
+    // First, map basic company data
+    const basicCompanies = response.content.map(c => ({
       ...c,
-      isFavorite: Math.random() > 0.8,
+      isFavorite: false, // We could persist this if needed
       highlights: ['Remote first', 'Tech lead', 'Startup', 'Scale-up'].sort(() => 0.5 - Math.random()).slice(0, 2),
-      jobsCount: getRandomJobsCount(c.id)
+      jobsCount: 0 // Placeholder
     } as CompanyWithUI))
     
-    companies.value = transformed
-    setCachedData(transformed)
+    companies.value = basicCompanies
+    
+    // Then, fetch job counts in parallel
+    try {
+      const countPromises = basicCompanies.map(async (company) => {
+         try {
+           // Use getJobsByCompany which is confirmed to return correct totalElements
+           // We use size=1 just to get the metadata
+           const jobResp = await jobService.getJobsByCompany(company.id, 0, 1);
+           return { id: company.id, count: jobResp.totalElements || 0 };
+         } catch (e) {
+           return { id: company.id, count: 0 };
+         }
+      })
+      
+      const counts = await Promise.all(countPromises);
+      
+      // Update counts in state
+      companies.value = companies.value.map(c => {
+        const found = counts.find(x => x.id === c.id);
+        return { ...c, jobsCount: found ? found.count : 0 };
+      });
+      
+      // Update cache with counts
+      setCachedData(companies.value);
+      
+    } catch (countErr) {
+      console.warn('Could not fetch job counts', countErr);
+    }
+
   } catch (err) {
-    error.value = 'Erreur de chargement'
+    error.value = 'Erreur de chargement des entreprises'
   } finally {
     loading.value = false
   }
@@ -423,5 +468,42 @@ onUnmounted(() => {
 
 .bg-pattern-dots {
   background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiMxMGI5ODEiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==');
+}
+
+/* Shimmer Effect */
+.shimmer-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #e5e7eb;
+}
+
+.shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 </style>
