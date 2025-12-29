@@ -217,35 +217,37 @@ import OffreCard from '@/components/cards/OffreCard.vue';
 import Navbar from '../../components/navbar/NavBarComponent.vue'
 //@ts-ignore
 import Footer from '../../components/footer/FooterComponent.vue'
-//@ts-ignore
-import { useJobService } from '@/utils/service/jobService'
-//@ts-ignore
-import { useCompanyService } from '@/utils/service/CompagnyService'
-//@ts-ignore
-import type { IJob, IJobResponse, IJobOffers } from '@/utils/interface/IJobOffers'
-import { JobType, ExperienceLevel } from '@/utils/interface/IJobOffers'
+import { useJobStore } from '@/stores/jobs';
+import { storeToRefs } from 'pinia';
+import type { IJobOffers } from '@/utils/interface/IJobOffers'
+import { JobType } from '@/utils/interface/IJobOffers'
 import { getToken } from '@/stores/authStorage';
 
 // Services
 const { notifyError } = useNotif();
 const route = useRoute();
-const jobService = useJobService();
-const companyService = useCompanyService();
+const jobStore = useJobStore();
 
-const offres = ref<IJob[]>([]);
-const loading = ref(false);
+const { 
+  jobs: offres, 
+  loading, 
+  totalPages, 
+  totalElements, 
+  currentPage: storePage 
+} = storeToRefs(jobStore);
+
 const paginationLoading = ref(false);
-const currentPage = ref(0);
-const totalPages = ref(0);
-const totalElements = ref(0);
+// Local currentPage to control UI before store update or simply mapping
+const currentPage = computed({
+  get: () => storePage.value,
+  set: (val) => { /* triggered by Pagination event, handled in changePage */ }
+});
+
 const searchTerm = ref('');
 const sortBy = ref('newest');
 const quickPage = ref(0);
 
 const token = getToken();
-
-// Cache pour les entreprises
-const companyCache = new Map<number, any>();
 
 const quickFilters = ref([
   { label: ' Remote', filters: { remoteOnly: true } },
@@ -260,6 +262,7 @@ const filters = ref({
   typeContrat: "",
   experienceLevel: "",
   salaireMin: "",
+  salaireMax: "",
   remoteOnly: false
 });
 
@@ -271,69 +274,18 @@ const mapUrlJobTypeToFilter = (typeFromUrl: string | null | undefined): string =
   return validValues.includes(typeFromUrl) ? typeFromUrl : '';
 };
 
-const enrichJobsWithCompanyData = async (jobs: IJob[]): Promise<IJob[]> => {
-  try {
-    const enrichedJobs = await Promise.all(
-      jobs.map(async (job) => {
-        if (companyCache.has(job.companyId)) {
-          const cachedCompany = companyCache.get(job.companyId);
-          return {
-            ...job,
-            company: cachedCompany
-          };
-        }
-
-        try {
-          const company = await companyService.getCompanyById(job.companyId);
-          const companyData = {
-            id: company.id,
-            name: company.name,
-            location: company.location,
-            webSiteUrl: company.webSiteUrl
-          };
-          
-          companyCache.set(job.companyId, companyData);
-          return {
-            ...job,
-            company: companyData
-          };
-        } catch (error) {
-          console.warn(`Impossible de récupérer l'entreprise pour l'offre ${job.id}:`, error);
-          const fallbackCompany = {
-            id: job.companyId,
-            name: `Entreprise #${job.companyId}`,
-            location: 'Non spécifié'
-          };
-          
-          companyCache.set(job.companyId, fallbackCompany);
-          return {
-            ...job,
-            company: fallbackCompany
-          };
-        }
-      })
-    );
-    
-    return enrichedJobs;
-  } catch (error) {
-    console.error('Erreur lors de l\'enrichissement des offres:', error);
-    return jobs;
-  }
-};
-
+// No need for local enrichment, store handles it
 
 const applyQuickFilter = (filter: any) => {
   filters.value = { ...filters.value, ...filter.filters };
   if (filter.filters.searchTerm) {
     searchTerm.value = filter.filters.searchTerm;
   }
-  currentPage.value = 0;
-  fetchJobs();
+  fetchJobs(0);
 };
 
 const showAllJobs = () => {
   resetFilters();
-  fetchJobs();
 };
 
 const handleSortChange = () => {
@@ -342,22 +294,21 @@ const handleSortChange = () => {
 
 // Pagination handled by component
 
-
 const sortedOffres = computed(() => {
-  const offres = [...formattedOffres.value];
+  const list = [...formattedOffres.value];
   
   switch (sortBy.value) {
     case 'salary':
-      return offres.sort((a, b) => {
+      return list.sort((a, b) => {
         const aSalary = extractSalaryNumber(a.salaire);
         const bSalary = extractSalaryNumber(b.salaire);
         return bSalary - aSalary;
       });
     case 'newest':
-      return offres.sort((a, b) => new Date(b.datePublication).getTime() - new Date(a.datePublication).getTime());
+      return list.sort((a, b) => new Date(b.datePublication).getTime() - new Date(a.datePublication).getTime());
     case 'relevant':
     default:
-      return offres.sort((a, b) => {
+      return list.sort((a, b) => {
         // Priorité aux offres urgentes et featured
         let scoreA = 0;
         let scoreB = 0;
@@ -382,8 +333,7 @@ const extractSalaryNumber = (salary: string): number => {
 const applyFilters = (newFilters: any) => {
   console.log('🔄 Applying filters:', newFilters);
   filters.value = { ...newFilters };
-  currentPage.value = 0;
-  fetchJobs();
+  fetchJobs(0);
 };
 
 const resetFilters = () => {
@@ -393,12 +343,12 @@ const resetFilters = () => {
     typeContrat: "",
     experienceLevel: "",
     salaireMin: "",
+    salaireMax: "",
     remoteOnly: false
   };
   searchTerm.value = '';
   sortBy.value = 'newest';
-  currentPage.value = 0;
-  fetchJobs();
+  fetchJobs(0);
 };
 
 // Initialiser la page à partir des paramètres de l'URL (q, location, type)
@@ -411,26 +361,20 @@ const initFromQuery = async (isInitial = false) => {
   filters.value.localisation = location;
   filters.value.typeContrat = mapUrlJobTypeToFilter(type);
 
-  currentPage.value = 0;
-
   const hasAnyQuery =
     q.trim() !== '' ||
     location.trim() !== '' ||
     filters.value.typeContrat !== '';
 
-  if (hasAnyQuery) {
+  if (hasAnyQuery || isInitial) {
     await fetchJobs(0);
-  } else if (isInitial) {
-    await fetchJobs();
   }
 };
 
-// Récupérer les offres depuis l'API
-const fetchJobs = async (page: number = currentPage.value) => {
+// Récupérer les offres depuis le Store
+const fetchJobs = async (page: number = 0) => {
   try {
-    if (page === currentPage.value) {
-      loading.value = true;
-    } else {
+    if (page > 0) {
       paginationLoading.value = true;
     }
     
@@ -440,73 +384,55 @@ const fetchJobs = async (page: number = currentPage.value) => {
       filters: filters.value
     });
 
-    let response: IJobResponse;
-    
     const hasSearch = searchTerm.value.trim() !== '';
     const hasFilters = filters.value.localisation !== '' || 
                       filters.value.typeContrat !== '' || 
                       filters.value.experienceLevel !== '' ||
-                      filters.value.salaireMin !== '';
+                      filters.value.salaireMin !== '' ||
+                      filters.value.salaireMax !== '';
 
-    if (hasSearch || hasFilters) {
+    // Si seulement le type de contrat est sélectionné, utiliser l'endpoint spécifique
+    if (filters.value.typeContrat && !hasSearch && 
+        !filters.value.localisation && !filters.value.experienceLevel && 
+        !filters.value.salaireMin && !filters.value.salaireMax) {
+      console.log('🔍 Using getJobsByJobType endpoint');
+      await jobStore.fetchJobsByJobType(filters.value.typeContrat, page, 10);
+    }
+    // Sinon, utiliser la recherche générale (pour salaryMin et salaryMax comme pour les autres filtres)
+    else if (hasSearch || hasFilters) {
       console.log('🔍 Using search with filters');
-      response = await jobService.searchJobs({
+      await jobStore.searchJobs({
         title: searchTerm.value.trim() || undefined,
         location: filters.value.localisation || undefined,
         jobType: filters.value.typeContrat || undefined,
         experienceLevel: filters.value.experienceLevel || undefined,
         salaryMin: filters.value.salaireMin ? Number(filters.value.salaireMin) : undefined,
-        page,
-        size: 10
-      });
+        salaryMax: filters.value.salaireMax ? Number(filters.value.salaireMax) : undefined
+      }, page, 10);
     } else {
       console.log('📋 Getting all jobs');
-      response = await jobService.getAllJobs(page, 10);
+      await jobStore.fetchAllJobs(page, 10);
     }
-
-    console.log('✅ API Response:', response);
-
-    if (!response) {
-      throw new Error('Réponse API vide');
-    }
-
-    if (!Array.isArray(response.content)) {
-      console.warn('⚠️ Response.content is not an array:', response.content);
-      offres.value = [];
-    } else {
-      // Enrichir les offres avec les données de l'entreprise
-      offres.value = await enrichJobsWithCompanyData(response.content);
-    }
-
-    currentPage.value = response.number !== undefined ? response.number : page;
-    totalPages.value = response.totalPages !== undefined ? response.totalPages : 1;
-    totalElements.value = response.totalElements !== undefined ? response.totalElements : offres.value.length;
-    quickPage.value = currentPage.value;
+    
+    // Quick page for pagination component
+    quickPage.value = storePage.value;
 
   } catch (error: any) {
-    console.error('❌ Erreur API:', error);
-    
-    notifyError(error.response?.data?.message || 'Erreur lors du chargement des offres');
-    
-    offres.value = [];
-    totalPages.value = 0;
-    totalElements.value = 0;
+    console.error('❌ Erreur:', error);
+    notifyError('Erreur lors du chargement des offres');
   } finally {
-    loading.value = false;
     paginationLoading.value = false;
   }
 };
 
 const performSearch = () => {
   console.log('🔍 Performing search:', searchTerm.value);
-  currentPage.value = 0;
-  fetchJobs();
+  fetchJobs(0);
 };
 
 const changePage = (page: number) => {
   console.log('📄 Changing page to:', page);
   if (page >= 0 && page < totalPages.value) {
-    currentPage.value = page;
     fetchJobs(page);
   }
 };
@@ -589,6 +515,13 @@ const formattedOffres = computed(() => {
     if (filters.value.salaireMin) {
       const salaireMinFilter = parseInt(filters.value.salaireMin);
       if (!job.salaryMin || job.salaryMin < salaireMinFilter) {
+        return false;
+      }
+    }
+    
+    if (filters.value.salaireMax) {
+      const salaireMaxFilter = parseInt(filters.value.salaireMax);
+      if (!job.salaryMax || job.salaryMax > salaireMaxFilter) {
         return false;
       }
     }
