@@ -10,7 +10,12 @@
               <div class="company-details">
                 <span v-if="offre.companyInfo?.webSiteUrl" class="website-link">
                   <svg class="website-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                    />
                   </svg>
                   {{ getDomainFromUrl(offre.companyInfo.webSiteUrl) }}
                 </span>
@@ -18,15 +23,17 @@
             </div>
           </div>
         </div>
-        
+
         <div class="salary-section">
           <span class="salary">{{ offre.salaire }}</span>
         </div>
       </div>
-      
+
       <div v-if="offre.urgent" class="urgent-badge">
         <svg class="urgent-icon" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          <path
+            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+          />
         </svg>
         Urgent
       </div>
@@ -36,28 +43,48 @@
       <div class="metadata-grid">
         <div class="metadata-item">
           <svg class="metadata-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
           </svg>
           <span>{{ offre.typeContrat }}</span>
         </div>
-        
+
         <div class="metadata-item">
           <svg class="metadata-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+            />
           </svg>
           <span>{{ offre.localisation }}</span>
         </div>
-        
+
         <div v-if="offre.remote" class="metadata-item">
           <svg class="metadata-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           <span>Remote</span>
         </div>
 
         <div v-if="offre.experienceLevel" class="metadata-item">
           <svg class="metadata-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+            />
           </svg>
           <span>{{ formatExperience(offre.experienceLevel) }}</span>
         </div>
@@ -65,7 +92,12 @@
       <div v-if="offre.secteur" class="sector-section">
         <div class="section-label">
           <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            />
           </svg>
           Secteur d'activité
         </div>
@@ -83,35 +115,50 @@
       <div class="date-info">
         <span class="date-text">Publié {{ offre.datePublication }}</span>
       </div>
-      
+
       <div class="actions">
         <button class="favorite-btn" title="Sauvegarder">
           <svg class="favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+            />
           </svg>
         </button>
-        
-        <a 
-          v-if="offre.companyInfo?.webSiteUrl" 
-          :href="offre.companyInfo.webSiteUrl" 
-          target="_blank" 
+
+        <a
+          v-if="offre.companyInfo?.webSiteUrl"
+          :href="offre.companyInfo.webSiteUrl"
+          target="_blank"
           class="website-btn"
           title="Visiter le site web"
         >
           <svg class="website-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9"/>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9"
+            />
           </svg>
           Site
         </a>
-        
-        <router-link 
-          :to="`/detail/jobs/${offre.id}`" 
+
+        <router-link
+          :to="`/detail/jobs/${offre.id}`"
           class="apply-btn"
           title="Postuler à cette offre"
         >
           <span>Postuler</span>
           <svg class="apply-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M14 5l7 7m0 0l-7 7m7-7H3"
+            />
           </svg>
         </router-link>
       </div>
@@ -120,46 +167,44 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
+const router = useRouter()
 
 defineProps({
   offre: {
     type: Object,
     required: true,
   },
-});
+})
 
 const truncateDescription = (description) => {
-  return description.length > 100 
-    ? description.substring(0, 100) + '...' 
-    : description;
-};
+  return description.length > 100 ? description.substring(0, 100) + '...' : description
+}
 
 const formatExperience = (level) => {
   const levels = {
-    'JUNIOR': 'Junior',
-    'MID_LEVEL': 'Intermédiaire',
-    'SENIOR': 'Senior',
-    'EXPERT': 'Expert'
-  };
-  return levels[level] || level;
-};
+    JUNIOR: 'Junior',
+    MID_LEVEL: 'Intermédiaire',
+    SENIOR: 'Senior',
+    EXPERT: 'Expert',
+  }
+  return levels[level] || level
+}
 
 const getDomainFromUrl = (url) => {
   try {
-    const fullUrl = url.startsWith('http') ? url : `https://${url}`;
-    const domain = new URL(fullUrl).hostname.replace('www.', '');
-    return domain.length > 20 ? domain.substring(0, 20) + '...' : domain;
+    const fullUrl = url.startsWith('http') ? url : `https://${url}`
+    const domain = new URL(fullUrl).hostname.replace('www.', '')
+    return domain.length > 20 ? domain.substring(0, 20) + '...' : domain
   } catch {
-    return url.length > 20 ? url.substring(0, 20) + '...' : url;
+    return url.length > 20 ? url.substring(0, 20) + '...' : url
   }
-};
+}
 
 const navigateToJobDetail = (jobId) => {
-  router.push(`/detail/jobs/${jobId}`);
-};
+  router.push(`/detail/jobs/${jobId}`)
+}
 </script>
 
 <style scoped>
@@ -455,7 +500,6 @@ const navigateToJobDetail = (jobId) => {
   height: 14px;
 }
 
-
 .apply-btn {
   display: flex;
   align-items: center;
@@ -488,38 +532,38 @@ const navigateToJobDetail = (jobId) => {
   .card-header {
     padding: 16px;
   }
-  
+
   .header-content {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .salary-section {
     align-items: flex-start;
   }
-  
+
   .company-details {
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
   }
-  
+
   .card-body {
     padding: 12px 16px;
   }
-  
+
   .card-footer {
     padding: 12px 16px;
     flex-direction: column;
     gap: 12px;
     align-items: stretch;
   }
-  
+
   .actions {
     justify-content: space-between;
   }
-  
+
   .urgent-badge {
     position: static;
     align-self: flex-start;
@@ -541,8 +585,9 @@ const navigateToJobDetail = (jobId) => {
     justify-content: center;
     gap: 8px;
   }
-  
-  .website-btn, .apply-btn {
+
+  .website-btn,
+  .apply-btn {
     flex: 1;
     justify-content: center;
     min-width: 80px;

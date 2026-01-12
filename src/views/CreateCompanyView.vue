@@ -1,20 +1,20 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import { useToast } from 'vue-toast-notification';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue'
+import { useToast } from 'vue-toast-notification'
+import { useRouter } from 'vue-router'
 //@ts-ignore
 import Navbar from '../components/navbar/NavBarComponent.vue'
 //@ts-ignore
 import { useCompanyService } from '@/utils/service/CompagnyService'
 import { getUser } from '@/stores/authStorage'
-import type { ICompagny } from '@/utils/interface/user/ICompagny';
-import type { ICompanyCreate } from '@/utils/interface/ICompagny';
+import type { ICompagny } from '@/utils/interface/user/ICompagny'
+import type { ICompanyCreate } from '@/utils/interface/ICompagny'
 // @ts-ignore
-import Footer from '../components/footer/FooterComponent.vue';
+import Footer from '../components/footer/FooterComponent.vue'
 
-const toast = useToast();
-const router = useRouter();
-const companyService = useCompanyService();
+const toast = useToast()
+const router = useRouter()
+const companyService = useCompanyService()
 
 const user = getUser()
 const userId = user?.id
@@ -31,13 +31,12 @@ const company = ref({
   logoUrl: '',
   email: '',
   phone: '',
-  address: ''
-});
+  address: '',
+})
 
-const isSubmitting = ref(false);
-const currentStep = ref(1);
-const totalSteps = 4;
-
+const isSubmitting = ref(false)
+const currentStep = ref(1)
+const totalSteps = 4
 
 const sectors = [
   { value: 'IT', label: 'Technologie' },
@@ -66,7 +65,7 @@ const sectors = [
   { value: 'BUILDING', label: 'Bâtiment' },
   { value: 'LOGISTICS', label: 'Logistique' },
   { value: 'TRANSPORT', label: 'Transport' },
-  { value: 'SUPPLY_CHAIN', label: 'Chaîne d\'approvisionnement' },
+  { value: 'SUPPLY_CHAIN', label: "Chaîne d'approvisionnement" },
   { value: 'COMMERCE', label: 'Commerce' },
   { value: 'HOSPITALITY', label: 'Hôtellerie' },
   { value: 'RESTAURANT', label: 'Restauration' },
@@ -85,9 +84,8 @@ const sectors = [
   { value: 'SERVICES', label: 'Services' },
   { value: 'SECURITY', label: 'Sécurité' },
   { value: 'SURVEILLANCE', label: 'Surveillance' },
-  { value: 'PROTECTION', label: 'Protection' }
-];
-
+  { value: 'PROTECTION', label: 'Protection' },
+]
 
 const companySizes = [
   { value: 'SOLO', label: '👤 Travailleur indépendant' },
@@ -95,90 +93,86 @@ const companySizes = [
   { value: 'SMALL', label: '👨‍👩‍👧‍👦 Petite entreprise (10-49 employés)' },
   { value: 'MEDIUM', label: '🏢 Moyenne entreprise (50-249 employés)' },
   { value: 'LARGE', label: '🏛️ Grande entreprise (250+ employés)' },
-];
+]
 
-const currentYear = new Date().getFullYear();
-const years = Array.from({ length: currentYear - 1949 }, (_, i) => currentYear - i);
+const currentYear = new Date().getFullYear()
+const years = Array.from({ length: currentYear - 1949 }, (_, i) => currentYear - i)
 
 const createCompany = async () => {
   if (!validateForm()) {
-    return;
+    return
   }
 
-  isSubmitting.value = true;
+  isSubmitting.value = true
   try {
-    const companyData :ICompagny= {
+    const companyData: ICompagny = {
       ...company.value,
-      userId: userId
-    };
+      userId: userId,
+    }
 
     const createCompanyHandler = async (companyData: ICompagny) => {
-  // Valider que userId existe
-  if (!companyData.userId) {
-    throw new Error('User ID is required to create a company')
-  }
+      // Valider que userId existe
+      if (!companyData.userId) {
+        throw new Error('User ID is required to create a company')
+      }
 
-  const createData: ICompanyCreate = {
-      name: companyData.name,
-      location: companyData.location,
-      webSiteUrl: companyData.webSiteUrl,
-      description: companyData.description?? "",
-      userId: companyData.userId 
-  }
+      const createData: ICompanyCreate = {
+        name: companyData.name,
+        location: companyData.location,
+        webSiteUrl: companyData.webSiteUrl,
+        description: companyData.description ?? '',
+        userId: companyData.userId,
+      }
 
-    const createdCompany = await companyService.createCompany(createData)
-    return createdCompany
-  }
+      const createdCompany = await companyService.createCompany(createData)
+      return createdCompany
+    }
 
+    const createdCompany = await createCompanyHandler(companyData)
 
-const createdCompany = await createCompanyHandler(companyData)
-    
-
-    
     toast.open({
       message: 'Entreprise créée avec succès ! 🎉 Vous pouvez maintenant publier une offre.',
       type: 'success',
       position: 'top-right',
       duration: 5000,
-    });
-    
-    setTimeout(() => {
-      router.push({ name: 'postjob' });
-    }, 1500);
-    
-  } catch (error: any) {
-    console.error('Erreur lors de la création de l\'entreprise:', error);
+    })
 
-    const rawMessage = error.response?.data?.message || error.message || '';
+    setTimeout(() => {
+      router.push({ name: 'postjob' })
+    }, 1500)
+  } catch (error: any) {
+    console.error("Erreur lors de la création de l'entreprise:", error)
+
+    const rawMessage = error.response?.data?.message || error.message || ''
     const isDuplicateUserCompany =
       rawMessage.includes('companies_user_id_key') ||
       rawMessage.toLowerCase().includes('duplicate key') ||
-      error.response?.status === 409;
+      error.response?.status === 409
 
     const friendlyMessage = isDuplicateUserCompany
       ? 'Vous avez déjà une entreprise associée à ce compte. Utilisez-la pour publier vos offres.'
-      : (rawMessage || 'Erreur lors de la création de l\'entreprise');
+      : rawMessage || "Erreur lors de la création de l'entreprise"
 
     toast.open({
       message: friendlyMessage,
       type: isDuplicateUserCompany ? 'warning' : 'error',
       position: 'top-right',
       duration: 6000,
-    });
+    })
   } finally {
-    isSubmitting.value = false;
+    isSubmitting.value = false
   }
-};
+}
 
 const validateForm = (): boolean => {
   if (!company.value.name.trim()) {
     toast.open({
-      message: 'Le nom de l\'entreprise est requis',
+      message: "Le nom de l'entreprise est requis",
       type: 'error',
       position: 'top-right',
       duration: 3000,
-    });
-    return false;
+    })
+    return false
   }
 
   if (!company.value.location.trim()) {
@@ -187,41 +181,41 @@ const validateForm = (): boolean => {
       type: 'error',
       position: 'top-right',
       duration: 3000,
-    });
-    return false;
+    })
+    return false
   }
 
   if (!company.value.sector) {
     toast.open({
-      message: 'Le secteur d\'activité est requis',
+      message: "Le secteur d'activité est requis",
       type: 'error',
       position: 'top-right',
       duration: 3000,
-    });
-    return false;
+    })
+    return false
   }
 
   if (company.value.webSiteUrl && !isValidUrl(company.value.webSiteUrl)) {
     toast.open({
-      message: 'L\'URL du site web n\'est pas valide',
+      message: "L'URL du site web n'est pas valide",
       type: 'error',
       position: 'top-right',
       duration: 3000,
-    });
-    return false;
+    })
+    return false
   }
 
-  return true;
-};
+  return true
+}
 
 const isValidUrl = (url: string): boolean => {
   try {
-    new URL(url);
-    return true;
+    new URL(url)
+    return true
   } catch (_) {
-    return false;
+    return false
   }
-};
+}
 
 const resetForm = () => {
   company.value = {
@@ -235,45 +229,72 @@ const resetForm = () => {
     logoUrl: '',
     email: '',
     phone: '',
-    address: ''
-  };
-};
-
+    address: '',
+  }
+}
 
 onMounted(() => {
   // Initialisation si nécessaire
-});
+})
 </script>
 
 <template>
   <Navbar />
-  
-  <header class="relative overflow-hidden bg-gradient-to-br mt-5 sm:mt-15 from-emerald-700 to-teal-600 py-24 px-4 sm:px-6 lg:px-8">
+
+  <header
+    class="relative overflow-hidden bg-gradient-to-br mt-5 sm:mt-15 from-emerald-700 to-teal-600 py-24 px-4 sm:px-6 lg:px-8"
+  >
     <div class="absolute inset-0 overflow-hidden">
       <div class="absolute inset-0 bg-gradient-to-br from-emerald-800/30 to-teal-500/20"></div>
-      <div class="absolute top-10 left-20 w-64 h-64 bg-emerald-400/10 rounded-full mix-blend-overlay filter blur-3xl opacity-50 animate-blob-slow"></div>
-      <div class="absolute top-20 right-32 w-72 h-72 bg-teal-300/10 rounded-full mix-blend-overlay filter blur-3xl opacity-50 animate-blob-fast"></div>
+      <div
+        class="absolute top-10 left-20 w-64 h-64 bg-emerald-400/10 rounded-full mix-blend-overlay filter blur-3xl opacity-50 animate-blob-slow"
+      ></div>
+      <div
+        class="absolute top-20 right-32 w-72 h-72 bg-teal-300/10 rounded-full mix-blend-overlay filter blur-3xl opacity-50 animate-blob-fast"
+      ></div>
     </div>
 
     <div class="max-w-4xl mx-auto text-center relative z-10">
-      <div class="inline-flex items-center px-4 py-2 mb-6 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-        <svg class="w-5 h-5 mr-2 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      <div
+        class="inline-flex items-center px-4 py-2 mb-6 bg-white/10 backdrop-blur-md rounded-full border border-white/20"
+      >
+        <svg
+          class="w-5 h-5 mr-2 text-emerald-300"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+          />
         </svg>
         <span class="text-sm font-medium text-white">Création d'entreprise</span>
       </div>
 
-      <h1 class="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-emerald-100 animate-gradient-text">
-        <span class="block">Créez votre <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-400">entreprise</span></span>
+      <h1
+        class="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-emerald-100 animate-gradient-text"
+      >
+        <span class="block"
+          >Créez votre
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-400"
+            >entreprise</span
+          ></span
+        >
         <span class="block mt-2">en quelques minutes</span>
       </h1>
 
       <p class="text-xl text-emerald-50 max-w-2xl mx-auto mb-10 animate-fade-in">
-        Présentez votre entreprise au monde et commencez à attirer les <strong class="text-white">meilleurs talents</strong> dès aujourd'hui.
+        Présentez votre entreprise au monde et commencez à attirer les
+        <strong class="text-white">meilleurs talents</strong> dès aujourd'hui.
       </p>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 h-16 bg-white/5 transform -skew-y-3 origin-bottom-left animate-wave"></div>
+    <div
+      class="absolute bottom-0 left-0 right-0 h-16 bg-white/5 transform -skew-y-3 origin-bottom-left animate-wave"
+    ></div>
   </header>
 
   <!-- Formulaire principal -->
@@ -284,12 +305,19 @@ onMounted(() => {
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
               </svg>
             </div>
             <div class="ml-3">
               <h3 class="text-lg font-semibold text-white">Informations de l'entreprise</h3>
-              <p class="text-emerald-100 text-sm">Tous les champs marqués d'un * sont obligatoires</p>
+              <p class="text-emerald-100 text-sm">
+                Tous les champs marqués d'un * sont obligatoires
+              </p>
             </div>
           </div>
         </div>
@@ -319,8 +347,18 @@ onMounted(() => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div class="md:col-span-2">
                 <label class="block text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  <svg
+                    class="w-5 h-5 mr-2 text-emerald-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    />
                   </svg>
                   Nom de l'entreprise <span class="text-red-500 ml-1">*</span>
                 </label>
@@ -346,18 +384,31 @@ onMounted(() => {
                     class="w-full px-4 py-3 pl-11 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm"
                     required
                   />
-                  <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <svg
+                    class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                   </svg>
                 </div>
               </div>
 
               <!-- Site web -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-3">
-                  Site web
-                </label>
+                <label class="block text-sm font-semibold text-gray-700 mb-3"> Site web </label>
                 <div class="relative">
                   <input
                     v-model="company.webSiteUrl"
@@ -365,8 +416,18 @@ onMounted(() => {
                     placeholder="https://votre-entreprise.com"
                     class="w-full px-4 py-3 pl-11 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm"
                   />
-                  <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9"/>
+                  <svg
+                    class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9"
+                    />
                   </svg>
                 </div>
               </div>
@@ -431,10 +492,22 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100">
+            <div
+              class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100"
+            >
               <label class="block text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+                <svg
+                  class="w-5 h-5 mr-2 text-emerald-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h7"
+                  />
                 </svg>
                 Description de l'entreprise
               </label>
@@ -450,7 +523,8 @@ onMounted(() => {
                 class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm resize-vertical"
               ></textarea>
               <p class="mt-2 text-sm text-gray-600">
-                Une description complète aide les candidats à mieux comprendre votre entreprise et sa culture.
+                Une description complète aide les candidats à mieux comprendre votre entreprise et
+                sa culture.
               </p>
             </div>
 
@@ -463,26 +537,49 @@ onMounted(() => {
                 >
                   Réinitialiser
                 </button>
-                
+
                 <button
                   type="submit"
                   :disabled="isSubmitting"
                   :class="{
-                    'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/25 transform hover:scale-105': !isSubmitting,
-                    'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed shadow-lg shadow-gray-400/25': isSubmitting
+                    'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/25 transform hover:scale-105':
+                      !isSubmitting,
+                    'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed shadow-lg shadow-gray-400/25':
+                      isSubmitting,
                   }"
                   class="w-full sm:w-auto px-12 py-4 border border-transparent text-lg font-bold rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200"
                 >
                   <span v-if="!isSubmitting" class="flex items-center justify-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                     Créer l'entreprise
                   </span>
                   <span v-else class="flex items-center justify-center">
-                    <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      class="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Création en cours...
                   </span>
@@ -499,34 +596,66 @@ onMounted(() => {
 
 <style>
 @keyframes blobSlow {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(20px, -30px) scale(1.05); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -30px) scale(1.05);
+  }
 }
 
 @keyframes blobFast {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-25px, 20px) scale(1.03); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-25px, 20px) scale(1.03);
+  }
 }
 
 @keyframes gradientText {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes wave {
-  0% { transform: translateY(0) skewY(-3deg); }
-  50% { transform: translateY(-5px) skewY(-3deg); }
-  100% { transform: translateY(0) skewY(-3deg); }
+  0% {
+    transform: translateY(0) skewY(-3deg);
+  }
+  50% {
+    transform: translateY(-5px) skewY(-3deg);
+  }
+  100% {
+    transform: translateY(0) skewY(-3deg);
+  }
 }
 
 .animate-blob-slow {
@@ -574,7 +703,7 @@ onMounted(() => {
 .company-step-active {
   background: linear-gradient(135deg, #ecfdf5, #d1fae5);
   border-color: #34d399;
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.20);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.2);
 }
 
 .company-step-index {

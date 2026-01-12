@@ -13,7 +13,8 @@
           </div>
 
           <h3 class="cta-title">
-            {{ $t('cta.title').replace('ExpatJobs', '').trim() }} <span class="cta-gradient">EXPAT JOBS Go</span>
+            {{ $t('cta.title').replace('ExpatJobs', '').trim() }}
+            <span class="cta-gradient">EXPAT JOBS Go</span>
           </h3>
 
           <p class="cta-subtitle">
@@ -24,7 +25,12 @@
             <router-link to="/register?role=candidate" class="primary-btn">
               {{ $t('cta.searchJob') }}
               <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
               </svg>
             </router-link>
             <router-link to="/register?role=recruiter" class="secondary-btn">
@@ -133,8 +139,15 @@
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
 }
 
 .badge-text {
@@ -341,7 +354,8 @@
     gap: 3rem;
   }
 
-  .cta-left, .cta-right {
+  .cta-left,
+  .cta-right {
     width: 100%;
     flex: none;
   }
@@ -379,7 +393,8 @@
     text-align: center;
   }
 
-  .primary-btn, .secondary-btn {
+  .primary-btn,
+  .secondary-btn {
     width: 100%;
     justify-content: center;
   }

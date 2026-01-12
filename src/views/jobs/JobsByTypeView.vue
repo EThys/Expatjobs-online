@@ -4,7 +4,9 @@
 
     <main class="pt-20 pb-16">
       <!-- Hero Section -->
-      <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-12 px-4 sm:px-6 lg:px-8">
+      <div
+        class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-12 px-4 sm:px-6 lg:px-8"
+      >
         <div class="max-w-7xl mx-auto">
           <h1 class="text-3xl md:text-4xl font-bold mb-3">
             {{ $t('hero.jobsByTypeView.title').split($t('hero.jobsByTypeView.titleHighlight'))[0] }}
@@ -26,7 +28,7 @@
                 'px-6 py-3 rounded-full text-sm font-semibold transition-all duration-200',
                 selectedType === type.value
                   ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 scale-105'
-                  : 'bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border border-gray-200'
+                  : 'bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border border-gray-200',
               ]"
             >
               {{ type.label }}
@@ -36,7 +38,7 @@
                   'ml-2 px-2 py-0.5 rounded-full text-xs',
                   selectedType === type.value
                     ? 'bg-white/20 text-white'
-                    : 'bg-emerald-100 text-emerald-700'
+                    : 'bg-emerald-100 text-emerald-700',
                 ]"
               >
                 {{ counts[type.value] }}
@@ -84,10 +86,7 @@
         </div>
 
         <!-- Empty State -->
-        <div
-          v-else
-          class="bg-white rounded-2xl border border-gray-200 p-12 text-center"
-        >
+        <div v-else class="bg-white rounded-2xl border border-gray-200 p-12 text-center">
           <div class="max-w-md mx-auto">
             <div
               class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center"
@@ -138,32 +137,32 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 //@ts-ignore
-import Navbar from '@/components/navbar/NavBarComponent.vue';
+import Navbar from '@/components/navbar/NavBarComponent.vue'
 //@ts-ignore
-import Footer from '@/components/footer/FooterComponent.vue';
+import Footer from '@/components/footer/FooterComponent.vue'
 //@ts-ignore
-import OffreCard from '@/components/cards/OffreCard.vue';
-import Pagination from '@/components/shared/Pagination.vue';
+import OffreCard from '@/components/cards/OffreCard.vue'
+import Pagination from '@/components/shared/Pagination.vue'
 //@ts-ignore
-import { useJobService } from '@/utils/service/jobService';
+import { useJobService } from '@/utils/service/jobService'
 //@ts-ignore
-import type { IJob, IJobOffers, IJobResponse } from '@/utils/interface/IJobOffers';
-import { JobType } from '@/utils/interface/IJobOffers';
+import type { IJob, IJobOffers, IJobResponse } from '@/utils/interface/IJobOffers'
+import { JobType } from '@/utils/interface/IJobOffers'
 
-const route = useRoute();
-const router = useRouter();
-const jobService = useJobService();
+const route = useRoute()
+const router = useRouter()
+const jobService = useJobService()
 
-const selectedType = ref<JobType>(JobType.FULL_TIME);
-const jobs = ref<IJob[]>([]);
-const loading = ref(false);
-const currentPage = ref(0);
-const totalPages = ref(0);
-const totalElements = ref(0);
-const paginationLoading = ref(false);
+const selectedType = ref<JobType>(JobType.FULL_TIME)
+const jobs = ref<IJob[]>([])
+const loading = ref(false)
+const currentPage = ref(0)
+const totalPages = ref(0)
+const totalElements = ref(0)
+const paginationLoading = ref(false)
 
 const jobTypeOptions = [
   { value: JobType.FULL_TIME, label: 'CDI (Temps plein)' },
@@ -171,7 +170,7 @@ const jobTypeOptions = [
   { value: JobType.CONTRACT, label: 'Contrat (CDD)' },
   { value: JobType.INTERNSHIP, label: 'Stage' },
   { value: JobType.FREELANCE, label: 'Freelance' },
-];
+]
 
 const counts = ref<Record<JobType, number>>({
   [JobType.FULL_TIME]: 0,
@@ -179,18 +178,18 @@ const counts = ref<Record<JobType, number>>({
   [JobType.CONTRACT]: 0,
   [JobType.INTERNSHIP]: 0,
   [JobType.FREELANCE]: 0,
-});
+})
 
 const currentTypeLabel = computed(() => {
-  return jobTypeOptions.find(t => t.value === selectedType.value)?.label || 'CDI';
-});
+  return jobTypeOptions.find((t) => t.value === selectedType.value)?.label || 'CDI'
+})
 
 const fetchJobsByType = async (page = 0) => {
   try {
     if (page === currentPage.value && jobs.value.length === 0) {
-      loading.value = true;
+      loading.value = true
     } else {
-      paginationLoading.value = true;
+      paginationLoading.value = true
     }
 
     const response: IJobResponse = await jobService.searchJobs({
@@ -198,74 +197,74 @@ const fetchJobsByType = async (page = 0) => {
       page,
       size: 12,
       status: 'PUBLISHED',
-    });
+    })
 
     if (response && Array.isArray(response.content)) {
-      jobs.value = response.content;
-      currentPage.value = response.number ?? page;
-      totalPages.value = response.totalPages ?? 1;
-      totalElements.value = response.totalElements ?? jobs.value.length;
+      jobs.value = response.content
+      currentPage.value = response.number ?? page
+      totalPages.value = response.totalPages ?? 1
+      totalElements.value = response.totalElements ?? jobs.value.length
     } else {
-      jobs.value = [];
-      currentPage.value = 0;
-      totalPages.value = 0;
-      totalElements.value = 0;
+      jobs.value = []
+      currentPage.value = 0
+      totalPages.value = 0
+      totalElements.value = 0
     }
   } catch (error) {
-    console.error('❌ Erreur lors du chargement des offres par type:', error);
-    jobs.value = [];
-    currentPage.value = 0;
-    totalPages.value = 0;
-    totalElements.value = 0;
+    console.error('❌ Erreur lors du chargement des offres par type:', error)
+    jobs.value = []
+    currentPage.value = 0
+    totalPages.value = 0
+    totalElements.value = 0
   } finally {
-    loading.value = false;
-    paginationLoading.value = false;
+    loading.value = false
+    paginationLoading.value = false
   }
-};
+}
 
 const fetchCounts = async () => {
   try {
-    const newCounts: Record<JobType, number> = { ...counts.value };
+    const newCounts: Record<JobType, number> = { ...counts.value }
     for (const type of Object.values(JobType)) {
       const response: IJobResponse = await jobService.searchJobs({
         jobType: type,
         page: 0,
         size: 1,
         status: 'PUBLISHED',
-      });
-      newCounts[type as JobType] = response.totalElements ?? 0;
+      })
+      newCounts[type as JobType] = response.totalElements ?? 0
     }
-    counts.value = newCounts;
+    counts.value = newCounts
   } catch (error) {
-    console.warn('⚠️ Erreur lors du chargement des compteurs par type:', error);
+    console.warn('⚠️ Erreur lors du chargement des compteurs par type:', error)
   }
-};
+}
 
 const changeType = (type: JobType) => {
-  if (selectedType.value === type) return;
-  selectedType.value = type;
-  currentPage.value = 0;
-  router.replace({ query: { ...route.query, type } });
-  fetchJobsByType(0);
-};
+  if (selectedType.value === type) return
+  selectedType.value = type
+  currentPage.value = 0
+  router.replace({ query: { ...route.query, type } })
+  fetchJobsByType(0)
+}
 
 const changePage = (page: number) => {
-  if (page < 0 || page >= totalPages.value) return;
-  currentPage.value = page;
-  fetchJobsByType(page);
-};
+  if (page < 0 || page >= totalPages.value) return
+  currentPage.value = page
+  fetchJobsByType(page)
+}
 
 const goToAllJobs = () => {
-  router.push({ name: 'jobs' });
-};
+  router.push({ name: 'jobs' })
+}
 
 // Format helpers - utiliser uniquement les données de l'API
 const formatSalary = (min: number | null, max: number | null): string => {
-  if (!min && !max) return 'Salaire à négocier';
-  if (!min) return `Jusqu'à ${max?.toLocaleString()} €`;
-  if (!max) return `À partir de ${min?.toLocaleString()} €`;
-  return `${min?.toLocaleString()} - ${max?.toLocaleString()} €`;
-};
+  if (!min && !max) return 'Salaire à négocier'
+  if (!min) return `Jusqu'à ${max?.toLocaleString()} €`
+  if (!max) return `À partir de ${min?.toLocaleString()} €`
+  return `${min?.toLocaleString()} - ${max?.toLocaleString()} €`
+}
 
 const formatJobType = (jobType: JobType | string): string => {
   const types: { [key: string]: string } = {
@@ -274,34 +273,35 @@ const formatJobType = (jobType: JobType | string): string => {
     CONTRACT: 'CDD',
     FREELANCE: 'Freelance',
     INTERNSHIP: 'Stage',
-  };
-  return types[jobType] || jobType || 'Non spécifié';
-};
+  }
+  return types[jobType] || jobType || 'Non spécifié'
+}
 
 const formatDate = (dateString: string | undefined): string => {
-  if (!dateString) return 'Date inconnue';
+  if (!dateString) return 'Date inconnue'
   try {
-    const date = new Date(dateString.replace(' ', 'T'));
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const date = new Date(dateString.replace(' ', 'T'))
+    const now = new Date()
+    const diffTime = Math.abs(now.getTime() - date.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-    if (diffDays === 1) return "Aujourd'hui";
-    if (diffDays === 2) return 'Hier';
-    if (diffDays < 7) return `Il y a ${diffDays} jours`;
-    if (diffDays < 30) return `Il y a ${Math.floor(diffDays / 7)} semaines`;
-    return `Il y a ${Math.floor(diffDays / 30)} mois`;
+    if (diffDays === 1) return "Aujourd'hui"
+    if (diffDays === 2) return 'Hier'
+    if (diffDays < 7) return `Il y a ${diffDays} jours`
+    if (diffDays < 30) return `Il y a ${Math.floor(diffDays / 7)} semaines`
+    return `Il y a ${Math.floor(diffDays / 30)} mois`
   } catch {
-    return 'Date inconnue';
+    return 'Date inconnue'
   }
-};
+}
 
 // Formater les offres en utilisant uniquement les données de l'API
 const formatOffreForCard = (job: IJobOffers) => {
   return {
     id: job.id,
     titre: job.title || 'Titre non spécifié',
-    entreprise: job.company?.name || (job.companyId ? `Entreprise #${job.companyId}` : 'Entreprise inconnue'),
+    entreprise:
+      job.company?.name || (job.companyId ? `Entreprise #${job.companyId}` : 'Entreprise inconnue'),
     localisation: job.location || 'Non spécifié',
     typeContrat: formatJobType(job.jobType),
     salaire: formatSalary(job.salaryMin, job.salaryMax),
@@ -319,21 +319,21 @@ const formatOffreForCard = (job: IJobOffers) => {
       location: job.location || '',
       webSiteUrl: (job.company as any)?.webSiteUrl || '',
     },
-  };
-};
+  }
+}
 
 const formattedOffres = computed(() => {
-  return jobs.value.map((job: any) => formatOffreForCard(job as IJobOffers));
-});
+  return jobs.value.map((job: any) => formatOffreForCard(job as IJobOffers))
+})
 
 onMounted(async () => {
-  const initialType = (route.query.type as string) as JobType | undefined;
+  const initialType = route.query.type as string as JobType | undefined
   if (initialType && Object.values(JobType).includes(initialType)) {
-    selectedType.value = initialType;
+    selectedType.value = initialType
   }
-  await fetchJobsByType(0);
-  fetchCounts();
-});
+  await fetchJobsByType(0)
+  fetchCounts()
+})
 </script>
 
 <style scoped>

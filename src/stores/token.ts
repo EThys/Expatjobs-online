@@ -1,4 +1,3 @@
-
 import type { IToken } from '@/utils/interface/IToken'
 
 export function setToken(token: IToken) {

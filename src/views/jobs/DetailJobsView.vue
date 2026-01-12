@@ -40,14 +40,12 @@ const companyService = useCompanyService()
 const route = useRoute()
 const router = useRouter()
 
-
 const job = ref<any>(null)
 const similarJobs = ref<any[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 
 const jobId = computed(() => parseInt(route.params.id as string))
-
 
 const formatSalary = (min: number | null, max: number | null): string => {
   if (!min && !max) return t('jobDetail.salaryNegotiable')
@@ -58,28 +56,30 @@ const formatSalary = (min: number | null, max: number | null): string => {
 
 const formatJobType = (jobType: string): string => {
   const types: { [key: string]: string } = {
-    'FULL_TIME': t('jobDetail.jobTypeFullTime'),
-    'PART_TIME': t('jobDetail.jobTypePartTime'),
-    'CONTRACT': t('jobDetail.jobTypeContract'),
-    'FREELANCE': t('jobDetail.jobTypeFreelance'),
-    'INTERNSHIP': t('jobDetail.jobTypeInternship'),
-    'HYBRID': t('jobDetail.jobTypeHybrid')
+    FULL_TIME: t('jobDetail.jobTypeFullTime'),
+    PART_TIME: t('jobDetail.jobTypePartTime'),
+    CONTRACT: t('jobDetail.jobTypeContract'),
+    FREELANCE: t('jobDetail.jobTypeFreelance'),
+    INTERNSHIP: t('jobDetail.jobTypeInternship'),
+    HYBRID: t('jobDetail.jobTypeHybrid'),
   }
   return types[jobType] || jobType || t('common.notSpecified')
 }
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return t('jobDetail.dateUnknown')
-  
+
   try {
-    const normalizedDateString = dateString.includes('T') ? dateString : dateString.replace(' ', 'T')
+    const normalizedDateString = dateString.includes('T')
+      ? dateString
+      : dateString.replace(' ', 'T')
     const date = new Date(normalizedDateString)
     const now = new Date()
     const diffTime = Math.abs(now.getTime() - date.getTime())
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
     const diffWeeks = Math.floor(diffDays / 7)
     const diffMonths = Math.floor(diffDays / 30)
-    
+
     if (diffDays === 0) return t('jobDetail.today')
     if (diffDays === 1) return t('jobDetail.yesterday')
     if (diffDays < 7) return t('jobDetail.daysAgo', { count: diffDays })
@@ -87,7 +87,7 @@ const formatDate = (dateString: string): string => {
     if (diffWeeks < 4) return t('jobDetail.weeksAgo', { count: diffWeeks })
     if (diffMonths === 1) return t('jobDetail.oneMonthAgo')
     if (diffMonths < 12) return t('jobDetail.monthsAgo', { count: diffMonths })
-    
+
     const years = Math.floor(diffMonths / 12)
     return t('jobDetail.yearsAgo', { count: years })
   } catch (error) {
@@ -100,11 +100,11 @@ const fetchJobDetails = async () => {
   try {
     loading.value = true
     error.value = null
-    
+
     console.log('📡 Fetching job details for ID:', jobId.value)
 
     const jobData: IJob = await jobService.getJobById(jobId.value)
-    
+
     const skillsResponse = await jobService.getSkillsByJob(jobId.value)
     const skills = skillsResponse.content?.map((skill: any) => skill.skillName) || []
 
@@ -112,13 +112,13 @@ const fetchJobDetails = async () => {
     try {
       companyData = await companyService.getCompanyById(jobData.companyId)
     } catch (companyError) {
-      console.warn('Impossible de récupérer les données de l\'entreprise:', companyError)
+      console.warn("Impossible de récupérer les données de l'entreprise:", companyError)
       companyData = {
         id: jobData.companyId,
         name: t('jobDetail.companyPrefix', { id: jobData.companyId }),
         location: jobData.location || t('common.notSpecified'),
         webSiteUrl: null,
-        logoUrl: null
+        logoUrl: null,
       }
     }
     job.value = {
@@ -135,18 +135,17 @@ const fetchJobDetails = async () => {
       requirements: null,
       benefits: null,
       skills: skills,
-      logo: companyData.logoUrl || null, 
+      logo: companyData.logoUrl || null,
       website: companyData.webSiteUrl || null,
       experienceLevel: jobData.experienceLevel,
       sector: jobData.sector,
       recruiter: null,
-      applicationCount: null 
+      applicationCount: null,
     }
 
     console.log('✅ Job details loaded:', job.value)
 
     await fetchSimilarJobs()
-
   } catch (err: any) {
     console.error('❌ Error fetching job details:', err)
     error.value = err.response?.data?.message || t('jobDetail.loadError')
@@ -157,24 +156,24 @@ const fetchJobDetails = async () => {
 
 const generateRequirements = (jobData: IJob): string => {
   const requirements = []
-  
+
   if (jobData.experienceLevel) {
     requirements.push(t('jobDetail.experienceLevelLabel', { level: jobData.experienceLevel }))
   }
-  
+
   if (jobData.sector) {
     requirements.push(t('jobDetail.sectorLabel', { sector: jobData.sector }))
   }
   requirements.push(
     t('jobDetail.requirementTeamwork'),
     t('jobDetail.requirementAutonomy'),
-    t('jobDetail.requirementAnalysis')
+    t('jobDetail.requirementAnalysis'),
   )
-  
+
   return `
     <p>${t('jobDetail.profileSought')}</p>
     <ul class="list-disc pl-5 space-y-2 mt-2">
-      ${requirements.map(req => `<li>${req}</li>`).join('')}
+      ${requirements.map((req) => `<li>${req}</li>`).join('')}
     </ul>
   `
 }
@@ -184,17 +183,17 @@ const generateBenefits = (jobData: IJob): string => {
     t('jobDetail.benefitDynamic'),
     t('jobDetail.benefitCareer'),
     t('jobDetail.benefitTraining'),
-    t('jobDetail.benefitSalary')
+    t('jobDetail.benefitSalary'),
   ]
-  
+
   if (jobData.location?.toLowerCase().includes('remote')) {
     benefits.push(t('jobDetail.benefitRemote'))
   }
-  
+
   return `
     <p>${t('jobDetail.benefitsTitle')}</p>
     <ul class="list-disc pl-5 space-y-2 mt-2">
-      ${benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+      ${benefits.map((benefit) => `<li>${benefit}</li>`).join('')}
     </ul>
   `
 }
@@ -202,19 +201,19 @@ const generateBenefits = (jobData: IJob): string => {
 const fetchSimilarJobs = async () => {
   try {
     const response = await jobService.getAllJobs(0, 3)
-    
+
     if (response && Array.isArray(response.content)) {
       similarJobs.value = response.content
-        .filter(similarJob => similarJob.id !== jobId.value) 
-        .slice(0, 3) 
-        .map(similarJob => ({
+        .filter((similarJob) => similarJob.id !== jobId.value)
+        .slice(0, 3)
+        .map((similarJob) => ({
           id: similarJob.id,
           title: similarJob.title,
           company: t('jobDetail.companyPrefix', { id: similarJob.companyId }),
           location: similarJob.location,
           salary: formatSalary(similarJob.salaryMin, similarJob.salaryMax),
           type: similarJob.jobType?.toLowerCase() || 'full-time',
-          logo: 'https://via.placeholder.com/40'
+          logo: 'https://via.placeholder.com/40',
         }))
     }
   } catch (err) {
@@ -233,13 +232,13 @@ const goToJob = async (newJobId: number) => {
   job.value = null
   similarJobs.value = []
   error.value = null
-  
+
   // Naviguer vers la nouvelle offre
   await router.push(`/detail/jobs/${newJobId}`)
-  
+
   // Attendre que Vue Router mette à jour la route
   await nextTick()
-  
+
   // Le watcher devrait se déclencher, mais on force aussi le rechargement pour être sûr
   // Vérifier que l'ID de la route correspond bien au nouvel ID
   const currentId = parseInt(route.params.id as string)
@@ -272,7 +271,7 @@ watch(
       }
     }
   },
-  { immediate: false }
+  { immediate: false },
 )
 
 onMounted(() => {
@@ -285,7 +284,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <Navbar/>
+  <Navbar />
   <div class="job-details-page bg-gray-50 min-h-screen">
     <header class="bg-white shadow-sm">
       <div class="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -337,7 +336,7 @@ onMounted(() => {
               <div class="h-12 bg-gray-200 rounded-lg shimmer flex-1"></div>
             </div>
           </div>
-          
+
           <!-- Description Shimmer -->
           <div class="bg-white rounded-xl shadow-sm p-6 shimmer-container">
             <div class="h-6 bg-gray-200 rounded shimmer w-48 mb-4"></div>
@@ -349,7 +348,7 @@ onMounted(() => {
               <div class="h-4 bg-gray-200 rounded shimmer w-4/5"></div>
             </div>
           </div>
-          
+
           <!-- Requirements Shimmer -->
           <div class="bg-white rounded-xl shadow-sm p-6 shimmer-container">
             <div class="h-6 bg-gray-200 rounded shimmer w-40 mb-4"></div>
@@ -359,7 +358,7 @@ onMounted(() => {
               <div class="h-4 bg-gray-200 rounded shimmer"></div>
             </div>
           </div>
-          
+
           <!-- Apply Form Shimmer -->
           <div class="bg-white rounded-xl shadow-sm p-6 shimmer-container">
             <div class="h-6 bg-gray-200 rounded shimmer w-48 mb-6"></div>
@@ -371,7 +370,7 @@ onMounted(() => {
             </div>
           </div>
         </div>
-        
+
         <!-- Sidebar Shimmer -->
         <div class="lg:w-1/3 space-y-6">
           <!-- Statistics Shimmer -->
@@ -392,7 +391,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          
+
           <!-- Similar Jobs Shimmer -->
           <div class="bg-white rounded-xl shadow-sm p-6 shimmer-container">
             <div class="h-6 bg-gray-200 rounded shimmer w-36 mb-4"></div>
@@ -417,12 +416,20 @@ onMounted(() => {
       <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
         <div class="text-red-600 mb-4">
           <svg class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
           </svg>
         </div>
         <h3 class="text-lg font-medium text-red-800 mb-2">{{ t('jobDetail.error') }}</h3>
         <p class="text-red-600">{{ error }}</p>
-        <button @click="fetchJobDetails" class="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+        <button
+          @click="fetchJobDetails"
+          class="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+        >
           {{ t('jobDetail.retry') }}
         </button>
       </div>
@@ -430,17 +437,19 @@ onMounted(() => {
       <!-- Contenu de l'offre -->
       <div v-else-if="job" class="flex flex-col lg:flex-row gap-8">
         <div class="lg:w-2/3">
-            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
             <div class="flex items-start justify-between">
               <div class="flex items-start space-x-4">
-                <div v-if="job.logo" class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                  <img
-                    :src="job.logo"
-                    :alt="job.company"
-                    class="w-full h-full object-contain"
-                  />
+                <div
+                  v-if="job.logo"
+                  class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center"
+                >
+                  <img :src="job.logo" :alt="job.company" class="w-full h-full object-contain" />
                 </div>
-                <div v-else class="w-16 h-16 rounded-lg bg-green-100 flex items-center justify-center">
+                <div
+                  v-else
+                  class="w-16 h-16 rounded-lg bg-green-100 flex items-center justify-center"
+                >
                   <span class="text-green-700 font-semibold text-xl">
                     {{ job.company ? job.company[0] : '?' }}
                   </span>
@@ -482,7 +491,9 @@ onMounted(() => {
 
             <!-- Skills -->
             <div class="mt-6" v-if="job.skills && job.skills.length > 0">
-              <h3 class="text-sm font-medium text-gray-500 mb-2">{{ t('jobDetail.requiredSkills') }}</h3>
+              <h3 class="text-sm font-medium text-gray-500 mb-2">
+                {{ t('jobDetail.requiredSkills') }}
+              </h3>
               <div class="flex flex-wrap gap-2">
                 <span
                   v-for="(skill, index) in job.skills"
@@ -516,7 +527,9 @@ onMounted(() => {
           </div>
 
           <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">{{ t('jobDetail.jobDescription') }}</h2>
+            <h2 class="text-xl font-bold text-gray-900 mb-4">
+              {{ t('jobDetail.jobDescription') }}
+            </h2>
             <div class="prose text-gray-700" v-html="job.description"></div>
           </div>
 
@@ -540,12 +553,19 @@ onMounted(() => {
 
         <div class="lg:w-1/3">
           <div v-if="job.recruiter" class="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ t('jobDetail.yourRecruiter') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+              {{ t('jobDetail.yourRecruiter') }}
+            </h3>
             <div class="flex items-start space-x-4">
               <div class="flex-shrink-0">
                 <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
                   <span class="text-green-600 font-medium text-lg">
-                    {{ job.recruiter.name.split(' ').map((n:any) => n[0]).join('') }}
+                    {{
+                      job.recruiter.name
+                        .split(' ')
+                        .map((n: any) => n[0])
+                        .join('')
+                    }}
                   </span>
                 </div>
               </div>
@@ -553,11 +573,17 @@ onMounted(() => {
                 <h4 class="font-medium text-gray-900">{{ job.recruiter.name }}</h4>
                 <p class="text-sm text-gray-500">{{ job.recruiter.position }}</p>
                 <div class="mt-3 space-y-2">
-                  <a :href="`mailto:${job.recruiter.email}`" class="flex items-center text-sm text-green-600 hover:text-green-700">
+                  <a
+                    :href="`mailto:${job.recruiter.email}`"
+                    class="flex items-center text-sm text-green-600 hover:text-green-700"
+                  >
                     <EnvelopeIcon class="h-4 w-4 mr-2" />
                     {{ job.recruiter.email }}
                   </a>
-                  <a :href="`tel:${job.recruiter.phone}`" class="flex items-center text-sm text-green-600 hover:text-green-700">
+                  <a
+                    :href="`tel:${job.recruiter.phone}`"
+                    class="flex items-center text-sm text-green-600 hover:text-green-700"
+                  >
                     <PhoneIcon class="h-4 w-4 mr-2" />
                     {{ job.recruiter.phone }}
                   </a>
@@ -567,7 +593,9 @@ onMounted(() => {
           </div>
 
           <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ t('jobDetail.offerStatistics') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+              {{ t('jobDetail.offerStatistics') }}
+            </h3>
             <div class="space-y-4">
               <div class="flex items-center justify-between">
                 <span class="text-sm text-gray-500">{{ t('jobDetail.publicationDate') }}</span>
@@ -593,7 +621,9 @@ onMounted(() => {
           </div>
 
           <div class="bg-white rounded-xl shadow-sm p-6" v-if="similarJobs.length > 0">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ t('jobDetail.similarOffers') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+              {{ t('jobDetail.similarOffers') }}
+            </h3>
             <div class="space-y-4">
               <div
                 v-for="similarJob in similarJobs"
@@ -602,20 +632,28 @@ onMounted(() => {
                 class="block p-4 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-green-200"
               >
                 <div class="flex items-start space-x-3">
-                  <div v-if="similarJob.logo" class="w-10 h-10 rounded overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <div
+                    v-if="similarJob.logo"
+                    class="w-10 h-10 rounded overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0"
+                  >
                     <img
                       :src="similarJob.logo"
                       :alt="similarJob.company"
                       class="w-full h-full object-contain"
                     />
                   </div>
-                  <div v-else class="w-10 h-10 rounded bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <div
+                    v-else
+                    class="w-10 h-10 rounded bg-green-100 flex items-center justify-center flex-shrink-0"
+                  >
                     <span class="text-green-700 font-semibold text-sm">
                       {{ similarJob.company ? similarJob.company[0] : '?' }}
                     </span>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <h4 class="font-medium text-gray-900 hover:text-green-600 transition-colors">{{ similarJob.title }}</h4>
+                    <h4 class="font-medium text-gray-900 hover:text-green-600 transition-colors">
+                      {{ similarJob.title }}
+                    </h4>
                     <p class="text-sm text-gray-500 truncate">{{ similarJob.company }}</p>
                     <div class="mt-2 flex items-center text-sm text-gray-500">
                       <MapPinIcon class="h-3.5 w-3.5 mr-1 flex-shrink-0" />
@@ -644,7 +682,7 @@ onMounted(() => {
       </div>
     </main>
   </div>
-  <Footer/>
+  <Footer />
 </template>
 
 <style scoped>
@@ -667,12 +705,7 @@ onMounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
   animation: shimmer 1.5s infinite;
 }
 

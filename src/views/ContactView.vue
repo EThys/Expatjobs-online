@@ -1,100 +1,136 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { PaperAirplaneIcon, PhoneIcon, MapPinIcon, EnvelopeIcon } from '@heroicons/vue/24/outline';
-import { useNotif } from '@/composables/useNotif';
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { PaperAirplaneIcon, PhoneIcon, MapPinIcon, EnvelopeIcon } from '@heroicons/vue/24/outline'
+import { useNotif } from '@/composables/useNotif'
 //@ts-ignore
 import FooterComponent from '../components/footer/FooterComponent.vue'
 //@ts-ignore
 import NavBar from '../components/navbar/NavBarComponent.vue'
 
-const { t } = useI18n();
-const { notifySuccess } = useNotif();
+const { t } = useI18n()
+const { notifySuccess } = useNotif()
 const form = ref({
   name: '',
   email: '',
   subject: '',
   message: '',
-});
+})
 
 const submitForm = () => {
-  notifySuccess(t('contactPage.successMessage'));
+  notifySuccess(t('contactPage.successMessage'))
   // Réinitialiser le formulaire
-  form.value = { name: '', email: '', subject: '', message: '' };
-};
+  form.value = { name: '', email: '', subject: '', message: '' }
+}
 </script>
 
 <template>
-  <NavBar/>
-    <header class="relative overflow-hidden bg-gradient-to-br mt-5 sm:mt-15 from-emerald-800/90 to-cyan-600/90 py-24 w-full">
-  <!-- Effets de fond animés -->
-  <div class="absolute inset-0 overflow-hidden">
-    <!-- Dégradé principal -->
-    <div class="absolute inset-0 bg-gradient-to-br from-emerald-900/30 to-cyan-500/20"></div>
-    <!-- Blobs animés -->
-    <div class="absolute top-10 left-20 w-64 h-64 bg-purple-400/10 rounded-full mix-blend-overlay filter blur-3xl opacity-50 animate-blob-slow"></div>
-    <div class="absolute top-20 right-32 w-72 h-72 bg-yellow-300/10 rounded-full mix-blend-overlay filter blur-3xl opacity-50 animate-blob-fast"></div>
-  </div>
-
-  <!-- Contenu principal -->
-  <div class="max-w-4xl mx-auto text-center relative z-10">
-    <!-- Badge "Contact" avec effet de verre -->
-    <div class="inline-flex items-center px-4 py-2 mb-6 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-      <svg class="w-5 h-5 mr-2 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-      <span class="text-sm font-medium text-white">{{ t('contactPage.badge') }}</span>
+  <NavBar />
+  <header
+    class="relative overflow-hidden bg-gradient-to-br mt-5 sm:mt-15 from-emerald-800/90 to-cyan-600/90 py-24 w-full"
+  >
+    <!-- Effets de fond animés -->
+    <div class="absolute inset-0 overflow-hidden">
+      <!-- Dégradé principal -->
+      <div class="absolute inset-0 bg-gradient-to-br from-emerald-900/30 to-cyan-500/20"></div>
+      <!-- Blobs animés -->
+      <div
+        class="absolute top-10 left-20 w-64 h-64 bg-purple-400/10 rounded-full mix-blend-overlay filter blur-3xl opacity-50 animate-blob-slow"
+      ></div>
+      <div
+        class="absolute top-20 right-32 w-72 h-72 bg-yellow-300/10 rounded-full mix-blend-overlay filter blur-3xl opacity-50 animate-blob-fast"
+      ></div>
     </div>
 
-    <!-- Titre principal avec effet de dégradé animé -->
-    <h1 class="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-emerald-100 animate-gradient-text">
-      <span class="block">{{ t('contactPage.title') }}</span>
-      <span class="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-cyan-400 mt-2">
-        {{ t('contactPage.subtitle') }}
-      </span>
-    </h1>
-
-    <!-- Sous-titre avec animation -->
-    <p class="text-xl text-emerald-50 max-w-2xl mx-auto mb-10 animate-fade-in">
-      {{ t('contactPage.description') }} <strong class="text-white">{{ t('contactPage.descriptionHighlight') }}</strong>.
-    </p>
-
-    <!-- Boutons d'action -->
-    <div class="flex flex-wrap justify-center gap-4">
-      <a
-        href="#contact-form"
-        class="inline-flex items-center px-6 py-3 bg-white text-emerald-700 font-medium rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+    <!-- Contenu principal -->
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <!-- Badge "Contact" avec effet de verre -->
+      <div
+        class="inline-flex items-center px-4 py-2 mb-6 bg-white/10 backdrop-blur-md rounded-full border border-white/20"
       >
-        {{ t('contactPage.writeUs') }}
-        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        <svg
+          class="w-5 h-5 mr-2 text-emerald-300"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+          />
         </svg>
-      </a>
-      <a
-        href="tel:+243123456789"
-        class="inline-flex items-center px-6 py-3 border-2 border-white/30 text-white font-medium rounded-lg hover:bg-white/10 transition-all duration-300"
+        <span class="text-sm font-medium text-white">{{ t('contactPage.badge') }}</span>
+      </div>
+
+      <!-- Titre principal avec effet de dégradé animé -->
+      <h1
+        class="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-emerald-100 animate-gradient-text"
       >
-        {{ t('contactPage.callUs') }}
-        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-        </svg>
-      </a>
+        <span class="block">{{ t('contactPage.title') }}</span>
+        <span
+          class="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-cyan-400 mt-2"
+        >
+          {{ t('contactPage.subtitle') }}
+        </span>
+      </h1>
+
+      <!-- Sous-titre avec animation -->
+      <p class="text-xl text-emerald-50 max-w-2xl mx-auto mb-10 animate-fade-in">
+        {{ t('contactPage.description') }}
+        <strong class="text-white">{{ t('contactPage.descriptionHighlight') }}</strong
+        >.
+      </p>
+
+      <!-- Boutons d'action -->
+      <div class="flex flex-wrap justify-center gap-4">
+        <a
+          href="#contact-form"
+          class="inline-flex items-center px-6 py-3 bg-white text-emerald-700 font-medium rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+        >
+          {{ t('contactPage.writeUs') }}
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 8l4 4m0 0l-4 4m4-4H3"
+            />
+          </svg>
+        </a>
+        <a
+          href="tel:+243123456789"
+          class="inline-flex items-center px-6 py-3 border-2 border-white/30 text-white font-medium rounded-lg hover:bg-white/10 transition-all duration-300"
+        >
+          {{ t('contactPage.callUs') }}
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+            />
+          </svg>
+        </a>
+      </div>
     </div>
-  </div>
 
-  <!-- Forme décorative en bas -->
-  <div class="absolute bottom-0 left-0 right-0 h-16 bg-white/5 transform -skew-y-3 origin-bottom-left animate-wave"></div>
-</header>
+    <!-- Forme décorative en bas -->
+    <div
+      class="absolute bottom-0 left-0 right-0 h-16 bg-white/5 transform -skew-y-3 origin-bottom-left animate-wave"
+    ></div>
+  </header>
   <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 sm:mt-7 lg:px-8">
-
-
     <!-- Conteneur principal -->
     <div class="max-w-7xl mx-auto">
       <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
         <div class="grid grid-cols-1 lg:grid-cols-2">
           <!-- Formulaire de contact -->
           <div class="py-10 px-6 sm:px-10 lg:px-12">
-            <h2 class="text-lg font-semibold text-gray-900 mb-8">{{ t('contactPage.formTitle') }}</h2>
+            <h2 class="text-lg font-semibold text-gray-900 mb-8">
+              {{ t('contactPage.formTitle') }}
+            </h2>
             <form @submit.prevent="submitForm" class="space-y-6">
               <div>
                 <label for="name" class="block text-sm font-medium text-gray-700">
@@ -162,7 +198,9 @@ const submitForm = () => {
 
           <!-- Informations de contact -->
           <div class="py-10 px-6 sm:px-10 lg:px-12 bg-green-50">
-            <h2 class="text-lg font-semibold text-gray-900 mb-8">{{ t('contactPage.contactInfoTitle') }}</h2>
+            <h2 class="text-lg font-semibold text-gray-900 mb-8">
+              {{ t('contactPage.contactInfoTitle') }}
+            </h2>
             <div class="space-y-6">
               <!-- Email -->
               <div class="flex items-start">
@@ -179,7 +217,7 @@ const submitForm = () => {
                   </a>
                 </div>
               </div>
-              
+
               <!-- Téléphones -->
               <div class="flex items-start">
                 <div class="flex-shrink-0 bg-green-100 p-3 rounded-lg">
@@ -209,7 +247,7 @@ const submitForm = () => {
                   </div>
                 </div>
               </div>
-              
+
               <!-- Adresse -->
               <div class="flex items-start">
                 <div class="flex-shrink-0 bg-green-100 p-3 rounded-lg">
@@ -240,7 +278,7 @@ const submitForm = () => {
       </div>
     </div>
   </div>
-  <FooterComponent/>
+  <FooterComponent />
 </template>
 
 <style scoped>
@@ -250,7 +288,8 @@ button:hover {
 }
 
 /* Style pour les inputs */
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 </style>

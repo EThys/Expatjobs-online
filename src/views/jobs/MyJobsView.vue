@@ -1,52 +1,51 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 // @ts-ignore
-import Navbar from '../../components/navbar/NavBarComponent.vue';
-import { useModernToast } from '@/composables/useModernToast';
-import { useJobStore } from '@/stores/jobs';
-import { useCompanyStore } from '@/stores/companies';
-import { useJobService } from '@/utils/service/jobService';
-import { storeToRefs } from 'pinia';
-import type { IJob, ISkill, ISkillCreate } from '@/utils/interface/IJobOffers';
-import { JobType, ExperienceLevel, JobStatus } from '@/utils/interface/IJobOffers';
-import { getUser } from '@/stores/authStorage';
+import Navbar from '../../components/navbar/NavBarComponent.vue'
+import { useModernToast } from '@/composables/useModernToast'
+import { useJobStore } from '@/stores/jobs'
+import { useCompanyStore } from '@/stores/companies'
+import { useJobService } from '@/utils/service/jobService'
+import { storeToRefs } from 'pinia'
+import type { IJob, ISkill, ISkillCreate } from '@/utils/interface/IJobOffers'
+import { JobType, ExperienceLevel, JobStatus } from '@/utils/interface/IJobOffers'
+import { getUser } from '@/stores/authStorage'
 // @ts-ignore
-import Footer from '../../components/footer/FooterComponent.vue';
+import Footer from '../../components/footer/FooterComponent.vue'
 
+const { t } = useI18n()
+const toast = useModernToast()
+const router = useRouter()
+const jobStore = useJobStore()
+const companyStore = useCompanyStore()
+const jobService = useJobService()
 
-const { t } = useI18n();
-const toast = useModernToast();
-const router = useRouter();
-const jobStore = useJobStore();
-const companyStore = useCompanyStore();
-const jobService = useJobService();
-
-const { myJobs: jobs } = storeToRefs(jobStore);
+const { myJobs: jobs } = storeToRefs(jobStore)
 // We use local loading/saving state for UI feedback or store loading state
 // Ideally use store loading state, but here we might want specific local control
-const loading = ref(false); 
-const saving = ref(false);
-const deletingId = ref<number | null>(null);
-const skills = ref<ISkill[]>([]);
-const editingSkillId = ref<number | null>(null);
+const loading = ref(false)
+const saving = ref(false)
+const deletingId = ref<number | null>(null)
+const skills = ref<ISkill[]>([])
+const editingSkillId = ref<number | null>(null)
 const newSkill = ref<ISkillCreate>({
   skillName: '',
   jobOfferId: 0,
-  experienceYear: 0
-});
+  experienceYear: 0,
+})
 const editingSkill = ref<ISkillCreate>({
   skillName: '',
   jobOfferId: 0,
-  experienceYear: 0
-});
-const loadingSkills = ref(false);
+  experienceYear: 0,
+})
+const loadingSkills = ref(false)
 
-const user = getUser();
-const userId = user?.id;
+const user = getUser()
+const userId = user?.id
 
-const selectedJobId = ref<number | null>(null);
+const selectedJobId = ref<number | null>(null)
 
 const editForm = ref({
   title: '',
@@ -57,35 +56,33 @@ const editForm = ref({
   jobType: JobType.FULL_TIME as JobType,
   experienceLevel: ExperienceLevel.MID as ExperienceLevel,
   status: JobStatus.PUBLISHED as JobStatus,
-  sector: 'IT'
-});
+  sector: 'IT',
+})
 
-const hasJobs = computed(() => jobs.value.length > 0);
-const selectedJob = computed(() =>
-  jobs.value.find(j => j.id === selectedJobId.value) || null
-);
+const hasJobs = computed(() => jobs.value.length > 0)
+const selectedJob = computed(() => jobs.value.find((j) => j.id === selectedJobId.value) || null)
 
 const jobTypes = [
   { value: JobType.FULL_TIME, label: 'Temps plein' },
   { value: JobType.PART_TIME, label: 'Temps partiel' },
   { value: JobType.CONTRACT, label: 'Contrat' },
   { value: JobType.INTERNSHIP, label: 'Stage' },
-  { value: JobType.FREELANCE, label: 'Freelance' }
-];
+  { value: JobType.FREELANCE, label: 'Freelance' },
+]
 
 const experienceLevels = [
   { value: ExperienceLevel.JUNIOR, label: 'Junior' },
   { value: ExperienceLevel.MID, label: 'Confirmé' },
   { value: ExperienceLevel.SENIOR, label: 'Senior' },
   { value: ExperienceLevel.LEAD, label: 'Lead' },
-  { value: ExperienceLevel.EXPERT, label: 'Expert' }
-];
+  { value: ExperienceLevel.EXPERT, label: 'Expert' },
+]
 
 const jobStatuses = [
   { value: JobStatus.DRAFT, label: 'Brouillon' },
   { value: JobStatus.PUBLISHED, label: 'Publié' },
-  { value: JobStatus.CLOSED, label: 'Fermé' }
-];
+  { value: JobStatus.CLOSED, label: 'Fermé' },
+]
 
 const sectors = [
   { value: 'IT', label: 'Technologie' },
@@ -96,8 +93,8 @@ const sectors = [
   { value: 'DESIGN', label: 'Design' },
   { value: 'SALES', label: 'Ventes' },
   { value: 'ENGINEERING', label: 'Ingénierie' },
-  { value: 'CONSULTING', label: 'Consulting' }
-];
+  { value: 'CONSULTING', label: 'Consulting' },
+]
 
 const applyJobToForm = (job: IJob | any) => {
   editForm.value = {
@@ -106,117 +103,116 @@ const applyJobToForm = (job: IJob | any) => {
     location: job.location ?? '',
     salaryMin: job.salaryMin ?? 0,
     salaryMax: job.salaryMax ?? 0,
-    jobType: job.jobType as JobType ?? JobType.FULL_TIME,
-    experienceLevel: job.experienceLevel as ExperienceLevel ?? ExperienceLevel.MID,
-    status: job.status as JobStatus ?? JobStatus.PUBLISHED,
-    sector: job.sector ?? 'IT'
-  };
-};
+    jobType: (job.jobType as JobType) ?? JobType.FULL_TIME,
+    experienceLevel: (job.experienceLevel as ExperienceLevel) ?? ExperienceLevel.MID,
+    status: (job.status as JobStatus) ?? JobStatus.PUBLISHED,
+    sector: job.sector ?? 'IT',
+  }
+}
 
 const loadJobs = async () => {
   if (!userId) {
-    toast.warning(t('myJobs.mustLogin'));
-    router.push('/login');
-    return;
+    toast.warning(t('myJobs.mustLogin'))
+    router.push('/login')
+    return
   }
 
   try {
-    loading.value = true;
-    
+    loading.value = true
+
     // Charger les offres via le store
     // Le store gère déjà la récupération des compagnies de l'utilisateur pour filtrer
-    await jobStore.fetchMyJobs(userId);
-    
-    if (jobs.value.length > 0) {
-        // Sélectionner le premier job s'il n'y en a pas de sélectionné
-        if (!selectedJobId.value) {
-            selectedJobId.value = jobs.value[0].id;
-            applyJobToForm(jobs.value[0]);
-            await loadSkills(jobs.value[0].id);
-        }
-    } else {
-      selectedJobId.value = null;
-      skills.value = [];
-    }
+    await jobStore.fetchMyJobs(userId)
 
+    if (jobs.value.length > 0) {
+      // Sélectionner le premier job s'il n'y en a pas de sélectionné
+      if (!selectedJobId.value) {
+        selectedJobId.value = jobs.value[0].id
+        applyJobToForm(jobs.value[0])
+        await loadSkills(jobs.value[0].id)
+      }
+    } else {
+      selectedJobId.value = null
+      skills.value = []
+    }
   } catch (error: any) {
-    console.error('Erreur lors du chargement des offres:', error);
-    toast.error(t('myJobs.loadError'));
+    console.error('Erreur lors du chargement des offres:', error)
+    toast.error(t('myJobs.loadError'))
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const selectJob = async (job: IJob) => {
-  selectedJobId.value = job.id;
-  applyJobToForm(job);
-  await loadSkills(job.id);
-};
+  selectedJobId.value = job.id
+  applyJobToForm(job)
+  await loadSkills(job.id)
+}
 
 const loadSkills = async (jobId: number) => {
   try {
-    loadingSkills.value = true;
-    const response = await jobService.getSkillsByJob(jobId);
-    skills.value = response.content || [];
+    loadingSkills.value = true
+    const response = await jobService.getSkillsByJob(jobId)
+    skills.value = response.content || []
   } catch (error) {
-    console.error('Erreur lors du chargement des skills:', error);
-    skills.value = [];
+    console.error('Erreur lors du chargement des skills:', error)
+    skills.value = []
   } finally {
-    loadingSkills.value = false;
+    loadingSkills.value = false
   }
-};
+}
 
 const addSkill = async () => {
   if (!selectedJob.value || !newSkill.value.skillName.trim()) {
-    toast.warning('Veuillez entrer un nom de compétence');
-    return;
+    toast.warning('Veuillez entrer un nom de compétence')
+    return
   }
 
   try {
     const skillData: ISkillCreate = {
       skillName: newSkill.value.skillName.trim(),
       jobOfferId: selectedJob.value.id,
-      experienceYear: newSkill.value.experienceYear || 0
-    };
-    
-    await jobService.createSkill(skillData);
-    await loadSkills(selectedJob.value.id);
-    
+      experienceYear: newSkill.value.experienceYear || 0,
+    }
+
+    await jobService.createSkill(skillData)
+    await loadSkills(selectedJob.value.id)
+
     newSkill.value = {
       skillName: '',
       jobOfferId: selectedJob.value.id,
-      experienceYear: 0
-    };
-    
-    toast.success('Compétence ajoutée avec succès');
+      experienceYear: 0,
+    }
+
+    toast.success('Compétence ajoutée avec succès')
   } catch (error) {
-    console.error('Erreur lors de l\'ajout de la compétence:', error);
-    toast.error('Erreur lors de l\'ajout de la compétence');
+    console.error("Erreur lors de l'ajout de la compétence:", error)
+    toast.error("Erreur lors de l'ajout de la compétence")
   }
-};
+}
 
 const startEditSkill = (skill: ISkill) => {
-  editingSkillId.value = skill.id;
+  editingSkillId.value = skill.id
   editingSkill.value = {
     skillName: skill.skillName,
     jobOfferId: skill.jobOfferId,
-    experienceYear: skill.experienceYear
-  };
-};
+    experienceYear: skill.experienceYear,
+  }
+}
 
 const cancelEditSkill = () => {
-  editingSkillId.value = null;
+  editingSkillId.value = null
   editingSkill.value = {
     skillName: '',
     jobOfferId: 0,
-    experienceYear: 0
-  };
-};
+    experienceYear: 0,
+  }
+}
 
 const updateSkill = async (skillId: number) => {
   if (!editingSkill.value.skillName.trim()) {
-    toast.warning('Veuillez entrer un nom de compétence');
-    return;
+    toast.warning('Veuillez entrer un nom de compétence')
+    return
   }
 
   try {
@@ -224,50 +220,50 @@ const updateSkill = async (skillId: number) => {
     const payload = {
       ...editingSkill.value,
       id: skillId,
-      jobOfferId: selectedJob.value!.id
-    };
-    
-    await jobService.updateSkill(skillId, payload);
-    await loadSkills(selectedJob.value!.id);
-    editingSkillId.value = null;
-    toast.success('Compétence mise à jour avec succès');
+      jobOfferId: selectedJob.value!.id,
+    }
+
+    await jobService.updateSkill(skillId, payload)
+    await loadSkills(selectedJob.value!.id)
+    editingSkillId.value = null
+    toast.success('Compétence mise à jour avec succès')
   } catch (error) {
-    console.error('Erreur lors de la mise à jour de la compétence:', error);
-    toast.error('Erreur lors de la mise à jour de la compétence');
+    console.error('Erreur lors de la mise à jour de la compétence:', error)
+    toast.error('Erreur lors de la mise à jour de la compétence')
   }
-};
+}
 
 const deleteSkill = async (skillId: number) => {
   if (!confirm('Supprimer cette compétence ?')) {
-    return;
+    return
   }
 
   try {
-    await jobService.deleteSkill(skillId);
-    await loadSkills(selectedJob.value!.id);
-    toast.success('Compétence supprimée avec succès');
+    await jobService.deleteSkill(skillId)
+    await loadSkills(selectedJob.value!.id)
+    toast.success('Compétence supprimée avec succès')
   } catch (error) {
-    console.error('Erreur lors de la suppression de la compétence:', error);
-    toast.error('Erreur lors de la suppression de la compétence');
+    console.error('Erreur lors de la suppression de la compétence:', error)
+    toast.error('Erreur lors de la suppression de la compétence')
   }
-};
+}
 
 const saveJob = async () => {
-  if (!selectedJob.value) return;
+  if (!selectedJob.value) return
 
   if (!editForm.value.title.trim() || !editForm.value.location.trim()) {
-    toast.warning(t('myJobs.validationError'));
-    return;
+    toast.warning(t('myJobs.validationError'))
+    return
   }
 
   if (editForm.value.salaryMin >= editForm.value.salaryMax) {
-    toast.warning(t('myJobs.salaryValidationError'));
-    return;
+    toast.warning(t('myJobs.salaryValidationError'))
+    return
   }
 
   try {
-    saving.value = true;
-    
+    saving.value = true
+
     const payload = {
       companyId: (selectedJob.value as any).companyId,
       title: editForm.value.title.trim(),
@@ -278,56 +274,58 @@ const saveJob = async () => {
       jobType: editForm.value.jobType,
       experienceLevel: editForm.value.experienceLevel,
       status: editForm.value.status,
-      sector: editForm.value.sector
-    };
+      sector: editForm.value.sector,
+    }
 
-    await jobStore.updateJob(selectedJob.value.id, payload);
+    await jobStore.updateJob(selectedJob.value.id, payload)
 
-    toast.success(t('myJobs.updateSuccess'));
+    toast.success(t('myJobs.updateSuccess'))
   } catch (error) {
-    console.error('Erreur lors de la mise à jour de l\'offre:', error);
-    toast.error(t('myJobs.updateError'));
+    console.error("Erreur lors de la mise à jour de l'offre:", error)
+    toast.error(t('myJobs.updateError'))
   } finally {
-    saving.value = false;
+    saving.value = false
   }
-};
+}
 
 const removeJob = async (job: IJob) => {
   if (!confirm(`${t('myJobs.deleteConfirm')} "${job.title}" ?`)) {
-    return;
+    return
   }
 
   try {
-    deletingId.value = job.id;
-    await jobStore.deleteJob(job.id);
+    deletingId.value = job.id
+    await jobStore.deleteJob(job.id)
 
     if (selectedJobId.value === job.id) {
-      selectedJobId.value = jobs.value[0]?.id ?? null;
-      if (jobs.value[0]) applyJobToForm(jobs.value[0]);
+      selectedJobId.value = jobs.value[0]?.id ?? null
+      if (jobs.value[0]) applyJobToForm(jobs.value[0])
     }
 
-    toast.success(t('myJobs.deleteSuccess'));
+    toast.success(t('myJobs.deleteSuccess'))
   } catch (error) {
-    console.error('Erreur lors de la suppression de l\'offre:', error);
-    toast.error(t('myJobs.deleteError'));
+    console.error("Erreur lors de la suppression de l'offre:", error)
+    toast.error(t('myJobs.deleteError'))
   } finally {
-    deletingId.value = null;
+    deletingId.value = null
   }
-};
+}
 
 const goToPostJob = () => {
-  router.push('/postjob');
-};
+  router.push('/postjob')
+}
 
 onMounted(() => {
-  loadJobs();
-});
+  loadJobs()
+})
 </script>
 
 <template>
   <Navbar />
 
-  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50/40 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+  <div
+    class="min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50/40 pt-24 pb-12 px-4 sm:px-6 lg:px-8"
+  >
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
@@ -346,14 +344,21 @@ onMounted(() => {
           class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold shadow-md hover:shadow-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-200"
         >
           <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
           </svg>
           {{ t('myJobs.postNewJob') }}
         </button>
       </div>
 
       <!-- Contenu principal -->
-      <div class="bg-white/90 backdrop-blur rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div
+        class="bg-white/90 backdrop-blur rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+      >
         <div class="grid grid-cols-1 lg:grid-cols-3">
           <!-- Liste des offres -->
           <div class="border-b lg:border-b-0 lg:border-r border-gray-100">
@@ -388,9 +393,11 @@ onMounted(() => {
                   :key="job.id"
                   @click="selectJob(job)"
                   class="w-full text-left px-3 py-3 rounded-xl border transition-all duration-150 flex items-start gap-3 cursor-pointer"
-                  :class="selectedJobId === job.id
-                    ? 'border-emerald-500 bg-emerald-50/70 shadow-sm'
-                    : 'border-gray-100 bg-white hover:border-emerald-200 hover:bg-emerald-50/40'"
+                  :class="
+                    selectedJobId === job.id
+                      ? 'border-emerald-500 bg-emerald-50/70 shadow-sm'
+                      : 'border-gray-100 bg-white hover:border-emerald-200 hover:bg-emerald-50/40'
+                  "
                 >
                   <div
                     class="w-9 h-9 rounded-xl flex items-center justify-center text-white font-semibold text-sm shadow"
@@ -471,7 +478,12 @@ onMounted(() => {
               >
                 <span>{{ t('myJobs.viewJob') }}</span>
                 <svg class="w-4 h-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
                 </svg>
               </router-link>
             </div>
@@ -483,11 +495,7 @@ onMounted(() => {
                 </p>
               </div>
 
-              <form
-                v-else
-                @submit.prevent="saveJob"
-                class="space-y-6"
-              >
+              <form v-else @submit.prevent="saveJob" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -551,7 +559,11 @@ onMounted(() => {
                       v-model="editForm.experienceLevel"
                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white"
                     >
-                      <option v-for="level in experienceLevels" :key="level.value" :value="level.value">
+                      <option
+                        v-for="level in experienceLevels"
+                        :key="level.value"
+                        :value="level.value"
+                      >
                         {{ level.label }}
                       </option>
                     </select>
@@ -618,7 +630,12 @@ onMounted(() => {
                         {{ t('myJobs.skillsTitle', 'Compétences requises') }}
                       </label>
                       <p class="text-xs text-gray-500">
-                        {{ t('myJobs.skillsSubtitle', 'Ajoutez, modifiez ou supprimez les compétences associées à cette offre') }}
+                        {{
+                          t(
+                            'myJobs.skillsSubtitle',
+                            'Ajoutez, modifiez ou supprimez les compétences associées à cette offre',
+                          )
+                        }}
                       </p>
                     </div>
                   </div>
@@ -630,7 +647,12 @@ onMounted(() => {
                         <input
                           v-model="newSkill.skillName"
                           type="text"
-                          :placeholder="t('myJobs.skillNamePlaceholder', 'Nom de la compétence (ex: JavaScript, Python...)')"
+                          :placeholder="
+                            t(
+                              'myJobs.skillNamePlaceholder',
+                              'Nom de la compétence (ex: JavaScript, Python...)',
+                            )
+                          "
                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-white text-sm"
                           @keyup.enter="addSkill"
                         />
@@ -656,10 +678,15 @@ onMounted(() => {
 
                   <!-- Skills List -->
                   <div v-if="loadingSkills" class="flex items-center justify-center py-4">
-                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
+                    <div
+                      class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"
+                    ></div>
                   </div>
 
-                  <div v-else-if="skills.length === 0" class="text-center py-6 text-gray-500 text-sm">
+                  <div
+                    v-else-if="skills.length === 0"
+                    class="text-center py-6 text-gray-500 text-sm"
+                  >
                     <p>{{ t('myJobs.noSkills', 'Aucune compétence ajoutée pour le moment') }}</p>
                   </div>
 
@@ -669,7 +696,10 @@ onMounted(() => {
                       :key="skill.id"
                       class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:border-emerald-300 transition-colors"
                     >
-                      <div v-if="editingSkillId !== skill.id" class="flex-1 flex items-center gap-3">
+                      <div
+                        v-if="editingSkillId !== skill.id"
+                        class="flex-1 flex items-center gap-3"
+                      >
                         <div class="flex-1">
                           <p class="font-medium text-gray-900 text-sm">{{ skill.skillName }}</p>
                           <p class="text-xs text-gray-500">
@@ -731,7 +761,9 @@ onMounted(() => {
                   </div>
                 </div>
 
-                <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row gap-3 justify-end">
+                <div
+                  class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row gap-3 justify-end"
+                >
                   <button
                     type="button"
                     @click="selectedJob && applyJobToForm(selectedJob)"
@@ -777,5 +809,3 @@ onMounted(() => {
   </div>
   <Footer />
 </template>
-
-

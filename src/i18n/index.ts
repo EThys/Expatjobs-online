@@ -13,10 +13,9 @@ const i18n = createI18n({
   messages: {
     fr,
     en,
-    ru
+    ru,
   },
-  globalInjection: true
+  globalInjection: true,
 })
 
 export default i18n
-

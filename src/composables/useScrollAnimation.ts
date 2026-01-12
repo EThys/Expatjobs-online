@@ -11,12 +11,7 @@ export interface ScrollAnimationOptions {
  * Composable pour gérer les animations d'apparition au scroll
  */
 export function useScrollAnimation(options: ScrollAnimationOptions = {}) {
-  const {
-    threshold = 0.1,
-    rootMargin = '0px 0px -50px 0px',
-    once = true,
-    delay = 0
-  } = options
+  const { threshold = 0.1, rootMargin = '0px 0px -50px 0px', once = true, delay = 0 } = options
 
   let observer: IntersectionObserver | null = null
 
@@ -44,8 +39,8 @@ export function useScrollAnimation(options: ScrollAnimationOptions = {}) {
       },
       {
         threshold,
-        rootMargin
-      }
+        rootMargin,
+      },
     )
 
     // Observer tous les éléments avec la classe animate-on-scroll
@@ -89,7 +84,6 @@ export function useScrollAnimation(options: ScrollAnimationOptions = {}) {
 
   return {
     observeElement,
-    unobserveElement
+    unobserveElement,
   }
 }
-

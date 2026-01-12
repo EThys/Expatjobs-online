@@ -15,61 +15,44 @@ interface Testimonial {
 const testimonials = ref<Testimonial[]>([
   {
     id: 1,
-    name: 'Sophie Martin',
-    role: 'Product Manager',
-    company: 'Google',
-    avatar: 'https://randomuser.me/api/portraits/women/32.jpg',
-    content: "EXPAT JOBS Go m'a permis de décrocher mon poste de rêve chez Google à Dublin. Le processus était fluide, les recruteurs très réactifs. En 3 semaines, j'ai signé mon contrat !",
+    name: 'Svetlana Petrova',
+    role: 'Marketing Manager',
+    company: 'Yandex',
+    avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
+    content:
+      "EXPAT JOBS Go m'a permis de trouver un poste incroyable chez Yandex à Moscou. Le processus était fluide et très professionnel.",
     rating: 5,
-    location: 'Paris → Dublin'
+    location: 'Saint-Pétersbourg → Moscou',
   },
   {
     id: 2,
-    name: 'Thomas Dubois',
+    name: 'Chidi Okafor',
     role: 'Senior Developer',
-    company: 'Spotify',
-    avatar: 'https://randomuser.me/api/portraits/men/44.jpg',
-    content: "Après 5 ans en France, je cherchais une opportunité en Suède. EXPAT JOBS Go m'a connecté avec Spotify en moins de 2 semaines. L'accompagnement à la relocation était top !",
+    company: 'Kaspersky',
+    avatar: 'https://randomuser.me/api/portraits/men/15.jpg',
+    content:
+      "Venant du Nigeria, je cherchais une opportunité en Russie. En moins d'un mois, j'ai rejoint une super équipe à Kazan. L'accompagnement était top !",
     rating: 5,
-    location: 'Lyon → Stockholm'
+    location: 'Lagos → Kazan',
   },
   {
     id: 3,
-    name: 'Marie Leclerc',
-    role: 'UX Designer',
-    company: 'Airbnb',
-    avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
-    content: "La qualité des offres sur EXPAT JOBS Go est incomparable. J'ai reçu 4 propositions d'entretien en une semaine, et j'ai finalement choisi Airbnb à San Francisco !",
+    name: 'Michel Kabasele',
+    role: 'Logistics Coordinator',
+    company: 'Gazprom',
+    avatar: 'https://randomuser.me/api/portraits/men/33.jpg',
+    content:
+      "Une expérience formidable. J'ai pu obtenir un emploi à Novossibirsk depuis Kinshasa sans tracas. Merci pour le soutien durant la relocation !",
     rating: 5,
-    location: 'Bordeaux → San Francisco'
+    location: 'Kinshasa → Novossibirsk',
   },
-  {
-    id: 4,
-    name: 'Alexandre Petit',
-    role: 'Data Scientist',
-    company: 'Netflix',
-    avatar: 'https://randomuser.me/api/portraits/men/22.jpg',
-    content: "Grâce à EXPAT JOBS Go, j'ai pu négocier un salaire 40% supérieur à mon ancien poste. Le matching IA est vraiment impressionnant, les offres correspondaient parfaitement à mon profil.",
-    rating: 4,
-    location: 'Toulouse → Amsterdam'
-  },
-  {
-    id: 5,
-    name: 'Julie Bernard',
-    role: 'Marketing Director',
-    company: 'Meta',
-    avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
-    content: "J'étais sceptique au début, mais EXPAT JOBS Go a dépassé toutes mes attentes. L'équipe m'a guidée tout au long du processus de visa et d'installation à Londres.",
-    rating: 5,
-    location: 'Nice → Londres'
-  }
 ])
 
 const stats = ref([
   { value: '50K+', label: 'Candidats placés', icon: '👥' },
   { value: '2,500+', label: 'Entreprises partenaires', icon: '🏢' },
   { value: '95%', label: 'Taux de satisfaction', icon: '⭐' },
-  { value: '45+', label: 'Pays couverts', icon: '🌍' }
+  { value: '45+', label: 'Pays couverts', icon: '🌍' },
 ])
 
 const currentIndex = ref(0)
@@ -83,7 +66,7 @@ const updateVisibleTestimonials = () => {
   visibleTestimonials.value = [
     testimonials.value[(currentIndex.value - 1 + total) % total],
     testimonials.value[currentIndex.value],
-    testimonials.value[(currentIndex.value + 1) % total]
+    testimonials.value[(currentIndex.value + 1) % total],
   ]
 }
 
@@ -93,7 +76,8 @@ const nextSlide = () => {
 }
 
 const prevSlide = () => {
-  currentIndex.value = (currentIndex.value - 1 + testimonials.value.length) % testimonials.value.length
+  currentIndex.value =
+    (currentIndex.value - 1 + testimonials.value.length) % testimonials.value.length
   updateVisibleTestimonials()
 }
 
@@ -128,18 +112,28 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section class="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 overflow-hidden relative">
+  <section
+    class="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 overflow-hidden relative"
+  >
     <!-- Background Decorations -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="absolute top-20 -left-20 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl animate-blob"></div>
-      <div class="absolute bottom-20 -right-20 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-blob-delay"></div>
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-emerald-100/10 to-teal-100/10 rounded-full blur-3xl"></div>
+      <div
+        class="absolute top-20 -left-20 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl animate-blob"
+      ></div>
+      <div
+        class="absolute bottom-20 -right-20 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-blob-delay"
+      ></div>
+      <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-emerald-100/10 to-teal-100/10 rounded-full blur-3xl"
+      ></div>
     </div>
 
     <div class="container mx-auto px-4 sm:px-6 relative z-10">
       <!-- Header Section -->
       <div class="text-center mb-12 sm:mb-16">
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 animate-fade-in-up">
+        <h2
+          class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 animate-fade-in-up"
+        >
           {{ $t('testimonials.title') }}
           <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">
             {{ $t('testimonials.titleHighlight') }}
@@ -151,53 +145,77 @@ onUnmounted(() => {
       </div>
 
       <!-- Testimonials Carousel -->
-      <div 
-        class="relative"
-        @mouseenter="pauseAutoPlay"
-        @mouseleave="resumeAutoPlay"
-      >
+      <div class="relative" @mouseenter="pauseAutoPlay" @mouseleave="resumeAutoPlay">
         <!-- Navigation Arrows -->
         <button
           @click="prevSlide"
           class="absolute left-0 lg:-left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 hover:shadow-xl transition-all duration-300 group"
         >
-          <svg class="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          <svg
+            class="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-0.5 transition-transform"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
         </button>
-        
+
         <button
           @click="nextSlide"
           class="absolute right-0 lg:-right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-emerald-600 hover:shadow-xl transition-all duration-300 group"
         >
-          <svg class="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          <svg
+            class="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-0.5 transition-transform"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </button>
 
         <!-- Cards Container -->
-        <div class="flex justify-center items-stretch gap-4 sm:gap-6 py-4 px-12 lg:px-16 overflow-hidden">
+        <div
+          class="flex justify-center items-stretch gap-4 sm:gap-6 py-4 px-12 lg:px-16 overflow-hidden"
+        >
           <div
             v-for="(testimonial, idx) in visibleTestimonials"
             :key="testimonial.id"
             :class="[
               'testimonial-card',
-              idx === 1 ? 'scale-100 opacity-100 z-10' : 'scale-90 opacity-50 hidden lg:block'
+              idx === 1 ? 'scale-100 opacity-100 z-10' : 'scale-90 opacity-50 hidden lg:block',
             ]"
           >
             <!-- Quote Icon -->
-            <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-12">
+            <div
+              class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-12"
+            >
               <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                <path
+                  d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"
+                />
               </svg>
             </div>
 
             <!-- Card Content -->
-            <div class="relative bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-100 h-full flex flex-col">
+            <div
+              class="relative bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-100 h-full flex flex-col"
+            >
               <!-- Rating -->
               <div class="flex gap-1 mb-4">
-                <span 
-                  v-for="star in 5" 
+                <span
+                  v-for="star in 5"
                   :key="star"
                   :class="star <= testimonial.rating ? 'text-yellow-400' : 'text-gray-200'"
                   class="text-xl"
@@ -214,25 +232,45 @@ onUnmounted(() => {
               <!-- Author -->
               <div class="flex items-center gap-4 pt-4 border-t border-gray-100">
                 <div class="relative">
-                  <img 
-                    :src="testimonial.avatar" 
+                  <img
+                    :src="testimonial.avatar"
                     :alt="testimonial.name"
                     class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover ring-4 ring-emerald-100"
                   />
-                  <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                  <div
+                    class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center"
+                  >
                     <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"
+                      />
                     </svg>
                   </div>
                 </div>
                 <div class="flex-1 min-w-0">
                   <h4 class="font-semibold text-gray-900 truncate">{{ testimonial.name }}</h4>
-                  <p class="text-sm text-gray-500 truncate">{{ testimonial.role }} @ {{ testimonial.company }}</p>
+                  <p class="text-sm text-gray-500 truncate">
+                    {{ testimonial.role }} @ {{ testimonial.company }}
+                  </p>
                   <div class="flex items-center gap-1 mt-1">
-                    <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <svg
+                      class="w-3.5 h-3.5 text-emerald-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
                     </svg>
-                    <span class="text-xs text-emerald-600 font-medium">{{ testimonial.location }}</span>
+                    <span class="text-xs text-emerald-600 font-medium">{{
+                      testimonial.location
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -248,9 +286,7 @@ onUnmounted(() => {
             @click="goToSlide(index)"
             :class="[
               'w-2.5 h-2.5 rounded-full transition-all duration-300',
-              index === currentIndex 
-                ? 'bg-emerald-500 w-8' 
-                : 'bg-gray-300 hover:bg-gray-400'
+              index === currentIndex ? 'bg-emerald-500 w-8' : 'bg-gray-300 hover:bg-gray-400',
             ]"
           />
         </div>
@@ -268,9 +304,16 @@ onUnmounted(() => {
 }
 
 @keyframes blob {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
 }
 
 .animate-blob {
@@ -282,16 +325,20 @@ onUnmounted(() => {
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in-up {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
