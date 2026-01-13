@@ -235,10 +235,10 @@ onUnmounted(() => {
 
 <template>
   <Navbar />
-  <div class="hero-landing relative bg-white pb-12 pt-16 md:pb-20 md:pt-20">
+  <div class="hero-landing relative bg-white pb-12 pt-20 md:pb-20 md:pt-28">
     <!-- Main Hero Container -->
     <div class="w-full px-3 md:px-6 mx-auto max-w-[1920px]">
-      <div class="relative w-full h-[550px] md:h-[600px] rounded-2xl md:rounded-[2rem] overflow-hidden group">
+      <div class="relative w-full h-[550px] md:h-[600px] rounded-lg md:rounded-[1.25rem] overflow-hidden group">
         <!-- Carousel Background Images -->
         <div class="absolute inset-0">
           <transition-group name="fade">
@@ -293,9 +293,31 @@ onUnmounted(() => {
                 </h1>
 
                 <!-- Description (Optional) -->
-                <p class="text-slate-300 text-base md:text-lg max-w-2xl hidden md:block opacity-90">
+                <p class="text-slate-300 text-base md:text-lg max-w-2xl hidden md:block opacity-90 mb-8">
                   {{ allTexts[currentSlide]?.description }}
                 </p>
+
+                <!-- Statistics - New Addition -->
+                <div class="flex flex-wrap items-center gap-6 md:gap-12 mt-4 md:mt-8">
+                  <div class="flex flex-col">
+                    <span class="text-2xl md:text-3xl font-bold text-white tracking-tight">16.8M+</span>
+                    <span class="text-xs md:text-sm font-medium text-emerald-400 uppercase tracking-wide">{{ t('hero.stats.vacantJobs') }}</span>
+                  </div>
+                  
+                  <div class="w-px h-8 md:h-10 bg-white/20"></div>
+                  
+                  <div class="flex flex-col">
+                    <span class="text-2xl md:text-3xl font-bold text-white tracking-tight">146M+</span>
+                    <span class="text-xs md:text-sm font-medium text-emerald-400 uppercase tracking-wide">{{ t('hero.stats.applications') }}</span>
+                  </div>
+                  
+                  <div class="w-px h-8 md:h-10 bg-white/20 hidden sm:block"></div>
+                  
+                  <div class="flex flex-col">
+                    <span class="text-2xl md:text-3xl font-bold text-white tracking-tight">736M</span>
+                    <span class="text-xs md:text-sm font-medium text-emerald-400 uppercase tracking-wide">{{ t('hero.stats.cvRequests') }}</span>
+                  </div>
+                </div>
               </div>
             </transition>
           </div>
