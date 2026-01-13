@@ -341,15 +341,34 @@ const setCachedData = (data: CompanyWithUI[]) => {
 }
 
 const getCompanyLogo = (company: ICompany): string => {
-  if (company.webSiteUrl) {
-    try {
-      const domain = new URL(company.webSiteUrl).hostname.replace('www.', '')
-      return `https://logo.clearbit.com/${domain}`
-    } catch {
-      return getFallbackLogo(company)
-    }
-  }
-  return getFallbackLogo(company)
+  // Générer un logo SVG directement sans appel externe
+  const companyName = company.name || `Company ${company.id}`
+  const letter = companyName.charAt(0).toUpperCase()
+  
+  // Couleurs basées sur la première lettre pour cohérence
+  const colors = [
+    { bg: '#10b981', text: '#ffffff' }, // emerald
+    { bg: '#3b82f6', text: '#ffffff' }, // blue
+    { bg: '#8b5cf6', text: '#ffffff' }, // violet
+    { bg: '#f59e0b', text: '#ffffff' }, // amber
+    { bg: '#ef4444', text: '#ffffff' }, // red
+    { bg: '#06b6d4', text: '#ffffff' }, // cyan
+  ]
+  
+  const colorIndex = companyName.charCodeAt(0) % colors.length
+  const color = colors[colorIndex]
+  
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+      <rect width="128" height="128" fill="${color.bg}" rx="16"/>
+      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+            font-family="system-ui, -apple-system, sans-serif" 
+            font-size="64" font-weight="600" fill="${color.text}">
+        ${letter}
+      </text>
+    </svg>
+  `
+  return `data:image/svg+xml;base64,${btoa(svg)}`
 }
 
 const handleImageError = (event: Event, company: ICompany) => {
@@ -362,8 +381,7 @@ const handleImageError = (event: Event, company: ICompany) => {
 }
 
 const getFallbackLogo = (company: ICompany): string => {
-  const letter = company.name.charAt(0).toUpperCase()
-  return `https://ui-avatars.com/api/?name=${letter}&background=10b981&color=fff&size=128`
+  return getCompanyLogo(company)
 }
 
 const getDomainFromUrl = (url: string): string => {
@@ -443,11 +461,22 @@ const loadCompanies = async () => {
     try {
       const countPromises = basicCompanies.map(async (company) => {
         try {
-          // Use getJobsByCompany which is confirmed to return correct totalElements
-          // We use size=1 just to get the metadata
-          const jobResp = await jobService.getJobsByCompany(company.id, 0, 1)
+          // Utiliser searchJobs avec companyId au lieu de getJobsByCompany
+          // car searchJobs ne nécessite pas d'authentification
+          const jobResp = await jobService.searchJobs(
+            {
+              companyId: company.id,
+              status: 'PUBLISHED',
+            },
+            undefined,
+            undefined,
+            undefined,
+            0,
+            1,
+          )
           return { id: company.id, count: jobResp.totalElements || 0 }
         } catch (e) {
+          // En cas d'erreur, retourner 0 sans afficher d'erreur
           return { id: company.id, count: 0 }
         }
       })
