@@ -22,34 +22,69 @@ export const useJobStore = defineStore('jobs', () => {
   const totalElements = ref(0)
   const currentPage = ref(0)
 
-  // Helper to enrich job with company
-  const enrichJob = async (job: IJob): Promise<IJobOffers> => {
-    let companyData: any = undefined
+  // Cache pour les compagnies
+  const companiesCache = ref<Map<number, any>>(new Map())
+
+  // Helper pour récupérer toutes les compagnies et créer un cache
+  const fetchAndCacheCompanies = async (): Promise<Map<number, any>> => {
     try {
-      if (job.companyId) {
-        const company = await companyService.getCompanyById(job.companyId)
+      const response = await companyService.getAllCompanies(0, 100, 'name,asc')
+      const cache = new Map<number, any>()
+
+      if (response.content && Array.isArray(response.content)) {
+        response.content.forEach((company) => {
+          cache.set(company.id, {
+            id: company.id,
+            name: company.name,
+            location: company.location,
+            webSiteUrl: company.webSiteUrl,
+            logoUrl: company.logoUrl,
+          })
+        })
+      }
+
+      companiesCache.value = cache
+      return cache
+    } catch (err) {
+      console.warn('Could not fetch companies for cache', err)
+      return new Map()
+    }
+  }
+
+  // Helper optimisé pour enrichir plusieurs jobs avec les compagnies (batch)
+  const enrichJobsWithCompanies = async (jobs: IJob[]): Promise<IJobOffers[]> => {
+    // Récupérer toutes les compagnies une seule fois
+    const cache = companiesCache.value.size > 0
+      ? companiesCache.value
+      : await fetchAndCacheCompanies()
+
+    // Enrichir tous les jobs avec les données du cache
+    return jobs.map((job) => {
+      let companyData: any = undefined
+
+      if (job.companyId && cache.has(job.companyId)) {
+        companyData = cache.get(job.companyId)
+      } else if (job.companyId) {
+        // Fallback si la compagnie n'est pas dans le cache
         companyData = {
-          id: company.id,
-          name: company.name,
-          location: company.location,
-          webSiteUrl: company.webSiteUrl,
-          logoUrl: company.logoUrl,
+          id: job.companyId,
+          name: `Entreprise #${job.companyId}`,
+          location: job.location || 'Non spécifié',
         }
       }
-    } catch (err) {
-      console.warn(`Could not fetch company for job ${job.id}`, err)
-      companyData = {
-        id: job.companyId,
-        name: `Entreprise #${job.companyId}`,
-        location: job.location || 'Non spécifié',
-      }
-    }
 
-    return {
-      ...job,
-      jobType: job.jobType as unknown as string, // Cast Enum to string compatibility
-      company: companyData,
-    }
+      return {
+        ...job,
+        jobType: job.jobType as unknown as string,
+        company: companyData,
+      }
+    })
+  }
+
+  // Helper to enrich job with company (pour compatibilité avec le code existant)
+  const enrichJob = async (job: IJob): Promise<IJobOffers> => {
+    const enriched = await enrichJobsWithCompanies([job])
+    return enriched[0]
   }
 
   // Helper to enrich job with skills
@@ -75,7 +110,8 @@ export const useJobStore = defineStore('jobs', () => {
     try {
       const response = await jobService.getAllJobs(page, size, sort)
 
-      const enrichedContent = await Promise.all((response.content || []).map(enrichJob))
+      // Utiliser l'enrichissement batch optimisé
+      const enrichedContent = await enrichJobsWithCompanies(response.content || [])
       jobs.value = enrichedContent
 
       totalPages.value = response.totalPages || 0
@@ -102,7 +138,8 @@ export const useJobStore = defineStore('jobs', () => {
         size,
       )
 
-      const enrichedContent = await Promise.all((response.content || []).map(enrichJob))
+      // Utiliser l'enrichissement batch optimisé
+      const enrichedContent = await enrichJobsWithCompanies(response.content || [])
       jobs.value = enrichedContent
 
       totalPages.value = response.totalPages || 0
@@ -122,7 +159,8 @@ export const useJobStore = defineStore('jobs', () => {
     try {
       const response = await jobService.getJobsByJobType(jobType, page, size)
 
-      const enrichedContent = await Promise.all((response.content || []).map(enrichJob))
+      // Utiliser l'enrichissement batch optimisé
+      const enrichedContent = await enrichJobsWithCompanies(response.content || [])
       jobs.value = enrichedContent
 
       totalPages.value = response.totalPages || 0
@@ -142,7 +180,8 @@ export const useJobStore = defineStore('jobs', () => {
     try {
       const response = await jobService.getJobsBySalaryMax(salaryMax, page, size)
 
-      const enrichedContent = await Promise.all((response.content || []).map(enrichJob))
+      // Utiliser l'enrichissement batch optimisé
+      const enrichedContent = await enrichJobsWithCompanies(response.content || [])
       jobs.value = enrichedContent
 
       totalPages.value = response.totalPages || 0
@@ -313,8 +352,8 @@ export const useJobStore = defineStore('jobs', () => {
       if (response && response.content) {
         const raws = response.content.filter((j) => j.id !== excludeId).slice(0, 3)
 
-        // Enrich them
-        similarJobs.value = await Promise.all(raws.map(enrichJob))
+        // Utiliser l'enrichissement batch optimisé
+        similarJobs.value = await enrichJobsWithCompanies(raws)
       }
     } catch (err) {
       console.warn('Erreur chargement similar jobs', err)
@@ -343,5 +382,7 @@ export const useJobStore = defineStore('jobs', () => {
     updateJob,
     deleteJob,
     fetchSimilarJobs,
+    enrichJob,
+    enrichJobsWithCompanies,
   }
 })
