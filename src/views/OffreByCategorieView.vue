@@ -20,14 +20,14 @@
           <h1
             class="text-4xl md:text-6xl font-black tracking-tight text-slate-900 mb-6 leading-tight"
           >
-            TROUVEZ VOTRE <br />
+            {{ t('categoryView.title1') }} <br />
             <span
               class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-600"
-              >PROCHAINE SCÈNE</span
+              >{{ t('categoryView.title2') }}</span
             >
           </h1>
           <p class="text-lg text-slate-500 font-medium mb-10 max-w-2xl mx-auto">
-            Explorez les opportunités professionnelles sans bruit. Juste vous et votre futur job.
+            {{ t('categoryView.subtitle') }}
           </p>
 
           <!-- Search Bar -->
@@ -39,7 +39,7 @@
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Quel job recherchez-vous ?"
+                :placeholder="t('categoryView.searchPlaceholder')"
                 class="w-full bg-transparent border-none focus:ring-0 text-slate-700 placeholder-slate-400 font-medium h-full outline-none"
                 @keyup.enter="performSearch"
               />
@@ -50,7 +50,7 @@
               <input
                 v-model="locationQuery"
                 type="text"
-                placeholder="Ville ou Pays"
+                :placeholder="t('categoryView.locationPlaceholder')"
                 class="w-full bg-transparent border-none focus:ring-0 text-slate-700 placeholder-slate-400 font-medium h-full outline-none"
                 @keyup.enter="performSearch"
               />
@@ -60,7 +60,7 @@
               class="h-12 md:h-14 px-8 bg-slate-900 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors duration-300 md:ml-2 shadow-lg shadow-emerald-900/10 flex items-center justify-center gap-2"
             >
               <span v-if="loading && !paginationLoading">...</span>
-              <span v-else>Explorer</span>
+              <span v-else>{{ t('categoryView.searchButton') }}</span>
               <ArrowLongRightIcon v-if="!loading" class="w-5 h-5" />
             </button>
           </div>
@@ -78,7 +78,7 @@
                   : 'bg-white text-slate-500 border-gray-200 hover:border-emerald-200 hover:text-emerald-600',
               ]"
             >
-              TOUT
+              {{ t('categoryView.all') }}
             </button>
             <button
               v-for="cat in jobCategories"
@@ -107,11 +107,11 @@
           v-if="!loading || paginationLoading"
         >
           <h2 class="text-xl font-bold text-slate-800">
-            <span v-if="loading">Recherche en cours...</span>
+            <span v-if="loading">{{ t('categoryView.searching') }}</span>
             <span v-else>
-              {{ totalElements }} offre{{ totalElements > 1 ? 's' : '' }}
+              {{ totalElements }} {{ t('categoryView.offer', totalElements) }}
               <span class="text-slate-400 font-normal"
-                >disponible{{ totalElements > 1 ? 's' : '' }}</span
+                >{{ t('categoryView.available', totalElements) }}</span
               >
             </span>
           </h2>
@@ -167,7 +167,7 @@
               >
                 {{ job.title }}
               </h3>
-              <p class="text-sm text-slate-500 font-medium">{{ job.company }}</p>
+              <p class="text-sm text-slate-500 font-medium">{{ job.companyName }}</p>
             </div>
 
             <div class="flex flex-wrap gap-2 mb-6 mt-auto pt-4">
@@ -190,7 +190,7 @@
               class="mt-4 pt-4 border-t border-gray-50 flex justify-between items-center group/btn"
             >
               <span class="text-xs font-medium text-slate-400"
-                >Publié le {{ formatDate(job.createdAt) }}</span
+                >{{ t('categoryView.publishedOn') }} {{ formatDate(job.createdAt) }}</span
               >
               <router-link
                 :to="`/detail/jobs/${job.id}`"
@@ -209,10 +209,10 @@
           >
             <InboxIcon class="w-10 h-10 text-gray-300" />
           </div>
-          <h3 class="text-2xl font-bold text-slate-900 mb-2">Aucune offre trouvée</h3>
-          <p class="text-slate-500">Essayez d'élargir vos critères de recherche.</p>
+          <h3 class="text-2xl font-bold text-slate-900 mb-2">{{ t('categoryView.noResults') }}</h3>
+          <p class="text-slate-500">{{ t('categoryView.tryBroader') }}</p>
           <button @click="clearAllFilters" class="mt-8 text-emerald-600 font-bold hover:underline">
-            Réinitialiser la recherche
+            {{ t('categoryView.resetSearch') }}
           </button>
         </div>
 
@@ -234,6 +234,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import NavBarComponent from '@/components/navbar/NavBarComponent.vue'
 import Pagination from '@/components/shared/Pagination.vue'
@@ -260,6 +261,7 @@ import {
 
 const route = useRoute()
 const jobStore = useJobStore()
+const { t } = useI18n()
 
 const { jobs, loading, totalPages, totalElements, currentPage: storePage } = storeToRefs(jobStore)
 
@@ -304,21 +306,36 @@ const formatDate = (dateString?: string) => {
 }
 
 const getCompanyLogo = (company?: ICompany): string => {
-  if (company?.logoUrl) return company.logoUrl
-  if (company?.webSiteUrl) {
-    try {
-      const domain = new URL(company.webSiteUrl).hostname.replace('www.', '')
-      return `https://logo.clearbit.com/${domain}`
-    } catch {
-      return getFallbackLogo(company)
-    }
-  }
   return getFallbackLogo(company)
 }
 
 const getFallbackLogo = (company?: ICompany): string => {
-  const letter = company?.name ? company.name.charAt(0).toUpperCase() : 'C'
-  return `https://ui-avatars.com/api/?name=${letter}&background=random&color=fff`
+  const companyName = company?.name || 'Company'
+  const letter = companyName.charAt(0).toUpperCase()
+  
+  const colors = [
+    { bg: '#10b981', text: '#ffffff' },
+    { bg: '#3b82f6', text: '#ffffff' },
+    { bg: '#8b5cf6', text: '#ffffff' },
+    { bg: '#f59e0b', text: '#ffffff' },
+    { bg: '#ef4444', text: '#ffffff' },
+    { bg: '#06b6d4', text: '#ffffff' },
+  ]
+  
+  const colorIndex = companyName.charCodeAt(0) % colors.length
+  const color = colors[colorIndex]
+  
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+      <rect width="128" height="128" fill="${color.bg}" rx="16"/>
+      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+            font-family="system-ui, -apple-system, sans-serif" 
+            font-size="64" font-weight="600" fill="${color.text}">
+        ${letter}
+      </text>
+    </svg>
+  `
+  return `data:image/svg+xml;base64,${btoa(svg)}`
 }
 
 const handleImageError = (event: Event, company?: ICompany) => {
@@ -331,13 +348,22 @@ const handleImageError = (event: Event, company?: ICompany) => {
 
 // Formatting
 const formatJobForDisplay = (job: IJobOffers) => {
+  const formatSalary = (min?: number, max?: number) => {
+    if (!min && !max) return null
+    if (min && max) return `${min.toLocaleString()} - ${max.toLocaleString()} €`
+    if (min) return `${min.toLocaleString()} €+`
+    return `${max?.toLocaleString()} €`
+  }
+
   return {
     ...job,
     companyData: job.company,
+    companyName: job.company?.name || `Entreprise #${job.companyId}`,
+    location: job.company?.location || job.location || 'Non spécifié',
     logo: getCompanyLogo(job.company),
     typeLabel:
       job.jobType === 'FULL_TIME' ? 'CDI' : job.jobType === 'CONTRACT' ? 'CDD' : job.jobType,
-    salary: job.salaryMin ? `${job.salaryMin / 1000}k` : null,
+    salary: formatSalary(job.salaryMin, job.salaryMax),
   }
 }
 
