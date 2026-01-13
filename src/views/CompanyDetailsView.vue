@@ -263,14 +263,6 @@ const totalElements = ref(0)
 const pageSize = 12
 
 const getCompanyLogo = (company: ICompany): string => {
-  if (company?.webSiteUrl) {
-    try {
-      const domain = new URL(company.webSiteUrl).hostname.replace('www.', '')
-      return `https://logo.clearbit.com/${domain}`
-    } catch {
-      return getFallbackLogo(company)
-    }
-  }
   return getFallbackLogo(company)
 }
 
@@ -284,8 +276,32 @@ const handleImageError = (event: Event, company: ICompany) => {
 }
 
 const getFallbackLogo = (company: ICompany): string => {
-  const letter = company?.name?.charAt(0).toUpperCase() || 'C'
-  return `https://ui-avatars.com/api/?name=${letter}&background=10b981&color=fff&size=128&font-size=0.5`
+  const companyName = company?.name || 'Company'
+  const letter = companyName.charAt(0).toUpperCase()
+  
+  const colors = [
+    { bg: '#10b981', text: '#ffffff' },
+    { bg: '#3b82f6', text: '#ffffff' },
+    { bg: '#8b5cf6', text: '#ffffff' },
+    { bg: '#f59e0b', text: '#ffffff' },
+    { bg: '#ef4444', text: '#ffffff' },
+    { bg: '#06b6d4', text: '#ffffff' },
+  ]
+  
+  const colorIndex = companyName.charCodeAt(0) % colors.length
+  const color = colors[colorIndex]
+  
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+      <rect width="128" height="128" fill="${color.bg}" rx="16"/>
+      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+            font-family="system-ui, -apple-system, sans-serif" 
+            font-size="64" font-weight="600" fill="${color.text}">
+        ${letter}
+      </text>
+    </svg>
+  `
+  return `data:image/svg+xml;base64,${btoa(svg)}`
 }
 
 const formatSalary = (min: number | null, max: number | null): string => {
