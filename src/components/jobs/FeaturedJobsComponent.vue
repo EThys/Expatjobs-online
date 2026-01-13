@@ -53,19 +53,7 @@ const getFallbackLogo = (company: ICompany): string => {
 }
 
 const getCompanyLogo = (company: ICompany): string => {
-  if (!company) return getFallbackLogo(company)
-
-  if (company.webSiteUrl) {
-    try {
-      const fullUrl = company.webSiteUrl.startsWith('http')
-        ? company.webSiteUrl
-        : `https://${company.webSiteUrl}`
-      const domain = new URL(fullUrl).hostname.replace('www.', '')
-      return `https://logo.clearbit.com/${domain}?size=120&format=png`
-    } catch {
-      return getFallbackLogo(company)
-    }
-  }
+  // Toujours utiliser le logo SVG généré localement
   return getFallbackLogo(company)
 }
 
@@ -129,54 +117,54 @@ const formatJobForDisplay = (job: any) => {
 
 const enrichJobsWithCompanyData = async (jobs: IJob[]): Promise<any[]> => {
   try {
-    const enrichedJobs = await Promise.all(
-      jobs.map(async (job) => {
-        if (companyCache.has(job.companyId)) {
-          const cachedCompany = companyCache.get(job.companyId)
-          return {
-            ...job,
-            company: cachedCompany,
-            companyLogo: getCompanyLogo(cachedCompany),
-          }
+    // Charger toutes les compagnies en une seule fois si le cache est vide
+    if (companyCache.size === 0) {
+      try {
+        const companiesResponse = await companyService.getAllCompanies(0, 100, 'name,asc')
+        if (companiesResponse.content && Array.isArray(companiesResponse.content)) {
+          companiesResponse.content.forEach((company) => {
+            const companyData: ICompany = {
+              id: company.id,
+              name: company.name,
+              location: company.location,
+              webSiteUrl: company.webSiteUrl,
+              description: company.description,
+              userId: company.userId || 0,
+            }
+            companyCache.set(company.id, companyData)
+          })
         }
+      } catch (error) {
+        console.warn('Impossible de charger les compagnies:', error)
+      }
+    }
 
-        try {
-          const company = await companyService.getCompanyById(job.companyId)
-          const companyData: ICompany = {
-            id: company.id,
-            name: company.name,
-            location: company.location,
-            webSiteUrl: company.webSiteUrl,
-            description: company.description,
-            userId: 0,
-          }
+    // Enrichir les jobs avec les données du cache
+    const enrichedJobs = jobs.map((job) => {
+      let companyData: ICompany
 
-          companyCache.set(job.companyId, companyData)
-          return {
-            ...job,
-            company: companyData,
-            companyLogo: getCompanyLogo(companyData),
-          }
-        } catch (error) {
-          console.warn(`Impossible de récupérer l'entreprise pour l'offre ${job.id}:`, error)
-          const fallbackCompany: ICompany = {
-            id: job.companyId,
-            name: `Entreprise #${job.companyId}`,
-            location: 'Non spécifié',
-            webSiteUrl: '',
-            userId: 0,
-            description: '',
-          }
-
-          companyCache.set(job.companyId, fallbackCompany)
-          return {
-            ...job,
-            company: fallbackCompany,
-            companyLogo: getFallbackLogo(fallbackCompany),
-          }
+      if (companyCache.has(job.companyId)) {
+        companyData = companyCache.get(job.companyId)!
+      } else {
+        // Fallback si la compagnie n'est pas dans le cache
+        companyData = {
+          id: job.companyId,
+          name: `Entreprise #${job.companyId}`,
+          location: 'Non spécifié',
+          webSiteUrl: '',
+          userId: 0,
+          description: '',
         }
-      }),
-    )
+        companyCache.set(job.companyId, companyData)
+      }
+
+      return {
+        ...job,
+        company: companyData,
+        companyLogo: getCompanyLogo(companyData),
+      }
+    })
+
     return enrichedJobs
   } catch (error) {
     console.error("Erreur lors de l'enrichissement des offres:", error)
@@ -190,7 +178,7 @@ const enrichJobsWithCompanyData = async (jobs: IJob[]): Promise<any[]> => {
 const fetchFeaturedJobs = async () => {
   try {
     loading.value = true
-    const response: IJobResponse = await jobService.getAllJobs(0, 6)
+    const response: IJobResponse = await jobService.getAllJobs(0, 9)
 
     if (response && Array.isArray(response.content)) {
       const enrichedJobs = await enrichJobsWithCompanyData(response.content)
