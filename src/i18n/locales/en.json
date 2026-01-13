@@ -30,6 +30,22 @@
     "exploreOffers": "Explore offers",
     "byContractType": "By contract type"
   },
+  "categoryView": {
+    "title1": "FIND YOUR",
+    "title2": "NEXT STAGE",
+    "subtitle": "Explore professional opportunities without noise. Just you and your future job.",
+    "searchPlaceholder": "What job are you looking for?",
+    "locationPlaceholder": "City or Country",
+    "searchButton": "Explore",
+    "all": "ALL",
+    "searching": "Searching...",
+    "offer": "offer | offers",
+    "available": "available",
+    "publishedOn": "Published on",
+    "noResults": "No offers found",
+    "tryBroader": "Try broadening your search criteria.",
+    "resetSearch": "Reset search"
+  },
   "hero": {
     "searchPlaceholder": "Position, skills or company",
     "locationPlaceholder": "Location",
@@ -64,6 +80,11 @@
         "companies": "Companies",
         "responseTime": "Avg response"
       }
+    },
+    "stats": {
+      "vacantJobs": "Vacant jobs",
+      "applications": "Applications",
+      "cvRequests": "CV requests"
     },
     "slide1": {
       "title": "Find your",

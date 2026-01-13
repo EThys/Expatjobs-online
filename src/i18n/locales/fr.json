@@ -30,6 +30,22 @@
     "exploreOffers": "Explorer les offres",
     "byContractType": "Par type de contrat"
   },
+  "categoryView": {
+    "title1": "TROUVEZ VOTRE",
+    "title2": "PROCHAINE SCÈNE",
+    "subtitle": "Explorez les opportunités professionnelles sans bruit. Juste vous et votre futur job.",
+    "searchPlaceholder": "Quel job recherchez-vous ?",
+    "locationPlaceholder": "Ville ou Pays",
+    "searchButton": "Explorer",
+    "all": "TOUT",
+    "searching": "Recherche en cours...",
+    "offer": "offre | offres",
+    "available": "disponible | disponibles",
+    "publishedOn": "Publié le",
+    "noResults": "Aucune offre trouvée",
+    "tryBroader": "Essayez d'élargir vos critères de recherche.",
+    "resetSearch": "Réinitialiser la recherche"
+  },
   "hero": {
     "searchPlaceholder": "Poste, compétences ou entreprise",
     "locationPlaceholder": "Localisation",
@@ -64,6 +80,11 @@
         "companies": "Entreprises",
         "responseTime": "Réponse moyenne"
       }
+    },
+    "stats": {
+      "vacantJobs": "Postes vacants",
+      "applications": "Applications",
+      "cvRequests": "Demandes CV"
     },
     "slide1": {
       "title": "Trouvez votre",

@@ -30,6 +30,22 @@
     "exploreOffers": "Исследовать вакансии",
     "byContractType": "По типу контракта"
   },
+  "categoryView": {
+    "title1": "НАЙДИТЕ СВОЮ",
+    "title2": "СЛЕДУЮЩУЮ СЦЕНУ",
+    "subtitle": "Исследуйте профессиональные возможности без шума. Только вы и ваша будущая работа.",
+    "searchPlaceholder": "Какую работу вы ищете?",
+    "locationPlaceholder": "Город или Страна",
+    "searchButton": "Исследовать",
+    "all": "ВСЕ",
+    "searching": "Поиск...",
+    "offer": "вакансия | вакансии | вакансий",
+    "available": "доступна | доступны | доступно",
+    "publishedOn": "Опубликовано",
+    "noResults": "Вакансии не найдены",
+    "tryBroader": "Попробуйте расширить критерии поиска.",
+    "resetSearch": "Сбросить поиск"
+  },
   "hero": {
     "searchPlaceholder": "Должность, навыки или компания",
     "locationPlaceholder": "Местоположение",
@@ -64,6 +80,11 @@
         "companies": "Компании",
         "responseTime": "Ср. время ответа"
       }
+    },
+    "stats": {
+      "vacantJobs": "Вакансии",
+      "applications": "Заявки",
+      "cvRequests": "Запросы резюме"
     },
     "slide1": {
       "title": "Найдите свою",
