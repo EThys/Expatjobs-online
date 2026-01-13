@@ -151,13 +151,15 @@ import { useJobService } from '@/utils/service/jobService'
 //@ts-ignore
 import type { IJob, IJobOffers, IJobResponse } from '@/utils/interface/IJobOffers'
 import { JobType } from '@/utils/interface/IJobOffers'
+import { useJobStore } from '@/stores/jobs'
 
 const route = useRoute()
 const router = useRouter()
 const jobService = useJobService()
+const jobStore = useJobStore()
 
 const selectedType = ref<JobType>(JobType.FULL_TIME)
-const jobs = ref<IJob[]>([])
+const jobs = ref<any[]>([])
 const loading = ref(false)
 const currentPage = ref(0)
 const totalPages = ref(0)
@@ -200,7 +202,9 @@ const fetchJobsByType = async (page = 0) => {
     })
 
     if (response && Array.isArray(response.content)) {
-      jobs.value = response.content
+      // Enrichir les offres avec les données de l'entreprise via le store
+      const enrichedContent = await jobStore.enrichJobsWithCompanies(response.content)
+      jobs.value = enrichedContent
       currentPage.value = response.number ?? page
       totalPages.value = response.totalPages ?? 1
       totalElements.value = response.totalElements ?? jobs.value.length
