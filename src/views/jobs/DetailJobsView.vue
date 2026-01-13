@@ -27,9 +27,14 @@ import Footer from '../../components/footer/FooterComponent.vue'
 
 // Importez vos services
 //@ts-ignore
+// Importez vos services et stores
+//@ts-ignore
 import { useJobService } from '@/utils/service/jobService'
 //@ts-ignore
-import { useCompanyService } from '@/utils/service/CompagnyService'
+import { useCompanyService } from '@/utils/service/CompagnyService' // Gardé au cas où, mais moins utilisé
+import { useJobStore } from '@/stores/jobs'
+import { useCompanyLogo } from '@/composables/useCompanyLogo'
+
 //@ts-ignore
 import type { IJob } from '@/utils/interface/IJobOffers'
 
@@ -37,6 +42,8 @@ import type { IJob } from '@/utils/interface/IJobOffers'
 const { t } = useI18n()
 const jobService = useJobService()
 const companyService = useCompanyService()
+const jobStore = useJobStore()
+const { getCompanyLogo } = useCompanyLogo()
 const route = useRoute()
 const router = useRouter()
 
@@ -46,6 +53,7 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 
 const jobId = computed(() => parseInt(route.params.id as string))
+
 
 const formatSalary = (min: number | null, max: number | null): string => {
   if (!min && !max) return t('jobDetail.salaryNegotiable')
@@ -96,6 +104,7 @@ const formatDate = (dateString: string): string => {
   }
 }
 
+
 const fetchJobDetails = async () => {
   try {
     loading.value = true
@@ -103,24 +112,24 @@ const fetchJobDetails = async () => {
 
     console.log('📡 Fetching job details for ID:', jobId.value)
 
+    // 1. Récupérer l'offre brute
     const jobData: IJob = await jobService.getJobById(jobId.value)
 
+    // 2. Récupérer les compétences
     const skillsResponse = await jobService.getSkillsByJob(jobId.value)
     const skills = skillsResponse.content?.map((skill: any) => skill.skillName) || []
 
-    let companyData: any = null
-    try {
-      companyData = await companyService.getCompanyById(jobData.companyId)
-    } catch (companyError) {
-      console.warn("Impossible de récupérer les données de l'entreprise:", companyError)
-      companyData = {
-        id: jobData.companyId,
-        name: t('jobDetail.companyPrefix', { id: jobData.companyId }),
-        location: jobData.location || t('common.notSpecified'),
-        webSiteUrl: null,
-        logoUrl: null,
-      }
+    // 3. Enrichir via le store (utilise le cache global des compagnies = pas d'erreur 401)
+    const enrichedJob = await jobStore.enrichJob(jobData)
+    const companyData = enrichedJob.company || {
+       id: jobData.companyId,
+       name: t('jobDetail.companyPrefix', { id: jobData.companyId }),
+       location: jobData.location || t('common.notSpecified'),
+       webSiteUrl: undefined,
+       logoUrl: undefined,
     }
+
+    // 4. Construire l'objet pour la vue
     job.value = {
       id: jobData.id,
       title: jobData.title,
@@ -132,10 +141,10 @@ const fetchJobDetails = async () => {
       typeLabel: formatJobType(jobData.jobType),
       postedDate: formatDate(jobData.createdAt),
       description: jobData.description,
-      requirements: null,
+      requirements: null, // Sera géré si dispo dans l'objet
       benefits: null,
       skills: skills,
-      logo: companyData.logoUrl || null,
+      logo: getCompanyLogo(companyData), // Utilisation du générateur SVG local
       website: companyData.webSiteUrl || null,
       experienceLevel: jobData.experienceLevel,
       sector: jobData.sector,
@@ -154,67 +163,30 @@ const fetchJobDetails = async () => {
   }
 }
 
-const generateRequirements = (jobData: IJob): string => {
-  const requirements = []
-
-  if (jobData.experienceLevel) {
-    requirements.push(t('jobDetail.experienceLevelLabel', { level: jobData.experienceLevel }))
-  }
-
-  if (jobData.sector) {
-    requirements.push(t('jobDetail.sectorLabel', { sector: jobData.sector }))
-  }
-  requirements.push(
-    t('jobDetail.requirementTeamwork'),
-    t('jobDetail.requirementAutonomy'),
-    t('jobDetail.requirementAnalysis'),
-  )
-
-  return `
-    <p>${t('jobDetail.profileSought')}</p>
-    <ul class="list-disc pl-5 space-y-2 mt-2">
-      ${requirements.map((req) => `<li>${req}</li>`).join('')}
-    </ul>
-  `
-}
-
-const generateBenefits = (jobData: IJob): string => {
-  const benefits = [
-    t('jobDetail.benefitDynamic'),
-    t('jobDetail.benefitCareer'),
-    t('jobDetail.benefitTraining'),
-    t('jobDetail.benefitSalary'),
-  ]
-
-  if (jobData.location?.toLowerCase().includes('remote')) {
-    benefits.push(t('jobDetail.benefitRemote'))
-  }
-
-  return `
-    <p>${t('jobDetail.benefitsTitle')}</p>
-    <ul class="list-disc pl-5 space-y-2 mt-2">
-      ${benefits.map((benefit) => `<li>${benefit}</li>`).join('')}
-    </ul>
-  `
-}
+// ... generateRequirements, generateBenefits ...
 
 const fetchSimilarJobs = async () => {
   try {
-    const response = await jobService.getAllJobs(0, 3)
+    const response = await jobService.getAllJobs(0, 4) // On en prend 4 pour avoir de la marge
 
     if (response && Array.isArray(response.content)) {
-      similarJobs.value = response.content
-        .filter((similarJob) => similarJob.id !== jobId.value)
+      // Filtrer l'offre courante
+      const rawSimilar = response.content
+        .filter((j) => j.id !== jobId.value)
         .slice(0, 3)
-        .map((similarJob) => ({
-          id: similarJob.id,
-          title: similarJob.title,
-          company: t('jobDetail.companyPrefix', { id: similarJob.companyId }),
-          location: similarJob.location,
-          salary: formatSalary(similarJob.salaryMin, similarJob.salaryMax),
-          type: similarJob.jobType?.toLowerCase() || 'full-time',
-          logo: 'https://via.placeholder.com/40',
-        }))
+
+      // Enrichir en batch via le store
+      const enrichedSimilar = await jobStore.enrichJobsWithCompanies(rawSimilar)
+
+      similarJobs.value = enrichedSimilar.map((similarJob) => ({
+        id: similarJob.id,
+        title: similarJob.title,
+        company: similarJob.company?.name || t('jobDetail.companyPrefix', { id: similarJob.companyId }),
+        location: similarJob.location,
+        salary: formatSalary(similarJob.salaryMin, similarJob.salaryMax),
+        type: similarJob.jobType?.toLowerCase() || 'full-time',
+        logo: getCompanyLogo(similarJob.company || {}), // Logo local
+      }))
     }
   } catch (err) {
     console.warn('Erreur lors du chargement des offres similaires:', err)
