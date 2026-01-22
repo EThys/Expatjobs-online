@@ -84,7 +84,9 @@
     "stats": {
       "vacantJobs": "Vacant jobs",
       "applications": "Applications",
-      "cvRequests": "CV requests"
+      "cvRequests": "CV requests",
+      "companies": "Companies",
+      "visitors": "Visitors"
     },
     "slide1": {
       "title": "Find your",
