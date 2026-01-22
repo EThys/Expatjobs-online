@@ -84,7 +84,9 @@
     "stats": {
       "vacantJobs": "Вакансии",
       "applications": "Заявки",
-      "cvRequests": "Запросы резюме"
+      "cvRequests": "Запросы резюме",
+      "companies": "Компании",
+      "visitors": "Посетители"
     },
     "slide1": {
       "title": "Найдите свою",
