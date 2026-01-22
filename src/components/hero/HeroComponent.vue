@@ -83,7 +83,7 @@ const handleSearch = () => {
   if (searchQuery.value.trim()) {
     router.push({
       path: '/jobs',
-      query: { title: searchQuery.value }
+      query: { title: searchQuery.value },
     })
   }
 }
@@ -235,10 +235,10 @@ onUnmounted(() => {
 
 <template>
   <Navbar />
-  <div class="hero-landing relative bg-white pb-12 pt-20 md:pb-20 md:pt-28">
+  <div class="hero-landing relative w-full h-screen">
     <!-- Main Hero Container -->
-    <div class="w-full px-3 md:px-6 mx-auto max-w-[1920px]">
-      <div class="relative w-full h-[550px] md:h-[600px] rounded-lg md:rounded-[1.25rem] overflow-hidden group">
+    <div class="w-full h-full">
+      <div class="relative w-full h-full overflow-hidden group">
         <!-- Carousel Background Images -->
         <div class="absolute inset-0">
           <transition-group name="fade">
@@ -293,64 +293,99 @@ onUnmounted(() => {
                 </h1>
 
                 <!-- Description (Optional) -->
-                <p class="text-slate-300 text-base md:text-lg max-w-2xl hidden md:block opacity-90 mb-8">
+                <p
+                  class="text-slate-300 text-base md:text-lg max-w-2xl hidden md:block opacity-90 mb-8"
+                >
                   {{ allTexts[currentSlide]?.description }}
                 </p>
 
-                <!-- Statistics - New Addition -->
+                <!-- Statistics - Consolidated -->
                 <div class="flex flex-wrap items-center gap-6 md:gap-12 mt-4 md:mt-8">
                   <div class="flex flex-col">
-                    <span class="text-2xl md:text-3xl font-bold text-white tracking-tight">16.8M+</span>
-                    <span class="text-xs md:text-sm font-medium text-emerald-400 uppercase tracking-wide">{{ t('hero.stats.vacantJobs') }}</span>
+                    <span class="text-2xl md:text-3xl font-bold text-white tracking-tight"
+                      >82K+</span
+                    >
+                    <span
+                      class="text-xs md:text-sm font-medium text-emerald-400 uppercase tracking-wide"
+                      >{{ t('hero.stats.companies', 'Entreprises') }}</span
+                    >
                   </div>
-                  
+
                   <div class="w-px h-8 md:h-10 bg-white/20"></div>
-                  
+
                   <div class="flex flex-col">
-                    <span class="text-2xl md:text-3xl font-bold text-white tracking-tight">146M+</span>
-                    <span class="text-xs md:text-sm font-medium text-emerald-400 uppercase tracking-wide">{{ t('hero.stats.applications') }}</span>
+                    <span class="text-2xl md:text-3xl font-bold text-white tracking-tight"
+                      >670M+</span
+                    >
+                    <span
+                      class="text-xs md:text-sm font-medium text-emerald-400 uppercase tracking-wide"
+                      >{{ t('hero.stats.visitors', 'Visiteurs') }}</span
+                    >
                   </div>
-                  
+
                   <div class="w-px h-8 md:h-10 bg-white/20 hidden sm:block"></div>
-                  
+
                   <div class="flex flex-col">
-                    <span class="text-2xl md:text-3xl font-bold text-white tracking-tight">736M</span>
-                    <span class="text-xs md:text-sm font-medium text-emerald-400 uppercase tracking-wide">{{ t('hero.stats.cvRequests') }}</span>
+                    <span class="text-2xl md:text-3xl font-bold text-white tracking-tight"
+                      >16.8M+</span
+                    >
+                    <span
+                      class="text-xs md:text-sm font-medium text-emerald-400 uppercase tracking-wide"
+                      >{{ t('hero.stats.vacantJobs', 'Postes Vacants') }}</span
+                    >
+                  </div>
+                </div>
+
+                <!-- Search Bar - Moved Here -->
+                <div class="mt-8 md:mt-12 w-full max-w-xl">
+                  <div
+                    class="relative flex items-center bg-white/10 border border-white/20 backdrop-blur-md rounded-xl px-3 py-2 sm:px-4 sm:py-3 focus-within:bg-white/20 focus-within:border-emerald-400/50 transition-all duration-300"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5 text-emerald-300 mr-2 sm:mr-3 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                    <input
+                      v-model="searchQuery"
+                      @keyup.enter="handleSearch"
+                      type="text"
+                      :placeholder="t('hero.searchPlaceholder', 'Rechercher un poste...')"
+                      class="bg-transparent border-none outline-none text-white placeholder-emerald-100/70 w-full font-medium text-sm sm:text-base"
+                    />
+                    <button
+                      @click="handleSearch"
+                      class="ml-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg p-2 sm:px-4 sm:py-2 font-semibold transition-all duration-300 shadow-lg flex items-center gap-2"
+                    >
+                      <span class="hidden sm:inline">{{ t('common.search', 'Go') }}</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
             </transition>
-          </div>
-        </div>
-
-        <!-- Reference Design "Cutout" Area for Buttons -->
-        <div class="absolute bottom-0 right-0 w-auto hidden md:flex flex-col items-end z-40">
-          <!-- White container for buttons -->
-          <div class="bg-white pl-3 pt-3 sm:pl-6 sm:pt-6 rounded-tr-2xl md:rounded-tr-none rounded-tl-2xl md:rounded-tl-[2rem] relative overflow-hidden w-full md:w-auto shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)] md:shadow-none">
-            <div class="flex items-center gap-2 relative z-10 p-2 sm:pl-2 sm:pb-2 sm:pr-2">
-              <div class="relative flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 sm:px-4 sm:py-3 focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-emerald-500 transition-all duration-300 flex-grow md:w-80">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 mr-2 sm:mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input
-                  v-model="searchQuery"
-                  @keyup.enter="handleSearch"
-                  type="text"
-                  :placeholder="t('hero.searchPlaceholder', 'Rechercher un poste...')"
-                  class="bg-transparent border-none outline-none text-slate-700 placeholder-slate-400 w-full font-medium text-sm sm:text-base"
-                />
-              </div>
-              
-              <button
-                @click="handleSearch"
-                class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl p-3 sm:px-6 sm:py-3 font-semibold transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2 group flex-shrink-0"
-              >
-                <span class="hidden sm:inline">{{ t('common.search', 'Rechercher') }}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </button>
-            </div>
           </div>
         </div>
       </div>
