@@ -84,7 +84,9 @@
     "stats": {
       "vacantJobs": "Postes vacants",
       "applications": "Applications",
-      "cvRequests": "Demandes CV"
+      "cvRequests": "Demandes CV",
+      "companies": "Entreprises",
+      "visitors": "Visiteurs"
     },
     "slide1": {
       "title": "Trouvez votre",
@@ -237,8 +239,8 @@
     "officeValue": "+7 495 203 2022",
     "postalIndex": "Index 109542, Russie",
     "city": "Ville Moscou",
-    "street": "Рязанский проспект, 68к1",
-    "inn": "ИНН: 772142451327",
+    "street": "Rue : Ryazan Prospect, 68k1",
+    "inn": "NIF : 772142451327",
     "newsletter": "Newsletter",
     "newsletterDescription": "Recevez les dernières offres d'emploi directement dans votre boîte mail.",
     "newsletterPlaceholder": "Votre email",
@@ -405,8 +407,8 @@
     "officeValue": "+7 495 203 2022",
     "postalIndex": "Index 109542, Russie",
     "city": "Ville Moscou",
-    "street": "Рязанский проспект, 68к1",
-    "inn": "ИНН: 772142451327"
+    "street": "Rue : Ryazan Prospect, 68k1",
+    "inn": "NIF : 772142451327"
   },
   "companyManagement": {
     "title": "Mes entreprises",
